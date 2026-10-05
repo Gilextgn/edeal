@@ -1,58 +1,84 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Les composants n'utilisent que ces variables,
- * jamais de couleur en dur. Le jaune (--accent) sert de fond de bouton,
- * jamais de couleur de texte sur fond clair.
+ * Design tokens. Les composants n'utilisent que ces variables, jamais de
+ * couleur en dur. Changer la palette = modifier ce fichier uniquement.
+ *
+ * - primary : actions principales (boutons, liens, élément actif).
+ * - brand   : panneau de marque (écran de connexion), identique clair/sombre.
+ * - success / danger / warning : statuts, volontairement distincts du primaire.
  */
 :root {
-  --bg: #f6f7fb;
+  --bg: #f6f6fb;
   --surface: #ffffff;
-  --fg: #0b1533;
-  --muted: #4a5578;
-  --border: #d5dae8;
+  --surface-2: #f0f0f7;
+  --fg: #14142b;
+  --muted: #5b5b76;
+  --border: #e2e2ee;
 
-  --primary: #011f7b;
+  --primary: #4338ca;
+  --primary-hover: #3730a3;
   --on-primary: #ffffff;
-  --accent: #ffba09;
-  --on-accent: #011f7b;
-  --link: #011f7b;
+  --primary-soft: #eceefe;
+  --on-primary-soft: #3730a3;
+
+  --brand: #312e81;
+  --brand-2: #5b4bf0;
+  --on-brand: #ffffff;
 
   --success: #15803d;
+  --success-soft: #e7f6ec;
   --danger: #b91c1c;
+  --danger-soft: #fdecec;
   --warning: #92400e;
+  --warning-soft: #fdf3e1;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #060d24;
-    --surface: #0e1838;
-    --fg: #eef1fa;
-    --muted: #a9b3d1;
-    --border: #26335f;
+    --bg: #0b0b14;
+    --surface: #151522;
+    --surface-2: #1d1d2e;
+    --fg: #f2f2fa;
+    --muted: #a6a6c0;
+    --border: #2a2a40;
 
-    --link: #9db2ff;
+    --primary: #8b8cf9;
+    --primary-hover: #a5a6fb;
+    --on-primary: #11112a;
+    --primary-soft: #232348;
+    --on-primary-soft: #c7c8ff;
 
     --success: #4ade80;
+    --success-soft: #12301f;
     --danger: #f87171;
+    --danger-soft: #3a1717;
     --warning: #fbbf24;
+    --warning-soft: #382a0c;
   }
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-on-primary: var(--on-primary);
-  --color-accent: var(--accent);
-  --color-on-accent: var(--on-accent);
-  --color-link: var(--link);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary-soft: var(--on-primary-soft);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-on-brand: var(--on-brand);
   --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
   --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
   --font-sans: var(--font-geist-sans);
 }
 

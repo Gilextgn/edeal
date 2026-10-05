@@ -6,13 +6,16 @@ export default function LoginPage() {
   const t = useTranslations("auth");
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-bold">{t("loginTitle")}</h1>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">{t("loginTitle")}</h1>
+        <p className="mt-1 text-muted">{t("loginSubtitle")}</p>
+      </div>
       <AuthForm mode="login" />
       <p className="text-sm text-muted">
         {t("noAccount")}{" "}
         <Link
           href="/signup"
-          className="inline-flex min-h-11 items-center font-semibold text-link underline"
+          className="inline-flex min-h-11 items-center font-semibold text-primary underline"
         >
           {t("goToSignup")}
         </Link>

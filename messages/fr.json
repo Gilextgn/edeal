@@ -1,11 +1,50 @@
 {
   "app": {
-    "name": "iDépôt",
-    "description": "Dépôt-vente d'iPhone entre boutiques et dealers"
+    "name": "eDeal",
+    "description": "Dépôt-vente d'iPhone entre boutiques et dealers",
+    "tagline": "Vos iPhone, vos dealers, vos comptes. Au clair.",
+    "points": {
+      "trace": "Chaque téléphone suivi avec photos, de la remise à la vente.",
+      "split": "Les parts de la boutique et du dealer calculées automatiquement.",
+      "private": "Votre clientèle personnelle reste privée."
+    }
+  },
+  "nav": {
+    "home": "Accueil",
+    "spaces": "Espaces",
+    "members": "Membres",
+    "settings": "Réglages",
+    "account": "Compte"
+  },
+  "roles": {
+    "PATRON": "Patron",
+    "DEALER": "Dealer",
+    "CAISSIER": "Caissier"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "saved": "Modifications enregistrées.",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "pending": "Un instant…"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue. Réessayez.",
+    "not_authenticated": "Votre session a expiré. Reconnectez-vous.",
+    "not_patron": "Seul le patron de la boutique peut faire cela.",
+    "invalid_role": "Ce rôle ne peut pas être attribué.",
+    "invalid_identifier": "Entrez un numéro de téléphone ou un e-mail valide.",
+    "invalid_rate": "Le taux doit être compris entre 0 et 100 %.",
+    "already_member": "Cette personne fait déjà partie de la boutique.",
+    "already_invited": "Cette personne a déjà été invitée.",
+    "nameRequired": "Indiquez un nom.",
+    "roleRequired": "Choisissez un rôle."
   },
   "auth": {
     "loginTitle": "Connexion",
+    "loginSubtitle": "Content de vous revoir.",
     "signupTitle": "Créer un compte",
+    "signupSubtitle": "Gratuit, en moins d'une minute.",
     "name": "Nom complet",
     "identifier": "Téléphone ou e-mail",
     "identifierHint": "Exemple : 97 00 00 00 ou nom@exemple.com",
@@ -28,9 +67,83 @@
       "generic": "Une erreur est survenue. Réessayez."
     }
   },
-  "home": {
-    "greeting": "Bonjour {name}",
-    "empty": "Votre compte est prêt. Les boutiques et les appareils arrivent dans les prochaines étapes."
+  "spaces": {
+    "title": "Bonjour {name}",
+    "subtitle": "Choisissez l'espace dans lequel travailler.",
+    "hubSubtitle": "Mes espaces",
+    "personal": "Mon espace perso",
+    "personalHint": "Vos propres téléphones et vos propres clients. Aucune boutique n'y a accès.",
+    "shops": "Mes boutiques",
+    "noShops": "Vous ne faites partie d'aucune boutique pour l'instant. Créez la vôtre, ou demandez à votre patron de vous ajouter avec votre numéro.",
+    "createShop": "Créer une boutique",
+    "rate": "Commission : {rate}"
+  },
+  "shopForm": {
+    "createTitle": "Créer une boutique",
+    "createSubtitle": "Vous en serez le patron. Le nom est celui que verront vos membres.",
+    "name": "Nom de la boutique",
+    "namePlaceholder": "Exemple : iStore Cotonou",
+    "phone": "Téléphone de la boutique",
+    "address": "Adresse",
+    "optional": "Facultatif",
+    "create": "Créer la boutique"
+  },
+  "shop": {
+    "homeSubtitle": "Tableau de bord de la boutique",
+    "members": "Membres actifs",
+    "dealers": "Dealers",
+    "invitations": "Invitations en attente",
+    "myRate": "Votre commission",
+    "myRole": "Votre rôle",
+    "currency": "Devise",
+    "comingSoon": "Le stock, les dépôts et les ventes arrivent dans les prochaines étapes.",
+    "manageMembers": "Gérer les membres"
+  },
+  "members": {
+    "title": "Membres",
+    "subtitle": "Les personnes qui travaillent avec la boutique.",
+    "add": "Ajouter un membre",
+    "addTitle": "Ajouter un membre",
+    "addSubtitle": "Si la personne n'a pas encore de compte, elle rejoindra la boutique dès son inscription avec ce numéro ou cet e-mail.",
+    "identifier": "Téléphone ou e-mail du membre",
+    "role": "Rôle",
+    "roleHints": {
+      "DEALER": "Reçoit des téléphones en dépôt et touche une commission.",
+      "CAISSIER": "Enregistre les ventes de la boutique."
+    },
+    "rate": "Taux de commission (%)",
+    "rateHint": "Part de la marge qui revient au dealer. Exemple : 25",
+    "rateValue": "Commission {rate}",
+    "active": "Actif",
+    "inactive": "Désactivé",
+    "you": "Vous",
+    "pendingTitle": "Invitations en attente",
+    "pendingBadge": "En attente d'inscription",
+    "cancelInvitation": "Annuler l'invitation",
+    "addedMember": "Membre ajouté.",
+    "addedInvitation": "Invitation enregistrée. La personne rejoindra la boutique à son inscription.",
+    "editTitle": "Modifier {name}",
+    "status": "Accès à la boutique",
+    "statusHints": {
+      "active": "Peut se connecter à la boutique.",
+      "inactive": "Ne voit plus la boutique. Son historique est conservé."
+    },
+    "edit": "Modifier"
+  },
+  "settings": {
+    "title": "Réglages de la boutique",
+    "subtitle": "Le nom s'affiche en haut de l'écran pour tous les membres."
+  },
+  "personal": {
+    "title": "Mon espace perso",
+    "subtitle": "Espace privé",
+    "empty": "Vos téléphones et vos clients personnels apparaîtront ici. Aucune boutique ne peut voir cet espace."
+  },
+  "account": {
+    "title": "Mon compte",
+    "subtitle": "Vos informations personnelles.",
+    "phone": "Téléphone",
+    "email": "E-mail"
   },
   "offline": {
     "title": "Pas de connexion",

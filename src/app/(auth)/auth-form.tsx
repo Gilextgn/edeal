@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Field } from "@/components/ui";
+import { Button, Field, FormMessage } from "@/components/ui";
 import { signIn, signUp } from "./actions";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
@@ -43,11 +43,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         required
       />
       {state ? (
-        <p role="alert" className="text-sm font-medium text-danger">
-          {t(`errors.${state.error}`)}
-        </p>
+        <FormMessage tone="danger">{t(`errors.${state.error}`)}</FormMessage>
       ) : null}
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} className="w-full">
         {pending ? t("pending") : t(mode === "signup" ? "signup" : "login")}
       </Button>
     </form>
