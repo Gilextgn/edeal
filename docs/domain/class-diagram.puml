@@ -1,0 +1,280 @@
+@startuml diagramme-classes-saas-iphone
+title SaaS vendeurs d'iPhone - Diagramme de classes (dépôt-vente boutique / dealers)
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam roundCorner 8
+skinparam ArrowColor #011F7B
+skinparam class {
+  BackgroundColor #FFF8E1
+  BorderColor #011F7B
+  FontColor #011F7B
+  AttributeFontColor #011F7B
+}
+skinparam enum {
+  BackgroundColor #E8EAF6
+  BorderColor #011F7B
+  FontColor #011F7B
+}
+skinparam note {
+  BackgroundColor #FFBA09
+  BorderColor #011F7B
+  FontColor #011F7B
+}
+
+' ---------- Énumérations ----------
+enum RoleMembre {
+  PATRON
+  DEALER
+  CAISSIER
+}
+
+enum StatutAppareil {
+  EN_STOCK
+  CONFIE
+  VENDU
+  RETIRE
+}
+
+enum TypeConstat {
+  ENTREE
+  REMISE_DEALER
+  RETOUR_DEALER
+  VENTE
+}
+
+enum GradeEtat {
+  NEUF
+  COMME_NEUF
+  BON
+  PASSABLE
+}
+
+enum AnglePhoto {
+  FACE
+  DOS
+  COTES
+  ECRAN_ALLUME
+  A_PROPOS
+  DEFAUT
+}
+
+enum StatutDepot {
+  ACTIF
+  VENDU
+  RETOURNE
+  REGLE
+}
+
+enum TypeVente {
+  BOUTIQUE
+  PERSO
+}
+
+enum StatutVente {
+  EN_ATTENTE_VALIDATION
+  VALIDEE
+  ANNULEE
+}
+
+enum ModePaiement {
+  ESPECES
+  MOBILE_MONEY
+  VIREMENT
+  AUTRE
+}
+
+' ---------- Classes ----------
+class Boutique {
+  +id : UUID
+  +nom : String
+  +adresse : String
+  +telephone : String
+  +devise : String
+}
+
+class Utilisateur {
+  +id : UUID
+  +nom : String
+  +telephone : String
+  +email : String
+  +motDePasseHash : String
+}
+
+class Membre {
+  +id : UUID
+  +role : RoleMembre
+  +tauxCommissionPb : Int
+  +actif : Boolean
+}
+
+class Client {
+  +id : UUID
+  +nom : String
+  +telephone : String
+}
+
+class Appareil {
+  +id : UUID
+  +imei : String
+  +modele : String
+  +capacite : String
+  +couleur : String
+  +prixAchat : Long
+  +prixVenteSouhaite : Long
+  +statut : StatutAppareil
+}
+
+class ConstatEtat {
+  +id : UUID
+  +type : TypeConstat
+  +date : DateTime
+  +grade : GradeEtat
+  +etatEcran : String
+  +etatChassis : String
+  +santeBatterie : Int
+  +faceIdOk : Boolean
+  +camerasOk : Boolean
+  +hautParleursOk : Boolean
+  +chargeOk : Boolean
+  +reparationsPassees : String
+  +accessoires : String
+  +icloudLibre : Boolean
+  +commentaire : String
+}
+
+class Photo {
+  +id : UUID
+  +cleStockage : String
+  +angle : AnglePhoto
+  +prisLe : DateTime
+}
+
+class Depot {
+  +id : UUID
+  +dateRemise : Date
+  +dateLimite : Date
+  +prixPlancher : Long
+  +statut : StatutDepot
+}
+
+class Vente {
+  +id : UUID
+  +date : DateTime
+  +prixVente : Long
+  +prixAchatFige : Long
+  +tauxCommissionPbFige : Int
+  +partBoutique : Long
+  +partDealer : Long
+  +typeVente : TypeVente
+  +statut : StatutVente
+  +garantieJours : Int
+}
+
+class Echeance {
+  +id : UUID
+  +montant : Long
+  +dateDue : Date
+  +payeLe : Date
+}
+
+class Reglement {
+  +id : UUID
+  +montant : Long
+  +date : DateTime
+  +mode : ModePaiement
+}
+
+class ImputationReglement {
+  +montant : Long
+}
+
+' ---------- Relations ----------
+Boutique "1" --> "*" Membre : emploie
+Utilisateur "1" --> "*" Membre : travaille via
+
+Boutique "0..1" --> "*" Appareil : stock
+Utilisateur "0..1" --> "*" Appareil : appareils perso
+
+Boutique "0..1" --> "*" Client : clients boutique
+Utilisateur "0..1" --> "*" Client : clients perso
+
+Appareil "1" --> "*" ConstatEtat : historique
+ConstatEtat "1" --> "*" Photo : preuves
+Utilisateur "1" --> "*" ConstatEtat : réalisé par
+
+Appareil "1" --> "*" Depot : confié
+Membre "1" --> "*" Depot : dealer
+Depot "1" --> "1" ConstatEtat : constat de remise
+Depot "1" --> "0..1" ConstatEtat : constat de retour
+
+Appareil "1" --> "*" Vente
+Depot "0..1" --> "*" Vente : origine
+Client "1" --> "*" Vente : achète
+Utilisateur "1" --> "*" Vente : vendeur
+Utilisateur "0..1" --> "*" Vente : validée par (patron)
+Vente "1" --> "1" ConstatEtat : constat de vente
+
+Vente "1" --> "*" Echeance : paiement par tranches
+
+Membre "1" --> "*" Reglement : reversement du dealer
+Utilisateur "1" --> "*" Reglement : enregistré par
+Reglement "1" --> "*" ImputationReglement
+Vente "1" --> "*" ImputationReglement : couverte par
+
+' ---------- Règles de gestion ----------
+note right of Appareil
+  Propriétaire exclusif :
+  boutique OU utilisateur.
+  IMEI unique (15 chiffres).
+end note
+
+note right of ConstatEtat
+  Immuable : une correction
+  crée un nouveau constat.
+end note
+
+note right of Photo
+  Immuable. Seule la clé de l'objet
+  est stockée ; l'URL signée est
+  générée à la lecture.
+end note
+
+note right of Client
+  Propriétaire exclusif :
+  boutique OU utilisateur.
+end note
+
+note right of Membre
+  tauxCommissionPb en points de base
+  (2500 = 25 %).
+end note
+
+note right of Depot
+  Un seul dépôt ACTIF par appareil.
+  L'appareil appartient à la boutique
+  du membre.
+end note
+
+note right of Vente
+  partDealer = max(0, taux x marge), arrondi inférieur.
+  partBoutique = prixVente - partDealer.
+  Vente PERSO : appareil perso, client perso,
+  pas de dépôt, partBoutique = 0.
+  Vente directe boutique (sans dépôt) : partDealer = 0.
+  Sous le prix plancher : EN_ATTENTE_VALIDATION
+  jusqu'à l'accord du patron.
+end note
+
+note bottom of Reglement
+  Enregistré par le patron ou le caissier.
+  Couvre une ou plusieurs ventes.
+  Solde dû par le dealer =
+  somme des partBoutique (ventes en dépôt)
+  - somme des règlements.
+  La plateforme n'encaisse rien :
+  elle enregistre ce qui a été payé en dehors.
+end note
+
+@enduml
