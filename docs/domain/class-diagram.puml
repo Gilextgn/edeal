@@ -109,6 +109,14 @@ class Membre {
   +actif : Boolean
 }
 
+class Invitation {
+  +id : UUID
+  +telephone : String
+  +email : String
+  +role : RoleMembre
+  +tauxCommissionPb : Int
+}
+
 class Client {
   +id : UUID
   +nom : String
@@ -193,6 +201,7 @@ class ImputationReglement {
 ' ---------- Relations ----------
 Boutique "1" --> "*" Membre : emploie
 Utilisateur "1" --> "*" Membre : travaille via
+Boutique "1" --> "*" Invitation : membres en attente d'inscription
 
 Boutique "0..1" --> "*" Appareil : stock
 Utilisateur "0..1" --> "*" Appareil : appareils perso
@@ -248,7 +257,15 @@ end note
 
 note right of Membre
   tauxCommissionPb en points de base
-  (2500 = 25 %).
+  (2500 = 25 %), dealers uniquement.
+  Un seul PATRON par boutique.
+  Un membre inactif ne voit plus la boutique.
+end note
+
+note right of Invitation
+  Téléphone OU e-mail.
+  Devient un Membre à l'inscription
+  de la personne.
 end note
 
 note right of Depot

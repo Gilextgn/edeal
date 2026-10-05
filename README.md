@@ -1,4 +1,4 @@
-# iDépôt
+# eDeal
 
 Application de dépôt-vente d'iPhone pour boutiques et dealers.
 
