@@ -294,9 +294,18 @@ note right of Vente
   Une seule vente en cours ou validée par appareil.
 end note
 
+note right of Echeance
+  Échéancier défini une fois par vente validée.
+  Somme des échéances = prix de vente.
+  Sans effet sur la dette du dealer :
+  toute la part boutique est due dès la vente.
+end note
+
 note bottom of Reglement
   Enregistré par le patron ou le caissier.
-  Couvre une ou plusieurs ventes.
+  Couvre une ou plusieurs ventes : celles
+  désignées d'abord, puis les plus anciennes.
+  Ne peut pas dépasser le solde dû.
   Solde dû par le dealer =
   somme des partBoutique (ventes en dépôt)
   - somme des règlements.

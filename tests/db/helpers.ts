@@ -24,7 +24,9 @@ export function randomEmail() {
 }
 
 export function randomPhone() {
-  return `+22990${randomInt(100000, 999999)}`;
+  // Huit chiffres aléatoires : la base locale garde les comptes des
+  // exécutions précédentes, un numéro plus court finirait par être réutilisé.
+  return `+22990${randomInt(10_000_000, 99_999_999)}`;
 }
 
 export function randomImei() {

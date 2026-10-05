@@ -475,6 +475,16 @@ export async function SalesList({
                   </p>
                 ) : null}
 
+                {sale.status === "COMPLETED" ? (
+                  <ButtonLink
+                    href={shopId ? `/s/${shopId}/sales/${sale.id}` : `/perso/sales/${sale.id}`}
+                    variant="secondary"
+                    className="mt-auto"
+                  >
+                    {t("viewSale")}
+                  </ButtonLink>
+                ) : null}
+
                 {sale.status === "PENDING_APPROVAL" && role === "OWNER" && shopId ? (
                   <div className="mt-auto grid grid-cols-2 gap-2">
                     <form action={decideSale.bind(null, shopId, sale.id, false)}>

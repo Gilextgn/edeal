@@ -86,6 +86,13 @@ export const icons = {
       <circle cx="19" cy="12" r="1.3" />
     </Icon>
   ),
+  wallet: (
+    <Icon>
+      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" />
+      <rect x="4" y="8" width="16.5" height="11" rx="2.5" />
+      <circle cx="16" cy="13.5" r="1.2" />
+    </Icon>
+  ),
   chevron: (
     <Icon>
       <path d="m9 5 7 7-7 7" />

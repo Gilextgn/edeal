@@ -26,6 +26,11 @@ export default async function ShopLayout({
   }
   nav.push(
     { href: `${base}/sales`, label: t("nav.sales"), icon: "sales" },
+    {
+      href: `${base}/balances`,
+      label: t(membership.role === "DEALER" ? "nav.myBalance" : "nav.balances"),
+      icon: "wallet",
+    },
     { href: `${base}/customers`, label: t("nav.customers"), icon: "customers" },
   );
   if (membership.role === "OWNER") {

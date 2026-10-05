@@ -48,3 +48,13 @@ Idées hors du périmètre de la phase en cours. Rien ici n'est engagé.
 - Durées de dépôt (7, 14, 30 jours) et de garantie (0, 7, 30, 90 jours) fixes : à rendre réglables par boutique si besoin.
 - Notification au patron quand une vente attend sa validation (aujourd'hui : visible sur son tableau de bord).
 - Le dealer voit le prix d'achat de l'appareil qui lui est confié (sa commission en dépend). À masquer si le patron ne le souhaite pas.
+
+## Notes de la phase 4
+
+- Annuler ou corriger un règlement saisi par erreur (aujourd'hui un règlement est définitif).
+- Modifier un échéancier déjà enregistré (aujourd'hui : défini une seule fois).
+- Paiement partiel d'une échéance.
+- Tableau de bord sur une autre période que le mois en cours ; export des ventes.
+- Rappels automatiques (WhatsApp ou SMS) pour les échéances et les dépôts en retard : aujourd'hui les retards s'affichent sur le tableau de bord.
+- Le bénéfice affiché ne tient pas compte des frais (réparations, transport).
+- Les statistiques sont calculées à l'affichage ; à déplacer en base si une boutique dépasse quelques milliers de ventes.
