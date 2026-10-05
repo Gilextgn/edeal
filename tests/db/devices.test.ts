@@ -237,6 +237,48 @@ describe("modification d'un appareil", () => {
   });
 });
 
+describe("suppression d'un appareil", () => {
+  const remove = (user: Awaited<ReturnType<typeof signUpUser>>, deviceId: string) =>
+    user.client.rpc("delete_device", { p_device_id: deviceId });
+
+  it("le propriétaire supprime un appareil saisi par erreur, sans histoire", async () => {
+    const { patron, shopId } = await shopWithTeam();
+    const deviceId = await createDevice(patron, { shop_id: shopId });
+
+    expect((await remove(patron, deviceId)).error).toBeNull();
+    expect((await patron.client.from("devices").select("id")).data).toEqual([]);
+  });
+
+  it("un appareil qui a un constat ne se supprime pas : il se retire du stock", async () => {
+    const user = await signUpUser("Awa", { email: randomEmail() });
+    const deviceId = await createDevice(user, { owner_user_id: user.id });
+    await createReport(user, deviceId);
+
+    expect((await remove(user, deviceId)).error?.message).toBe("device_has_history");
+    expect((await user.client.from("devices").select("id")).data).toHaveLength(1);
+  });
+
+  it("ni le caissier, ni le dealer, ni un inconnu ne suppriment un appareil de la boutique", async () => {
+    const { patron, dealer, cashier, shopId } = await shopWithTeam();
+    const stranger = await signUpUser("Inconnu", { email: randomEmail() });
+    const deviceId = await createDevice(patron, { shop_id: shopId });
+
+    for (const user of [cashier, dealer, stranger]) {
+      expect((await remove(user, deviceId)).error?.message).toBe("not_allowed");
+      expect((await user.client.from("devices").delete().eq("id", deviceId)).error).not.toBeNull();
+    }
+    expect((await patron.client.from("devices").select("id")).data).toHaveLength(1);
+  });
+
+  it("le patron ne supprime pas l'appareil perso de son dealer", async () => {
+    const { patron, dealer } = await shopWithTeam();
+    const deviceId = await createDevice(dealer, { owner_user_id: dealer.id });
+
+    expect((await remove(patron, deviceId)).error?.message).toBe("not_allowed");
+    expect((await dealer.client.from("devices").select("id")).data).toHaveLength(1);
+  });
+});
+
 describe("constats d'état", () => {
   it("enregistre un constat avec ses quatre photos obligatoires", async () => {
     const user = await signUpUser("Awa", { email: randomEmail() });

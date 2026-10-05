@@ -462,6 +462,9 @@ isOneToOne: false
 "decide_sale":
 { Args: { "p_approve": boolean,"p_sale_id": string }; Returns: undefined
                            },
+"delete_device":
+{ Args: { "p_device_id": string }; Returns: undefined
+                           },
 "is_valid_imei":
 { Args: { "p_imei": string }; Returns: boolean
                            },
