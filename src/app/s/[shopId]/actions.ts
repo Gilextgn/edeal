@@ -11,11 +11,11 @@ import { createClient } from "@/lib/supabase/server";
 // Ces actions ne vérifient pas elles-mêmes le rôle : la base refuse toute
 // opération qui ne vient pas du patron de la boutique.
 
-type AssignableRole = "DEALER" | "CAISSIER";
+type AssignableRole = "DEALER" | "CASHIER";
 
 function readRole(formData: FormData): AssignableRole | null {
   const role = text(formData, "role");
-  return role === "DEALER" || role === "CAISSIER" ? role : null;
+  return role === "DEALER" || role === "CASHIER" ? role : null;
 }
 
 export async function updateShop(
@@ -41,7 +41,7 @@ export async function updateShop(
     .eq("id", shopId)
     .select("id");
   if (error) return { error: "errors.generic", values };
-  if (data.length === 0) return { error: "errors.not_patron", values };
+  if (data.length === 0) return { error: "errors.not_owner", values };
 
   revalidatePath(`/s/${shopId}`, "layout");
   return { success: "common.saved", values };

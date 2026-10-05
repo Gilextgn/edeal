@@ -1,14 +1,14 @@
 import { getTranslations } from "next-intl/server";
 import { MemberForm } from "@/components/forms";
 import { Card, PageHeader } from "@/components/ui";
-import { requirePatron } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 import { addMember } from "../../actions";
 
 export default async function NewMemberPage({
   params,
 }: PageProps<"/s/[shopId]/members/new">) {
   const { shopId } = await params;
-  const { shop } = await requirePatron(shopId);
+  const { shop } = await requireOwner(shopId);
   const t = await getTranslations("members");
 
   return (

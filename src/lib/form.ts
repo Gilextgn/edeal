@@ -9,7 +9,7 @@ export type FormState = {
 // Codes levés par les fonctions de la base (voir supabase/migrations).
 const KNOWN_ERRORS = new Set([
   "not_authenticated",
-  "not_patron",
+  "not_owner",
   "invalid_role",
   "invalid_identifier",
   "invalid_rate",

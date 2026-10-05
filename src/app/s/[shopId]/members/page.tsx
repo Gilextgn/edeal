@@ -8,7 +8,7 @@ import {
   FormMessage,
   PageHeader,
 } from "@/components/ui";
-import { requirePatron } from "@/lib/session";
+import { requireOwner } from "@/lib/session";
 import { cancelInvitation } from "../actions";
 
 export default async function MembersPage({
@@ -17,7 +17,7 @@ export default async function MembersPage({
 }: PageProps<"/s/[shopId]/members">) {
   const { shopId } = await params;
   const { added } = await searchParams;
-  const { supabase, profile, shop } = await requirePatron(shopId);
+  const { supabase, profile, shop } = await requireOwner(shopId);
   const t = await getTranslations();
   const format = await getFormatter();
 
@@ -89,7 +89,7 @@ export default async function MembersPage({
                   <Badge tone="danger">{t("members.inactive")}</Badge>
                 )}
               </div>
-              {member.role === "PATRON" ? null : (
+              {member.role === "OWNER" ? null : (
                 <ButtonLink
                   href={`/s/${shop.id}/members/${member.id}`}
                   variant="secondary"

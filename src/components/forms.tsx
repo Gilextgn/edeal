@@ -3,6 +3,7 @@
 import { useActionState, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { FormState } from "@/lib/form";
+import { ChoiceCards } from "./choices";
 import { Button, ButtonLink, Field, FormMessage } from "./ui";
 
 type Action = (state: FormState, formData: FormData) => Promise<FormState>;
@@ -35,48 +36,6 @@ function Actions({
         </ButtonLink>
       ) : null}
     </div>
-  );
-}
-
-// Choix à cocher sous forme de grandes cartes : pas de saisie au clavier.
-function ChoiceCards({
-  legend,
-  name,
-  value,
-  onChange,
-  options,
-}: {
-  legend: string;
-  name: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: { value: string; label: string; hint: string }[];
-}) {
-  return (
-    <fieldset className="flex flex-col gap-1.5">
-      <legend className="mb-1.5 text-sm font-medium text-fg">{legend}</legend>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-border bg-surface p-4 has-checked:border-primary has-checked:bg-primary-soft has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary"
-          >
-            <input
-              type="radio"
-              name={name}
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
-              className="mt-1 size-4 accent-primary"
-            />
-            <span>
-              <span className="block font-semibold">{option.label}</span>
-              <span className="block text-sm text-muted">{option.hint}</span>
-            </span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
   );
 }
 
@@ -171,9 +130,9 @@ export function MemberForm({
             hint: t("members.roleHints.DEALER"),
           },
           {
-            value: "CAISSIER",
-            label: t("roles.CAISSIER"),
-            hint: t("members.roleHints.CAISSIER"),
+            value: "CASHIER",
+            label: t("roles.CASHIER"),
+            hint: t("members.roleHints.CASHIER"),
           },
         ]}
       />

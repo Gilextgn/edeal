@@ -50,8 +50,8 @@ export const requireShop = cache(async (shopId: string) => {
   return { supabase, profile, shop, membership };
 });
 
-export async function requirePatron(shopId: string) {
+export async function requireOwner(shopId: string) {
   const context = await requireShop(shopId);
-  if (context.membership.role !== "PATRON") notFound();
+  if (context.membership.role !== "OWNER") notFound();
   return context;
 }

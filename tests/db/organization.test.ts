@@ -1,37 +1,5 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
-import { randomEmail, randomPhone, signUpUser } from "./helpers";
-
-async function createShop(client: SupabaseClient, name: string) {
-  const { data, error } = await client.rpc("create_shop", { p_name: name });
-  if (error) throw new Error(`create_shop : ${error.message}`);
-  return data as string;
-}
-
-// Un patron avec sa boutique, un dealer et un caissier déjà inscrits et ajoutés.
-async function shopWithTeam() {
-  const dealerPhone = randomPhone();
-  const cashierEmail = randomEmail();
-  const patron = await signUpUser("Patron", { email: randomEmail() });
-  const dealer = await signUpUser("Dealer", { phone: dealerPhone });
-  const cashier = await signUpUser("Caissier", { email: cashierEmail });
-  const shopId = await createShop(patron.client, "Boutique A");
-
-  const added = await patron.client.rpc("add_member", {
-    p_shop_id: shopId,
-    p_role: "DEALER",
-    p_commission_rate_bps: 2500,
-    p_phone: dealerPhone,
-  });
-  expect(added.data).toBe("member");
-  await patron.client.rpc("add_member", {
-    p_shop_id: shopId,
-    p_role: "CAISSIER",
-    p_email: cashierEmail,
-  });
-
-  return { patron, dealer, cashier, shopId, dealerPhone };
-}
+import { createShop, randomEmail, randomPhone, shopWithTeam, signUpUser } from "./helpers";
 
 describe("création de boutique", () => {
   it("le créateur devient patron et voit sa boutique", async () => {
@@ -47,7 +15,7 @@ describe("création de boutique", () => {
       .from("memberships")
       .select("user_id, role, commission_rate_bps, active");
     expect(members).toEqual([
-      { user_id: patron.id, role: "PATRON", commission_rate_bps: 0, active: true },
+      { user_id: patron.id, role: "OWNER", commission_rate_bps: 0, active: true },
     ]);
   });
 
@@ -61,7 +29,7 @@ describe("création de boutique", () => {
 
     const member = await other.client
       .from("memberships")
-      .insert({ shop_id: shopId, user_id: other.id, role: "PATRON" });
+      .insert({ shop_id: shopId, user_id: other.id, role: "OWNER" });
     expect(member.error).not.toBeNull();
 
     const { data } = await other.client.from("shops").select("id");
@@ -143,9 +111,9 @@ describe("visibilité selon le rôle", () => {
       .from("memberships")
       .select("role");
     expect(members!.map((m) => m.role).sort()).toEqual([
-      "CAISSIER",
+      "CASHIER",
       "DEALER",
-      "PATRON",
+      "OWNER",
     ]);
 
     const { data: profiles } = await patron.client
@@ -217,7 +185,7 @@ describe("gestion des membres", () => {
         p_commission_rate_bps: 9000,
         p_phone: randomPhone(),
       });
-      expect(added.error?.message).toBe("not_patron");
+      expect(added.error?.message).toBe("not_owner");
 
       const updated = await member.client.rpc("update_member", {
         p_membership_id: dealerRow!.id,
@@ -225,7 +193,7 @@ describe("gestion des membres", () => {
         p_commission_rate_bps: 9000,
         p_active: true,
       });
-      expect(updated.error?.message).toBe("not_patron");
+      expect(updated.error?.message).toBe("not_owner");
 
       await member.client.from("shops").update({ name: "Piraté" }).eq("id", shopId);
     }
@@ -259,7 +227,7 @@ describe("gestion des membres", () => {
       p_commission_rate_bps: 0,
       p_active: false,
     });
-    expect(error?.message).toBe("not_patron");
+    expect(error?.message).toBe("not_owner");
   });
 
   it("le patron renomme sa boutique et change un taux", async () => {
@@ -296,7 +264,7 @@ describe("gestion des membres", () => {
 
     const promote = await patron.client.rpc("update_member", {
       p_membership_id: idOf(dealer.id),
-      p_role: "PATRON",
+      p_role: "OWNER",
       p_commission_rate_bps: 0,
       p_active: true,
     });
@@ -304,7 +272,7 @@ describe("gestion des membres", () => {
 
     const demote = await patron.client.rpc("update_member", {
       p_membership_id: idOf(patron.id),
-      p_role: "CAISSIER",
+      p_role: "CASHIER",
       p_commission_rate_bps: 0,
       p_active: false,
     });
@@ -312,7 +280,7 @@ describe("gestion des membres", () => {
 
     const add = await patron.client.rpc("add_member", {
       p_shop_id: shopId,
-      p_role: "PATRON",
+      p_role: "OWNER",
       p_email: randomEmail(),
     });
     expect(add.error?.message).toBe("invalid_role");
@@ -353,7 +321,7 @@ describe("gestion des membres", () => {
 
     await patron.client.rpc("update_member", {
       p_membership_id: row!.id,
-      p_role: "CAISSIER",
+      p_role: "CASHIER",
       p_commission_rate_bps: 5000,
       p_active: true,
     });
@@ -406,7 +374,7 @@ describe("invitations", () => {
     const email = randomEmail();
     await patron.client.rpc("add_member", {
       p_shop_id: shopId,
-      p_role: "CAISSIER",
+      p_role: "CASHIER",
       p_email: email,
     });
     const { data: invitation } = await patron.client

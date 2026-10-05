@@ -1,6 +1,6 @@
 -- Phase 1 : boutiques, membres, rôles, taux de commission, invitations.
 
-create type public.member_role as enum ('PATRON', 'DEALER', 'CAISSIER');
+create type public.member_role as enum ('OWNER', 'DEALER', 'CASHIER');
 
 create table public.shops (
   id uuid primary key default gen_random_uuid(),
@@ -26,8 +26,8 @@ create table public.memberships (
     check (role = 'DEALER' or commission_rate_bps = 0)
 );
 
-create unique index memberships_one_patron_per_shop
-  on public.memberships (shop_id) where role = 'PATRON';
+create unique index memberships_one_owner_per_shop
+  on public.memberships (shop_id) where role = 'OWNER';
 create index memberships_user_id_idx on public.memberships (user_id);
 
 -- Membre ajouté avant d'avoir créé son compte. Converti en membership
@@ -37,7 +37,7 @@ create table public.invitations (
   shop_id uuid not null references public.shops (id) on delete cascade,
   phone text,
   email text,
-  role public.member_role not null check (role <> 'PATRON'),
+  role public.member_role not null check (role <> 'OWNER'),
   commission_rate_bps integer not null default 0
     check (commission_rate_bps between 0 and 10000),
   created_at timestamptz not null default now(),
@@ -72,7 +72,7 @@ as $$
     and m.active
 $$;
 
-create function private.is_patron_of_user(p_user_id uuid)
+create function private.is_owner_of_user(p_user_id uuid)
 returns boolean
 language sql
 stable
@@ -85,15 +85,15 @@ as $$
     join public.memberships mine on mine.shop_id = theirs.shop_id
     where theirs.user_id = p_user_id
       and mine.user_id = (select auth.uid())
-      and mine.role = 'PATRON'
+      and mine.role = 'OWNER'
       and mine.active
   )
 $$;
 
 revoke all on function private.my_role(uuid) from public;
-revoke all on function private.is_patron_of_user(uuid) from public;
+revoke all on function private.is_owner_of_user(uuid) from public;
 grant execute on function private.my_role(uuid) to authenticated;
-grant execute on function private.is_patron_of_user(uuid) to authenticated;
+grant execute on function private.is_owner_of_user(uuid) to authenticated;
 
 -- ---------- Politiques d'accès ----------
 
@@ -105,31 +105,31 @@ create policy shops_select_member on public.shops
   for select to authenticated
   using (private.my_role(id) is not null);
 
-create policy shops_update_patron on public.shops
+create policy shops_update_owner on public.shops
   for update to authenticated
-  using (private.my_role(id) = 'PATRON')
-  with check (private.my_role(id) = 'PATRON');
+  using (private.my_role(id) = 'OWNER')
+  with check (private.my_role(id) = 'OWNER');
 
 -- Un membre voit sa propre ligne ; le patron voit toute sa boutique.
 create policy memberships_select on public.memberships
   for select to authenticated
   using (
     (user_id = (select auth.uid()) and active)
-    or private.my_role(shop_id) = 'PATRON'
+    or private.my_role(shop_id) = 'OWNER'
   );
 
-create policy invitations_select_patron on public.invitations
+create policy invitations_select_owner on public.invitations
   for select to authenticated
-  using (private.my_role(shop_id) = 'PATRON');
+  using (private.my_role(shop_id) = 'OWNER');
 
-create policy invitations_delete_patron on public.invitations
+create policy invitations_delete_owner on public.invitations
   for delete to authenticated
-  using (private.my_role(shop_id) = 'PATRON');
+  using (private.my_role(shop_id) = 'OWNER');
 
 -- Le patron lit le profil des membres de sa boutique.
-create policy users_select_by_patron on public.users
+create policy users_select_by_owner on public.users
   for select to authenticated
-  using (private.is_patron_of_user(id));
+  using (private.is_owner_of_user(id));
 
 -- Les créations et changements de rôle passent par les fonctions ci-dessous.
 revoke all on public.shops from anon, authenticated;
@@ -167,7 +167,7 @@ begin
   returning id into v_shop;
 
   insert into public.memberships (shop_id, user_id, role)
-  values (v_shop, v_user, 'PATRON');
+  values (v_shop, v_user, 'OWNER');
 
   return v_shop;
 end;
@@ -193,10 +193,10 @@ declare
   v_rate integer := case when p_role = 'DEALER' then p_commission_rate_bps else 0 end;
   v_user uuid;
 begin
-  if private.my_role(p_shop_id) is distinct from 'PATRON' then
-    raise exception 'not_patron';
+  if private.my_role(p_shop_id) is distinct from 'OWNER' then
+    raise exception 'not_owner';
   end if;
-  if p_role = 'PATRON' then
+  if p_role = 'OWNER' then
     raise exception 'invalid_role';
   end if;
   if num_nonnulls(v_phone, v_email) <> 1
@@ -251,10 +251,10 @@ begin
   select * into v_member from public.memberships where id = p_membership_id;
 
   if v_member.id is null
-    or private.my_role(v_member.shop_id) is distinct from 'PATRON' then
-    raise exception 'not_patron';
+    or private.my_role(v_member.shop_id) is distinct from 'OWNER' then
+    raise exception 'not_owner';
   end if;
-  if v_member.role = 'PATRON' or p_role = 'PATRON' then
+  if v_member.role = 'OWNER' or p_role = 'OWNER' then
     raise exception 'invalid_role';
   end if;
   if v_rate is null or v_rate not between 0 and 10000 then
