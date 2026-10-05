@@ -14,7 +14,10 @@ export default async function ShopLayout({
   const nav: NavItem[] = [
     { href: base, label: t("nav.home"), icon: "home", exact: true },
   ];
-  if (membership.role === "PATRON") {
+  if (membership.role !== "DEALER") {
+    nav.push({ href: `${base}/devices`, label: t("nav.stock"), icon: "phone" });
+  }
+  if (membership.role === "OWNER") {
     nav.push(
       { href: `${base}/members`, label: t("nav.members"), icon: "members" },
       { href: `${base}/settings`, label: t("nav.settings"), icon: "settings" },
@@ -27,6 +30,7 @@ export default async function ShopLayout({
       brand={shop.name}
       subtitle={t(`roles.${membership.role}`)}
       userName={profile.name}
+      userId={profile.id}
       nav={nav}
     >
       {children}

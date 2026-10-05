@@ -139,15 +139,15 @@ class ConstatEtat {
   +type : TypeConstat
   +date : DateTime
   +grade : GradeEtat
-  +etatEcran : String
-  +etatChassis : String
-  +santeBatterie : Int
+  +etatEcran : EtatEcran
+  +etatChassis : EtatChassis
+  +santeBatterie : Int [0..1]
   +faceIdOk : Boolean
   +camerasOk : Boolean
   +hautParleursOk : Boolean
   +chargeOk : Boolean
-  +reparationsPassees : String
-  +accessoires : String
+  +reparationsPassees : Reparation[*]
+  +accessoires : Accessoire[*]
   +icloudLibre : Boolean
   +commentaire : String
 }
@@ -242,6 +242,11 @@ end note
 note right of ConstatEtat
   Immuable : une correction
   crée un nouveau constat.
+  Écran, châssis, réparations et accessoires
+  sont des choix dans des listes fermées.
+  Batterie vide = non mesurée (neuf sous blister).
+  Photos obligatoires : face, dos,
+  écran allumé, écran « À propos ».
 end note
 
 note right of Photo

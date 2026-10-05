@@ -27,3 +27,14 @@ Idées hors du périmètre de la phase en cours. Rien ici n'est engagé.
 - Logo et couleur propres à chaque boutique (aujourd'hui : nom personnalisable uniquement).
 - Tests de bout en bout automatisés dans un navigateur (parcours vérifié à la main avec un script jetable).
 - Le numéro n'étant pas vérifié par SMS, quelqu'un qui s'inscrit avec le numéro d'un autre récupère son invitation. Le patron voit le nom du membre et peut le désactiver.
+
+## Notes de la phase 2
+
+- **À trancher : unicité de l'IMEI.** La règle demande un IMEI unique dans toute l'application. Conséquence : un téléphone vendu par une boutique ne peut pas être ré-enregistré par un autre vendeur qui le rachète plus tard. Proposition : IMEI unique seulement parmi les appareils encore en stock ou confiés.
+- Recherche et filtres dans le stock (par IMEI, modèle, statut).
+- Lecture de l'IMEI par l'appareil photo (code-barres de la boîte).
+- Devise de l'espace perso : FCFA en dur pour l'instant.
+- Le caissier voit le prix d'achat des appareils de la boutique. À masquer si le patron ne le souhaite pas.
+- Nettoyage des photos envoyées dont le constat n'a jamais été enregistré.
+- Chargement des écrans sans connexion (aujourd'hui seul l'envoi d'un constat déjà saisi survit à une coupure) : prévu en phase 5.
+- Modèles d'iPhone : liste fixe dans `src/domain/catalog.ts`, à compléter à chaque nouvelle gamme.

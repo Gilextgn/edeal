@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { icons, type IconName } from "./icons";
 import { NavLink } from "./nav-link";
+import { SyncBanner } from "./sync-banner";
 import { BrandMark } from "./ui";
 
 export type NavItem = {
@@ -16,11 +17,12 @@ type Props = {
   subtitle: string;
   nav: NavItem[];
   userName: string;
+  userId: string;
   children: ReactNode;
 };
 
 // Téléphone : barre en haut + onglets en bas. Ordinateur : menu latéral fixe.
-export function AppShell({ brand, subtitle, nav, userName, children }: Props) {
+export function AppShell({ brand, subtitle, nav, userName, userId, children }: Props) {
   return (
     <div className="flex min-h-dvh flex-col lg:flex-row">
       <aside className="hidden border-r border-border bg-surface lg:sticky lg:top-0 lg:flex lg:h-dvh lg:w-64 lg:shrink-0 lg:flex-col">
@@ -53,7 +55,10 @@ export function AppShell({ brand, subtitle, nav, userName, children }: Props) {
       </header>
 
       <main className="flex-1 px-4 pb-24 pt-5 lg:px-10 lg:py-9">
-        <div className="mx-auto w-full max-w-5xl">{children}</div>
+        <div className="mx-auto w-full max-w-5xl">
+          <SyncBanner userId={userId} />
+          {children}
+        </div>
       </main>
 
       <nav

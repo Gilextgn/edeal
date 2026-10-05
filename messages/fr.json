@@ -13,13 +13,15 @@
     "home": "Accueil",
     "spaces": "Espaces",
     "members": "Membres",
+    "stock": "Stock",
+    "devices": "Appareils",
     "settings": "Réglages",
     "account": "Compte"
   },
   "roles": {
-    "PATRON": "Patron",
+    "OWNER": "Patron",
     "DEALER": "Dealer",
-    "CAISSIER": "Caissier"
+    "CASHIER": "Caissier"
   },
   "common": {
     "save": "Enregistrer",
@@ -31,7 +33,7 @@
   "errors": {
     "generic": "Une erreur est survenue. Réessayez.",
     "not_authenticated": "Votre session a expiré. Reconnectez-vous.",
-    "not_patron": "Seul le patron de la boutique peut faire cela.",
+    "not_owner": "Seul le patron de la boutique peut faire cela.",
     "invalid_role": "Ce rôle ne peut pas être attribué.",
     "invalid_identifier": "Entrez un numéro de téléphone ou un e-mail valide.",
     "invalid_rate": "Le taux doit être compris entre 0 et 100 %.",
@@ -96,7 +98,9 @@
     "myRate": "Votre commission",
     "myRole": "Votre rôle",
     "currency": "Devise",
-    "comingSoon": "Le stock, les dépôts et les ventes arrivent dans les prochaines étapes.",
+    "comingSoon": "Les dépôts et les ventes arrivent dans les prochaines étapes.",
+    "inStock": "Appareils en stock",
+    "viewStock": "Voir le stock",
     "manageMembers": "Gérer les membres"
   },
   "members": {
@@ -109,7 +113,7 @@
     "role": "Rôle",
     "roleHints": {
       "DEALER": "Reçoit des téléphones en dépôt et touche une commission.",
-      "CAISSIER": "Enregistre les ventes de la boutique."
+      "CASHIER": "Enregistre les ventes de la boutique."
     },
     "rate": "Taux de commission (%)",
     "rateHint": "Part de la marge qui revient au dealer. Exemple : 25",
@@ -137,13 +141,220 @@
   "personal": {
     "title": "Mon espace perso",
     "subtitle": "Espace privé",
-    "empty": "Vos téléphones et vos clients personnels apparaîtront ici. Aucune boutique ne peut voir cet espace."
+    "empty": "Vos clients et vos ventes personnelles arriveront dans les prochaines étapes. Aucune boutique ne peut voir cet espace.",
+    "devices": "Mes appareils en stock",
+    "viewDevices": "Voir mes appareils"
   },
   "account": {
     "title": "Mon compte",
     "subtitle": "Vos informations personnelles.",
     "phone": "Téléphone",
     "email": "E-mail"
+  },
+  "catalog": {
+    "capacity": {
+      "64GB": "64 Go",
+      "128GB": "128 Go",
+      "256GB": "256 Go",
+      "512GB": "512 Go",
+      "1TB": "1 To",
+      "2TB": "2 To"
+    },
+    "color": {
+      "BLACK": "Noir",
+      "WHITE": "Blanc",
+      "SILVER": "Argent",
+      "GRAY": "Gris",
+      "GOLD": "Or",
+      "BLUE": "Bleu",
+      "RED": "Rouge",
+      "GREEN": "Vert",
+      "PURPLE": "Violet",
+      "PINK": "Rose",
+      "YELLOW": "Jaune",
+      "ORANGE": "Orange",
+      "NATURAL_TITANIUM": "Titane naturel",
+      "DESERT_TITANIUM": "Titane désert",
+      "OTHER": "Autre"
+    }
+  },
+  "devices": {
+    "stockTitle": "Stock",
+    "stockSubtitle": "Les téléphones de la boutique.",
+    "personalTitle": "Mes appareils",
+    "personalSubtitle": "Vos propres téléphones. Aucune boutique ne les voit.",
+    "add": "Ajouter un appareil",
+    "empty": "Aucun appareil pour l'instant.",
+    "count": "{count, plural, =0 {Aucun appareil} one {# appareil} other {# appareils}}",
+    "status": {
+      "IN_STOCK": "En stock",
+      "CONSIGNED": "Confié",
+      "SOLD": "Vendu",
+      "WITHDRAWN": "Retiré"
+    },
+    "newTitle": "Nouvel appareil",
+    "newSubtitle": "L'IMEI se trouve dans Réglages > Général > Informations, ou en composant *#06#.",
+    "editTitle": "Modifier l'appareil",
+    "imei": "IMEI",
+    "imeiHint": "15 chiffres",
+    "imeiValid": "IMEI valide",
+    "imeiInvalid": "IMEI incorrect : vérifiez les chiffres.",
+    "model": "Modèle",
+    "capacity": "Capacité",
+    "color": "Couleur",
+    "choose": "Choisir…",
+    "purchasePrice": "Prix d'achat ({currency})",
+    "targetPrice": "Prix de vente souhaité ({currency})",
+    "purchasePriceLabel": "Prix d'achat",
+    "targetPriceLabel": "Prix souhaité",
+    "create": "Enregistrer l'appareil",
+    "edit": "Modifier",
+    "withdraw": "Retirer du stock",
+    "restore": "Remettre en stock",
+    "addedOn": "Ajouté le {date}",
+    "created": "Appareil enregistré. Ajoutez un constat d'état avec photos.",
+    "errors": {
+      "imei_invalid": "IMEI incorrect : il doit contenir 15 chiffres valides.",
+      "imei_taken": "Cet IMEI est déjà enregistré.",
+      "model_required": "Choisissez un modèle.",
+      "capacity_required": "Choisissez une capacité.",
+      "color_required": "Choisissez une couleur.",
+      "price_invalid": "Entrez un montant valide, sans décimales inutiles.",
+      "not_allowed": "Vous n'avez pas le droit de modifier cet appareil.",
+      "invalid_status": "Cet appareil ne peut pas changer de statut pour l'instant."
+    }
+  },
+  "reports": {
+    "title": "Constats d'état",
+    "none": "Aucun constat pour l'instant. Un constat avec photos protège tout le monde en cas de litige.",
+    "add": "Nouveau constat",
+    "newTitle": "Constat d'état",
+    "newSubtitle": "{model} · IMEI {imei}",
+    "types": {
+      "INTAKE": "Entrée en stock",
+      "HANDOVER": "Remise au dealer",
+      "RETURN": "Retour du dealer",
+      "SALE": "Vente"
+    },
+    "by": "Par {name}, le {date}",
+    "onDate": "Le {date}",
+    "grade": "État général",
+    "grades": {
+      "NEW": "Neuf",
+      "LIKE_NEW": "Comme neuf",
+      "GOOD": "Bon",
+      "FAIR": "Passable"
+    },
+    "gradeHints": {
+      "NEW": "Jamais utilisé.",
+      "LIKE_NEW": "Aucune trace visible.",
+      "GOOD": "Légères traces d'usage.",
+      "FAIR": "Traces ou défauts visibles."
+    },
+    "screen": "Écran",
+    "screens": {
+      "PERFECT": "Parfait",
+      "LIGHT_SCRATCHES": "Micro-rayures",
+      "SCRATCHED": "Rayé",
+      "CRACKED": "Fissuré"
+    },
+    "body": "Châssis",
+    "bodies": {
+      "PERFECT": "Parfait",
+      "LIGHT_WEAR": "Légères traces",
+      "DENTED": "Chocs visibles",
+      "DAMAGED": "Abîmé"
+    },
+    "battery": "Santé de la batterie (%)",
+    "batteryHint": "Réglages > Batterie > État de la batterie. Laissez vide si l'appareil est neuf sous blister.",
+    "batteryValue": "Batterie {value} %",
+    "batteryUnknown": "Batterie non mesurée",
+    "functions": "Fonctions testées",
+    "functionsHint": "Décochez ce qui ne fonctionne pas.",
+    "checks": {
+      "face_id_ok": "Face ID / Touch ID",
+      "cameras_ok": "Appareils photo",
+      "speakers_ok": "Haut-parleurs et micro",
+      "charging_ok": "Charge"
+    },
+    "works": "Fonctionne",
+    "broken": "Ne fonctionne pas",
+    "icloud": "Verrouillage iCloud",
+    "icloudOptions": {
+      "true": "Libre",
+      "false": "Verrouillé"
+    },
+    "icloudHints": {
+      "true": "Aucun compte iCloud connecté.",
+      "false": "Un compte iCloud est encore connecté."
+    },
+    "icloudUnlocked": "iCloud libre",
+    "icloudLocked": "iCloud verrouillé",
+    "repairs": "Réparations passées",
+    "repairsNone": "Aucune réparation",
+    "repairOptions": {
+      "SCREEN": "Écran",
+      "BATTERY": "Batterie",
+      "BACK_GLASS": "Vitre arrière",
+      "CAMERA": "Appareil photo",
+      "OTHER": "Autre"
+    },
+    "accessories": "Accessoires fournis",
+    "accessoriesNone": "Aucun accessoire",
+    "accessoryOptions": {
+      "BOX": "Boîte",
+      "CABLE": "Câble",
+      "CHARGER": "Chargeur",
+      "EARPHONES": "Écouteurs",
+      "CASE": "Coque"
+    },
+    "comment": "Commentaire",
+    "commentHint": "Facultatif",
+    "photos": "Photos",
+    "photosHint": "Les quatre premières sont obligatoires.",
+    "angles": {
+      "FRONT": "Face",
+      "BACK": "Dos",
+      "SCREEN_ON": "Écran allumé",
+      "ABOUT": "Écran « À propos »",
+      "SIDES": "Côtés",
+      "DEFECT": "Défaut"
+    },
+    "required": "Obligatoire",
+    "optional": "Facultatif",
+    "takePhoto": "Prendre la photo",
+    "retakePhoto": "Reprendre",
+    "addPhoto": "Ajouter une photo",
+    "removePhoto": "Retirer",
+    "submit": "Enregistrer le constat",
+    "sending": "Envoi en cours…",
+    "immutableNote": "Un constat enregistré ne se modifie plus. Pour corriger, créez un nouveau constat.",
+    "errors": {
+      "grade_required": "Indiquez l'état général.",
+      "screen_required": "Indiquez l'état de l'écran.",
+      "body_required": "Indiquez l'état du châssis.",
+      "battery_invalid": "La santé de batterie doit être comprise entre 0 et 100.",
+      "icloud_required": "Indiquez si l'iCloud est libre ou verrouillé.",
+      "missing_photos": "Il manque des photos obligatoires : {angles}.",
+      "photo_failed": "Cette image n'a pas pu être lue. Reprenez la photo.",
+      "too_many_photos": "12 photos au maximum."
+    }
+  },
+  "sync": {
+    "pending": "{count, plural, one {# constat en attente d'envoi} other {# constats en attente d'envoi}}",
+    "pendingHint": "Enregistré sur ce téléphone. L'envoi reprendra dès le retour de la connexion.",
+    "failed": "L'envoi a été refusé : {reason}",
+    "retry": "Réessayer",
+    "discard": "Supprimer",
+    "syncing": "Envoi en cours…",
+    "savedOffline": "Constat enregistré sur ce téléphone. Il sera envoyé dès le retour de la connexion.",
+    "errors": {
+      "not_allowed": "vous n'avez plus accès à cet appareil.",
+      "missing_photos": "il manque des photos obligatoires.",
+      "photo_not_uploaded": "une photo n'a pas pu être envoyée.",
+      "invalid_report": "le constat est invalide.",
+      "generic": "erreur inattendue."
+    }
   },
   "offline": {
     "title": "Pas de connexion",

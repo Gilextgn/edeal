@@ -71,6 +71,44 @@ export function Field({ label, hint, name, className = "", ...props }: FieldProp
   );
 }
 
+const control = `min-h-12 rounded-xl border border-border bg-surface px-4 text-base text-fg ${focusRing}`;
+
+export function Select({
+  label,
+  name,
+  children,
+  className = "",
+  ...props
+}: ComponentProps<"select"> & { label: string; name: string }) {
+  return (
+    <div className={`flex flex-col gap-1.5 ${className}`}>
+      <label htmlFor={name} className="text-sm font-medium text-fg">
+        {label}
+      </label>
+      <select id={name} name={name} className={control} {...props}>
+        {children}
+      </select>
+    </div>
+  );
+}
+
+export function Textarea({
+  label,
+  hint,
+  name,
+  ...props
+}: ComponentProps<"textarea"> & { label: string; hint?: string; name: string }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={name} className="text-sm font-medium text-fg">
+        {label}
+      </label>
+      <textarea id={name} name={name} rows={3} className={`${control} py-3`} {...props} />
+      {hint ? <p className="text-sm text-muted">{hint}</p> : null}
+    </div>
+  );
+}
+
 export function Card({
   className = "",
   ...props

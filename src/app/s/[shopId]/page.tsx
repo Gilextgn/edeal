@@ -16,7 +16,28 @@ export default async function ShopHomePage({ params }: PageProps<"/s/[shopId]">)
   const { supabase, shop, membership } = await requireShop(shopId);
   const t = await getTranslations();
   const format = await getFormatter();
-  const isPatron = membership.role === "PATRON";
+  const { role } = membership;
+  const seesStock = role === "OWNER" || role === "CASHIER";
+
+  // Chaque requête ne renvoie que ce que le rôle a le droit de voir.
+  const [stock, members, invitations] = await Promise.all([
+    seesStock
+      ? supabase
+          .from("devices")
+          .select("id", { count: "exact", head: true })
+          .eq("shop_id", shop.id)
+          .eq("status", "IN_STOCK")
+      : null,
+    role === "OWNER"
+      ? supabase.from("memberships").select("role").eq("shop_id", shop.id).eq("active", true)
+      : null,
+    role === "OWNER"
+      ? supabase
+          .from("invitations")
+          .select("id", { count: "exact", head: true })
+          .eq("shop_id", shop.id)
+      : null,
+  ]);
 
   return (
     <>
@@ -24,67 +45,42 @@ export default async function ShopHomePage({ params }: PageProps<"/s/[shopId]">)
         title={shop.name}
         subtitle={t("shop.homeSubtitle")}
         action={
-          isPatron ? (
-            <ButtonLink href={`/s/${shop.id}/members`} className="w-full sm:w-auto">
-              {t("shop.manageMembers")}
+          seesStock ? (
+            <ButtonLink href={`/s/${shop.id}/devices`} className="w-full sm:w-auto">
+              {t("shop.viewStock")}
             </ButtonLink>
           ) : null
         }
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {isPatron ? (
-          <PatronStats supabase={supabase} shopId={shop.id} />
-        ) : (
+        {stock ? <Stat label={t("shop.inStock")} value={stock.count ?? 0} /> : null}
+        {members ? (
           <>
-            <Stat label={t("shop.myRole")} value={t(`roles.${membership.role}`)} />
-            {membership.role === "DEALER" ? (
-              <Stat
-                label={t("shop.myRate")}
-                value={format.number(membership.commission_rate_bps / 10000, {
-                  style: "percent",
-                  maximumFractionDigits: 2,
-                })}
-              />
-            ) : null}
+            <Stat label={t("shop.members")} value={members.data?.length ?? 0} />
+            <Stat
+              label={t("shop.dealers")}
+              value={members.data?.filter((m) => m.role === "DEALER").length ?? 0}
+            />
           </>
+        ) : (
+          <Stat label={t("shop.myRole")} value={t(`roles.${role}`)} />
         )}
-        <Stat label={t("shop.currency")} value={shop.currency} />
+        {invitations ? (
+          <Stat label={t("shop.invitations")} value={invitations.count ?? 0} />
+        ) : null}
+        {role === "DEALER" ? (
+          <Stat
+            label={t("shop.myRate")}
+            value={format.number(membership.commission_rate_bps / 10000, {
+              style: "percent",
+              maximumFractionDigits: 2,
+            })}
+          />
+        ) : null}
       </div>
 
-      <Card className="mt-4 text-muted">{t("shop.comingSoon")}</Card>
-    </>
-  );
-}
-
-async function PatronStats({
-  supabase,
-  shopId,
-}: {
-  supabase: Awaited<ReturnType<typeof requireShop>>["supabase"];
-  shopId: string;
-}) {
-  const t = await getTranslations("shop");
-  const [{ data: members }, { count: invitations }] = await Promise.all([
-    supabase
-      .from("memberships")
-      .select("role")
-      .eq("shop_id", shopId)
-      .eq("active", true),
-    supabase
-      .from("invitations")
-      .select("id", { count: "exact", head: true })
-      .eq("shop_id", shopId),
-  ]);
-
-  return (
-    <>
-      <Stat label={t("members")} value={members?.length ?? 0} />
-      <Stat
-        label={t("dealers")}
-        value={members?.filter((m) => m.role === "DEALER").length ?? 0}
-      />
-      <Stat label={t("invitations")} value={invitations ?? 0} />
+      <Card className="mt-4 text-muted lg:max-w-xl">{t("shop.comingSoon")}</Card>
     </>
   );
 }

@@ -55,6 +55,12 @@ export const icons = {
       <path d="M4 20.5c.8-4 4-6 8-6s7.2 2 8 6" />
     </Icon>
   ),
+  phone: (
+    <Icon>
+      <rect x="6.5" y="2.5" width="11" height="19" rx="2.5" />
+      <path d="M10.5 18.5h3" />
+    </Icon>
+  ),
   chevron: (
     <Icon>
       <path d="m9 5 7 7-7 7" />

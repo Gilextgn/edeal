@@ -11,8 +11,10 @@ export default async function PersonalLayout({ children }: LayoutProps<"/perso">
       brand={t("app.name")}
       subtitle={t("personal.subtitle")}
       userName={profile.name}
+      userId={profile.id}
       nav={[
         { href: "/perso", label: t("nav.home"), icon: "home", exact: true },
+        { href: "/perso/devices", label: t("nav.devices"), icon: "phone" },
         { href: "/", label: t("nav.spaces"), icon: "spaces", exact: true },
         { href: "/account", label: t("nav.account"), icon: "account" },
       ]}
