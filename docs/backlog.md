@@ -17,4 +17,4 @@ Idées hors du périmètre de la phase en cours. Rien ici n'est engagé.
 - Mot de passe oublié. Sans SMS ni e-mail vérifié, il faudra une réinitialisation par le patron ou un canal de vérification.
 - Modification du téléphone ou de l'e-mail après inscription (le profil `users` n'est pas resynchronisé).
 - Bascule manuelle clair/sombre (aujourd'hui : réglage du téléphone).
-- Vérifier sur le projet Supabase hébergé que l'inscription par téléphone fonctionne sans fournisseur SMS. Contournement prévu sinon : identifiant technique dérivé du numéro.
+- Au déploiement : Supabase n'accepte l'inscription par téléphone que si un fournisseur SMS est déclaré. En local, des valeurs factices suffisent (`supabase/config.toml`) car aucun SMS n'est envoyé. À reproduire et vérifier sur le projet hébergé (fournisseur « Phone » activé, confirmation désactivée). Contournement sinon : identifiant technique dérivé du numéro.
