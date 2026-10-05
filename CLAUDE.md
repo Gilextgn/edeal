@@ -1,8 +1,8 @@
 @AGENTS.md
 
-# eDeal — SaaS pour vendeurs d'iPhone
+# eDeal — SaaS pour vendeurs de téléphones
 
-Application pour boutiques et dealers indépendants d'iPhone (neufs et d'occasion). Une boutique confie des téléphones à un dealer **en dépôt-vente** ; le dealer a aussi **ses propres téléphones et ses propres clients**. L'application sépare ces deux espaces de façon étanche, trace l'état de chaque téléphone avec photos, et calcule ce que chacun doit à l'autre.
+Application pour boutiques et dealers indépendants de téléphones, iPhone et Samsung (neufs et d'occasion). Une boutique confie des téléphones à un dealer **en dépôt-vente** ; le dealer a aussi **ses propres téléphones et ses propres clients**. L'application sépare ces deux espaces de façon étanche, trace l'état de chaque téléphone avec photos, et calcule ce que chacun doit à l'autre.
 
 Utilisateurs : peu à l'aise avec l'informatique, sur smartphone (360 px), connexion instable.
 
@@ -38,8 +38,13 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 - Commits : Conventional Commits.
 - Tests écrits en même temps que le code.
 - Pas de sur-ingénierie : seulement ce que la phase demande.
-- Couleurs : uniquement les tokens de `src/app/globals.css` (`bg-primary`, `text-muted`…), jamais de couleur en dur. Palette indigo ; les couleurs de statut (vert, rouge, ambre) restent distinctes du primaire. Zones tactiles ≥ 44 px.
-- Mise en page : `AppShell` (`src/components/app-shell.tsx`) — onglets en bas sur téléphone, menu latéral à partir de `lg`. Chaque écran doit être soigné à 360 px **et** sur ordinateur.
+- Couleurs : uniquement les tokens de `src/app/globals.css` (`bg-primary`, `text-muted`…), jamais de couleur en dur. Palette émeraude (`primary`) avec une touche dorée (`accent`) ; pas de bleu. Thème clair/sombre porté par `data-theme` sur `<html>` (bouton dans la barre du haut, choix gardé dans le navigateur). Zones tactiles ≥ 44 px.
+- Polices : cursive (`font-display`, Dancing Script) pour la marque, les titres de page et l'accueil ; police droite (`font-sans`, Plus Jakarta Sans) pour tout le reste, en particulier les montants, IMEI, tableaux et formulaires.
+- Mise en page : `AppShell` (`src/components/app-shell.tsx`, partie interactive dans `shell.tsx`) — menu latéral vert repliable, barre du haut (recherche Ctrl+K, espace courant, action principale selon le profil, thème, cloche des alertes, menu du compte avec déconnexion) ; sur téléphone, le menu devient un tiroir et cinq onglets restent en bas. Chaque écran doit être soigné à 360 px **et** sur ordinateur.
+- Listes : tableaux (`TableCard`, `Th`, `Td`) paginés par 10 (`ListPagination`, `src/domain/pagination.ts`), actions par ligne avec `ActionLink` / `ActionButton` (voir, modifier, supprimer) ; une suppression passe par `ConfirmForm`. Sur téléphone, les colonnes secondaires sont masquées.
+- Graphiques : SVG maison (`src/features/dashboard/bar-chart.tsx`), une seule teinte (`--chart`), infobulle au survol, tableau de données pour les lecteurs d'écran.
+- Page d'arrivée (`/`) selon le profil : une seule boutique → son tableau de bord ; aucune → accueil ; plusieurs → choix. « Créer une boutique » n'est mis en avant que pour un patron ou un nouveau compte ; un dealer ou caissier le trouve dans « Compte ».
+- IMEI : jamais tapé par défaut. Il est lu sur une photo (`src/lib/photos/read-imei.ts` : code-barres puis texte), la saisie à la main n'apparaît qu'après un échec de lecture.
 - Nom affiché : « eDeal » dans l'espace perso et les écrans communs ; le nom de la boutique (modifiable par le patron) dans un espace boutique.
 - Next.js 16 : le middleware s'appelle `proxy` (`src/proxy.ts`). Lire `node_modules/next/dist/docs/` avant d'utiliser une API Next.
 

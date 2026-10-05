@@ -1,8 +1,8 @@
 {
   "app": {
     "name": "eDeal",
-    "description": "Dépôt-vente d'iPhone entre boutiques et dealers",
-    "tagline": "Vos iPhone, vos dealers, vos comptes. Au clair.",
+    "description": "Dépôt-vente de téléphones entre boutiques et dealers",
+    "tagline": "Vos téléphones, vos dealers, vos comptes. Au clair.",
     "points": {
       "trace": "Chaque téléphone suivi avec photos, de la remise à la vente.",
       "split": "Les parts de la boutique et du dealer calculées automatiquement.",
@@ -22,7 +22,9 @@
     "customers": "Clients",
     "more": "Plus",
     "balances": "Soldes",
-    "myBalance": "Mon solde"
+    "myBalance": "Mon solde",
+    "menu": "Menu",
+    "theme": "Thème clair ou sombre"
   },
   "roles": {
     "OWNER": "Patron",
@@ -84,7 +86,9 @@
     "shops": "Mes boutiques",
     "noShops": "Vous ne faites partie d'aucune boutique pour l'instant. Créez la vôtre, ou demandez à votre patron de vous ajouter avec votre numéro.",
     "createShop": "Créer une boutique",
-    "rate": "Commission : {rate}"
+    "rate": "Commission : {rate}",
+    "welcome": "Bienvenue. Commencez par votre espace perso, ou créez votre boutique.",
+    "personalSection": "Espace personnel"
   },
   "shopForm": {
     "createTitle": "Créer une boutique",
@@ -141,7 +145,11 @@
       "active": "Peut se connecter à la boutique.",
       "inactive": "Ne voit plus la boutique. Son historique est conservé."
     },
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "member": "Membre",
+    "contact": "Contact",
+    "commission": "Commission",
+    "confirmCancel": "Annuler cette invitation ?"
   },
   "settings": {
     "title": "Réglages de la boutique",
@@ -160,7 +168,9 @@
     "title": "Mon compte",
     "subtitle": "Vos informations personnelles.",
     "phone": "Téléphone",
-    "email": "E-mail"
+    "email": "E-mail",
+    "ownShopTitle": "Ouvrir ma propre boutique",
+    "ownShopHint": "Vous en serez le patron : vous pourrez y ajouter votre stock, vos dealers et vos caissiers."
   },
   "catalog": {
     "capacity": {
@@ -169,7 +179,9 @@
       "256GB": "256 Go",
       "512GB": "512 Go",
       "1TB": "1 To",
-      "2TB": "2 To"
+      "2TB": "2 To",
+      "16GB": "16 Go",
+      "32GB": "32 Go"
     },
     "color": {
       "BLACK": "Noir",
@@ -204,7 +216,7 @@
       "WITHDRAWN": "Retiré"
     },
     "newTitle": "Nouvel appareil",
-    "newSubtitle": "L'IMEI se trouve dans Réglages > Général > Informations, ou en composant *#06#.",
+    "newSubtitle": "Photographiez l'IMEI : il est lu automatiquement.",
     "editTitle": "Modifier l'appareil",
     "imei": "IMEI",
     "imeiHint": "15 chiffres",
@@ -225,7 +237,7 @@
     "addedOn": "Ajouté le {date}",
     "created": "Appareil enregistré. Ajoutez un constat d'état avec photos.",
     "errors": {
-      "imei_invalid": "IMEI incorrect : il doit contenir 15 chiffres valides.",
+      "imei_invalid": "Il manque l'IMEI : photographiez-le pour qu'il soit lu.",
       "imei_taken": "Cet IMEI est déjà enregistré.",
       "model_required": "Choisissez un modèle.",
       "capacity_required": "Choisissez une capacité.",
@@ -233,6 +245,31 @@
       "price_invalid": "Entrez un montant valide, sans décimales inutiles.",
       "not_allowed": "Vous n'avez pas le droit de modifier cet appareil.",
       "invalid_status": "Cet appareil ne peut pas changer de statut pour l'instant."
+    },
+    "device": "Appareil",
+    "statusLabel": "Statut",
+    "search": "Chercher un IMEI ou un modèle…",
+    "searchShort": "Chercher un appareil…",
+    "confirmDelete": "Supprimer définitivement {model} ?",
+    "notices": {
+      "deleted": "Appareil supprimé.",
+      "has_history": "Cet appareil a déjà un constat, un dépôt ou une vente : il ne peut pas être supprimé. Ouvrez sa fiche pour le retirer du stock.",
+      "not_allowed": "Vous n'avez pas le droit de supprimer cet appareil."
+    },
+    "scan": {
+      "label": "IMEI",
+      "hint": "Photographiez l'écran qui s'affiche en composant *#06#, l'écran Réglages > Informations, ou l'étiquette de la boîte.",
+      "take": "Prendre une photo",
+      "upload": "Importer une photo",
+      "reading": "Lecture de l'IMEI en cours…",
+      "found": "IMEI lu",
+      "several": "Plusieurs IMEI trouvés : choisissez celui de l'appareil",
+      "notFound": "Aucun IMEI lisible sur cette photo. Rapprochez-vous, évitez les reflets, puis réessayez.",
+      "typeInstead": "Saisir l'IMEI à la main",
+      "manualLabel": "IMEI (15 chiffres)",
+      "manualHint": "À utiliser seulement si la photo ne peut pas être lue.",
+      "valid": "IMEI valide",
+      "invalid": "IMEI incorrect : vérifiez les chiffres."
     }
   },
   "reports": {
@@ -283,24 +320,24 @@
     "functions": "Fonctions testées",
     "functionsHint": "Décochez ce qui ne fonctionne pas.",
     "checks": {
-      "face_id_ok": "Face ID / Touch ID",
+      "face_id_ok": "Face ID / empreinte",
       "cameras_ok": "Appareils photo",
       "speakers_ok": "Haut-parleurs et micro",
       "charging_ok": "Charge"
     },
     "works": "Fonctionne",
     "broken": "Ne fonctionne pas",
-    "icloud": "Verrouillage iCloud",
+    "icloud": "Verrouillage du compte (iCloud ou Google)",
     "icloudOptions": {
       "true": "Libre",
       "false": "Verrouillé"
     },
     "icloudHints": {
-      "true": "Aucun compte iCloud connecté.",
-      "false": "Un compte iCloud est encore connecté."
+      "true": "Aucun compte iCloud ou Google connecté.",
+      "false": "Un compte est encore connecté à l'appareil."
     },
-    "icloudUnlocked": "iCloud libre",
-    "icloudLocked": "iCloud verrouillé",
+    "icloudUnlocked": "Compte libre",
+    "icloudLocked": "Compte verrouillé",
     "repairs": "Réparations passées",
     "repairsNone": "Aucune réparation",
     "repairOptions": {
@@ -459,7 +496,8 @@
       "customer_required": "Indiquez le nom du client.",
       "invalid_price": "Entrez un prix de vente valide."
     },
-    "viewSale": "Voir la vente"
+    "viewSale": "Voir la vente",
+    "soldBy": "Vendu par {name}"
   },
   "customers": {
     "title": "Clients",
@@ -468,7 +506,9 @@
     "personalTitle": "Mes clients",
     "personalSubtitle": "Votre clientèle personnelle. Aucune boutique ne la voit.",
     "empty": "Aucun client pour l'instant. Les clients s'ajoutent au moment d'une vente.",
-    "noPhone": "Pas de téléphone"
+    "noPhone": "Pas de téléphone",
+    "name": "Nom",
+    "phone": "Téléphone"
   },
   "dashboard": {
     "thisMonth": "Ce mois-ci",
@@ -493,7 +533,29 @@
     "pendingSalesDetail": "Sous le prix plancher : votre décision est attendue.",
     "consignmentOf": "{model} · {dealer}",
     "consignmentOverdue": "Dépôt en retard : à rendre ou vendre avant le {date}.",
-    "installmentOverdue": "Échéance en retard depuis le {date}."
+    "installmentOverdue": "Échéance en retard depuis le {date}.",
+    "greeting": "Bonjour {name}",
+    "ownerSubtitle": "Voici où en est {shop} ce mois-ci.",
+    "dealerSubtitle": "Vos dépôts et vos ventes chez {shop} ce mois-ci.",
+    "cashierSubtitle": "Les ventes de {shop} ce mois-ci.",
+    "personalSubtitle": "Votre activité personnelle ce mois-ci. Aucune boutique ne la voit.",
+    "revenueTitle": "Total vendu",
+    "salesCount": "{count, plural, =0 {Aucune vente} one {# vente} other {# ventes}}",
+    "stockTitle": "Stock",
+    "stockUnits": "{count, plural, =0 {Aucun appareil} one {# appareil} other {# appareils}}",
+    "vsLastMonth": "{delta} par rapport au mois dernier",
+    "noComparison": "Pas de vente le mois dernier",
+    "chartTitle": "Ventes des 14 derniers jours",
+    "chartSubtitle": "Montant vendu par jour",
+    "chartEmpty": "Aucune vente sur la période.",
+    "chartDay": "{date} : {amount} ({count, plural, =0 {aucune vente} one {# vente} other {# ventes}})",
+    "stockBreakdown": "Répartition du stock",
+    "recentSales": "Dernières ventes",
+    "noSales": "Aucune vente pour l'instant.",
+    "seeAll": "Tout voir",
+    "dealersTitle": "Dealers",
+    "noDealers": "Aucun dealer pour l'instant.",
+    "quickActions": "Raccourcis"
   },
   "money": {
     "customerPayment": "Paiement du client",
@@ -602,16 +664,28 @@
       "screen": "Écran : {state}",
       "body": "Châssis : {state}",
       "battery": "Batterie : {value} %",
-      "allWorking": "Tout fonctionne : Face ID, appareils photo, son, charge",
+      "allWorking": "Tout fonctionne : déverrouillage, appareils photo, son, charge",
       "notWorking": "Ne fonctionne pas : {items}",
-      "icloudFree": "iCloud libre",
-      "icloudLocked": "iCloud verrouillé",
+      "icloudFree": "Compte iCloud / Google libre",
+      "icloudLocked": "Compte iCloud / Google verrouillé",
       "neverRepaired": "Jamais réparé",
       "repairs": "Réparations : {items}",
       "accessories": "Fourni avec : {items}",
       "price": "Prix : {price}",
       "contact": "Contact : {phone}"
     }
+  },
+  "list": {
+    "summary": "{from}–{to} sur {total}",
+    "previous": "Page précédente",
+    "next": "Page suivante",
+    "search": "Chercher",
+    "noResult": "Aucun résultat pour cette recherche.",
+    "actions": "Actions",
+    "view": "Voir",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "addedOn": "Ajouté le"
   },
   "offline": {
     "title": "Pas de connexion",

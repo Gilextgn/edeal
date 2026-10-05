@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { ProfileForm } from "@/components/forms";
 import { LogoutButton } from "@/components/offline";
-import { Card, PageHeader } from "@/components/ui";
+import { ButtonLink, Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/session";
 import { updateProfile } from "../actions";
 
@@ -30,6 +30,17 @@ export default async function AccountPage() {
           </dl>
         </ProfileForm>
       </Card>
+
+      <Card className="flex flex-col gap-3">
+        <div>
+          <p className="font-semibold">{t("account.ownShopTitle")}</p>
+          <p className="text-sm text-muted">{t("account.ownShopHint")}</p>
+        </div>
+        <ButtonLink href="/shops/new" variant="secondary" className="w-full sm:w-auto sm:self-start">
+          {t("spaces.createShop")}
+        </ButtonLink>
+      </Card>
+
       <div>
         <LogoutButton>{t("auth.logout")}</LogoutButton>
       </div>

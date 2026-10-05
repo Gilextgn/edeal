@@ -1,12 +1,18 @@
 import { getFormatter, getTranslations } from "next-intl/server";
+import { ConfirmForm } from "@/components/confirm-form";
 import { icons } from "@/components/icons";
 import {
+  ActionButton,
+  ActionLink,
   Badge,
-  Button,
   ButtonLink,
-  Card,
   FormMessage,
   PageHeader,
+  RowActions,
+  SectionTitle,
+  TableCard,
+  Td,
+  Th,
 } from "@/components/ui";
 import { requireOwner } from "@/lib/session";
 import { cancelInvitation } from "../actions";
@@ -34,13 +40,10 @@ export default async function MembersPage({
       .order("created_at"),
   ]);
 
-  const rate = (bps: number) =>
-    t("members.rateValue", {
-      rate: format.number(bps / 10000, {
-        style: "percent",
-        maximumFractionDigits: 2,
-      }),
-    });
+  const rate = (role: string, bps: number) =>
+    role === "DEALER"
+      ? format.number(bps / 10000, { style: "percent", maximumFractionDigits: 2 })
+      : "—";
   const contact = (phone: string | null, email: string | null) =>
     phone ? `+${phone}` : email;
 
@@ -65,75 +68,96 @@ export default async function MembersPage({
         </div>
       ) : null}
 
-      <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {(members ?? []).map((member) => (
-          <li key={member.id}>
-            <Card className="flex h-full flex-col gap-3">
-              <div>
-                <p className="truncate font-semibold">
+      <TableCard>
+        <thead>
+          <tr>
+            <Th>{t("members.member")}</Th>
+            <Th>{t("members.role")}</Th>
+            <Th className="hidden text-right sm:table-cell">{t("members.commission")}</Th>
+            <Th className="hidden md:table-cell">{t("members.status")}</Th>
+            <Th className="text-right">{t("list.actions")}</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {(members ?? []).map((member) => (
+            <tr key={member.id} className="hover:bg-surface-2/60">
+              <Td>
+                <p className="font-semibold">
                   {member.users?.name}
                   {member.user_id === profile.id ? (
                     <span className="font-normal text-muted"> ({t("members.you")})</span>
                   ) : null}
                 </p>
-                <p className="truncate text-sm text-muted">
+                <p className="text-muted">
                   {contact(member.users?.phone ?? null, member.users?.email ?? null)}
                 </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
+              </Td>
+              <Td>
                 <Badge tone="primary">{t(`roles.${member.role}`)}</Badge>
-                {member.role === "DEALER" ? (
-                  <Badge>{rate(member.commission_rate_bps)}</Badge>
-                ) : null}
-                {member.active ? null : (
-                  <Badge tone="danger">{t("members.inactive")}</Badge>
-                )}
-              </div>
-              {member.role === "OWNER" ? null : (
-                <ButtonLink
-                  href={`/s/${shop.id}/members/${member.id}`}
-                  variant="secondary"
-                  className="mt-auto"
-                >
-                  {t("members.edit")}
-                </ButtonLink>
-              )}
-            </Card>
-          </li>
-        ))}
-      </ul>
+              </Td>
+              <Td className="hidden text-right font-semibold sm:table-cell">
+                {rate(member.role, member.commission_rate_bps)}
+              </Td>
+              <Td className="hidden md:table-cell">
+                <Badge tone={member.active ? "success" : "danger"}>
+                  {t(member.active ? "members.active" : "members.inactive")}
+                </Badge>
+              </Td>
+              <Td>
+                <RowActions>
+                  {member.role === "OWNER" ? null : (
+                    <ActionLink
+                      kind="edit"
+                      label={t("list.edit")}
+                      href={`/s/${shop.id}/members/${member.id}`}
+                    />
+                  )}
+                </RowActions>
+              </Td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
 
       {invitations && invitations.length > 0 ? (
         <section className="mt-8">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-            {t("members.pendingTitle")}
-          </h2>
-          <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {invitations.map((invitation) => (
-              <li key={invitation.id}>
-                <Card className="flex h-full flex-col gap-3">
-                  <p className="truncate font-semibold">
-                    {contact(invitation.phone, invitation.email)}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="primary">{t(`roles.${invitation.role}`)}</Badge>
-                    {invitation.role === "DEALER" ? (
-                      <Badge>{rate(invitation.commission_rate_bps)}</Badge>
-                    ) : null}
+          <SectionTitle>{t("members.pendingTitle")}</SectionTitle>
+          <TableCard>
+            <thead>
+              <tr>
+                <Th>{t("members.contact")}</Th>
+                <Th>{t("members.role")}</Th>
+                <Th className="hidden text-right sm:table-cell">{t("members.commission")}</Th>
+                <Th className="text-right">{t("list.actions")}</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {invitations.map((invitation) => (
+                <tr key={invitation.id} className="hover:bg-surface-2/60">
+                  <Td>
+                    <p className="font-semibold">{contact(invitation.phone, invitation.email)}</p>
                     <Badge tone="warning">{t("members.pendingBadge")}</Badge>
-                  </div>
-                  <form
-                    action={cancelInvitation.bind(null, shop.id, invitation.id)}
-                    className="mt-auto"
-                  >
-                    <Button type="submit" variant="danger" className="w-full">
-                      {t("members.cancelInvitation")}
-                    </Button>
-                  </form>
-                </Card>
-              </li>
-            ))}
-          </ul>
+                  </Td>
+                  <Td>
+                    <Badge tone="primary">{t(`roles.${invitation.role}`)}</Badge>
+                  </Td>
+                  <Td className="hidden text-right font-semibold sm:table-cell">
+                    {rate(invitation.role, invitation.commission_rate_bps)}
+                  </Td>
+                  <Td>
+                    <RowActions>
+                      <ConfirmForm
+                        action={cancelInvitation.bind(null, shop.id, invitation.id)}
+                        message={t("members.confirmCancel")}
+                      >
+                        <ActionButton kind="delete" label={t("members.cancelInvitation")} />
+                      </ConfirmForm>
+                    </RowActions>
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </TableCard>
         </section>
       ) : null}
     </>

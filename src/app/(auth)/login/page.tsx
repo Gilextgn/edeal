@@ -7,7 +7,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t("loginTitle")}</h1>
+        <h1 className="font-display text-5xl leading-tight">{t("loginTitle")}</h1>
         <p className="mt-1 text-muted">{t("loginSubtitle")}</p>
       </div>
       <AuthForm mode="login" />

@@ -37,7 +37,7 @@ Idées hors du périmètre de la phase en cours. Rien ici n'est engagé.
 - Le caissier voit le prix d'achat des appareils de la boutique. À masquer si le patron ne le souhaite pas.
 - Nettoyage des photos envoyées dont le constat n'a jamais été enregistré.
 - Chargement des écrans sans connexion (aujourd'hui seul l'envoi d'un constat déjà saisi survit à une coupure) : prévu en phase 5.
-- Modèles d'iPhone : liste fixe dans `src/domain/catalog.ts`, à compléter à chaque nouvelle gamme.
+- Modèles (Apple et Samsung) : liste fixe dans `src/domain/catalog.ts`, à compléter à chaque nouvelle gamme. Autres marques (Tecno, Infinix, Xiaomi…) et modèle saisi librement : à ajouter si besoin.
 
 ## Notes de la phase 3
 
@@ -67,3 +67,13 @@ Idées hors du périmètre de la phase en cours. Rien ici n'est engagé.
 - Hors-ligne : les données affichées datent de la dernière visite, sans indication de leur âge.
 - Logo de la boutique sur le reçu.
 - Tests de bout en bout automatisés (navigateur) à ajouter à la CI : les parcours ont été vérifiés avec des scripts jetables, non conservés.
+
+## Notes de la refonte de l'interface
+
+- Lecture de l'IMEI : la reconnaissance de texte télécharge ses fichiers depuis Internet à la première utilisation (plusieurs Mo) et ne marche donc pas hors-ligne ; le code-barres, lui, se lit sans téléchargement. À héberger avec l'application si les connexions sont trop lentes.
+- Lecture de l'IMEI : vérifiée sur des images de synthèse nettes (un écran « À propos » et un code-barres), pas encore sur de vraies photos prises au téléphone (reflets, flou, angle).
+- Vraies photos ou vidéos de téléphones sur l'écran de connexion (aujourd'hui : téléphones dessinés et animés en CSS).
+- Recherche globale (clients, ventes) depuis la barre du haut ; aujourd'hui elle cherche dans les appareils.
+- Suppression d'un client sans vente, et d'un membre jamais actif.
+- Tri et filtres par statut dans les tableaux.
+- Tableau de bord : choix de la période, comparaison entre dealers.

@@ -135,3 +135,18 @@ export async function setDeviceWithdrawn(
   });
   revalidatePath(devicesPath(shopId));
 }
+
+// Supprime un appareil saisi par erreur. S'il a déjà un constat, un dépôt ou
+// une vente, la base refuse : l'écran propose alors de le retirer du stock.
+export async function deleteDevice(shopId: string | null, deviceId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("delete_device", { p_device_id: deviceId });
+  const notice = !error
+    ? "deleted"
+    : error.message === "device_has_history"
+      ? "has_history"
+      : "not_allowed";
+
+  revalidatePath(devicesPath(shopId));
+  redirect(`${devicesPath(shopId)}?notice=${notice}`);
+}

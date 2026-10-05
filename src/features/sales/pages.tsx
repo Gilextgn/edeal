@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Precache } from "@/components/offline";
-import { Badge, Button, ButtonLink, Card, PageHeader } from "@/components/ui";
-import { amountToInput, formatMoney, PERSONAL_CURRENCY } from "@/domain/money";
+import { Badge, ButtonLink, Card, PageHeader } from "@/components/ui";
+import { amountToInput, formatMoney } from "@/domain/money";
 import { loadDevice } from "@/features/devices/device-detail";
 import { Variant } from "@/features/devices/labels";
 import { ReportCards } from "@/features/devices/report-cards";
@@ -11,7 +10,6 @@ import { requireWritable, type DeviceScope } from "@/features/devices/scope";
 import { ListingPage } from "@/features/share/pages";
 import type { MemberRole } from "@/lib/session";
 import type { createClient } from "@/lib/supabase/server";
-import { decideSale } from "./actions";
 import { ConsignForm, ReturnForm, SellForm } from "./forms";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
@@ -25,10 +23,7 @@ type DeviceContext = {
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-const cardLink =
-  "flex h-full flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
-
-function customersOf(supabase: Supabase, shopId: string | null, userId: string) {
+export function customersOf(supabase: Supabase, shopId: string | null, userId: string) {
   // La base ne renvoie que les clients visibles par l'utilisateur ; le filtre
   // désigne l'espace (boutique ou perso) dans lequel on se trouve.
   const query = supabase.from("customers").select("id, name, phone, created_at").order("name");
@@ -145,94 +140,12 @@ type ShopContext = {
   userId: string;
 };
 
-const consignmentTones = {
+export const consignmentTones = {
   ACTIVE: "primary",
   SOLD: "success",
   RETURNED: "neutral",
   SETTLED: "success",
 } as const;
-
-// Le patron voit tous les dépôts de la boutique ; le dealer, les siens.
-export async function ConsignmentsList({ supabase, shop, role }: ShopContext) {
-  if (role === "CASHIER") notFound();
-  const t = await getTranslations("consignments");
-  const format = await getFormatter();
-  const isDealer = role === "DEALER";
-
-  const { data } = await supabase
-    .from("consignments")
-    .select(
-      "id, status, due_on, floor_price, device_id, devices(model, capacity, color, imei), users!consignments_dealer_user_id_fkey(name)",
-    )
-    .eq("shop_id", shop.id)
-    .order("due_on");
-  const consignments = [...(data ?? [])].sort(
-    (a, b) => Number(b.status === "ACTIVE") - Number(a.status === "ACTIVE"),
-  );
-
-  return (
-    <>
-      <PageHeader
-        title={t(isDealer ? "mineTitle" : "title")}
-        subtitle={t(isDealer ? "mineSubtitle" : "subtitle")}
-      />
-      {consignments.length === 0 ? (
-        <Card className="text-muted lg:max-w-xl">{t(isDealer ? "mineEmpty" : "empty")}</Card>
-      ) : (
-        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {consignments.map((c) => {
-            const overdue = c.status === "ACTIVE" && c.due_on < today();
-            return (
-              <li key={c.id}>
-                <Link
-                  href={
-                    isDealer
-                      ? `/s/${shop.id}/consignments/${c.id}`
-                      : `/s/${shop.id}/devices/${c.device_id}`
-                  }
-                  className={cardLink}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold">{c.devices?.model}</p>
-                      {c.devices ? (
-                        <p className="text-sm text-muted">
-                          <Variant capacity={c.devices.capacity} color={c.devices.color} />
-                        </p>
-                      ) : null}
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1">
-                      <Badge tone={consignmentTones[c.status]}>{t(`status.${c.status}`)}</Badge>
-                      {overdue ? <Badge tone="danger">{t("overdue")}</Badge> : null}
-                    </div>
-                  </div>
-                  <dl className="mt-auto grid grid-cols-2 gap-2 text-sm">
-                    {isDealer ? null : (
-                      <div className="col-span-2">
-                        <dt className="text-muted">{t("dealer")}</dt>
-                        <dd className="font-medium">{c.users?.name}</dd>
-                      </div>
-                    )}
-                    <div>
-                      <dt className="text-muted">{t("dueOn")}</dt>
-                      <dd className="font-medium">
-                        {format.dateTime(new Date(c.due_on), { dateStyle: "medium" })}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted">{t("floor")}</dt>
-                      <dd className="font-medium">{formatMoney(c.floor_price, shop.currency)}</dd>
-                    </div>
-                  </dl>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </>
-  );
-}
 
 async function loadMyConsignment({ supabase, shop, role, userId }: ShopContext, id: string) {
   if (role !== "DEALER" || !/^[0-9a-f-]{36}$/i.test(id)) notFound();
@@ -390,191 +303,5 @@ export async function DealerListingPage(
       contactPhone={context.contactPhone}
       backHref={`/s/${context.shop.id}/consignments/${consignment.id}`}
     />
-  );
-}
-
-// ---------- Ventes ----------
-
-const saleTones = {
-  PENDING_APPROVAL: "warning",
-  COMPLETED: "success",
-  REJECTED: "danger",
-  CANCELLED: "neutral",
-} as const;
-
-// Ventes d'une boutique (`shopId`) ou ventes perso de l'utilisateur.
-// Dans une boutique, la base montre tout au patron et au caissier, et au
-// dealer ses seules ventes.
-export async function SalesList({
-  supabase,
-  shopId,
-  role,
-  userId,
-  currency = PERSONAL_CURRENCY,
-}: {
-  supabase: Supabase;
-  shopId: string | null;
-  role: MemberRole | null;
-  userId: string;
-  currency?: string;
-}) {
-  const t = await getTranslations("sales");
-  const format = await getFormatter();
-  const money = (amount: number) => formatMoney(amount, currency);
-
-  const query = supabase
-    .from("sales")
-    .select(
-      "id, status, sale_price, shop_share, dealer_share, created_at, seller_user_id, consignment_id, devices(model, capacity, color), customers(name), consignments(floor_price), users!sales_seller_user_id_fkey(name)",
-    )
-    .order("created_at", { ascending: false });
-  const { data } = await (shopId
-    ? query.eq("shop_id", shopId)
-    : query.eq("type", "PERSONAL").eq("seller_user_id", userId));
-  const sales = [...(data ?? [])].sort(
-    (a, b) =>
-      Number(b.status === "PENDING_APPROVAL") - Number(a.status === "PENDING_APPROVAL"),
-  );
-
-  return (
-    <>
-      <PageHeader
-        title={t(shopId ? (role === "DEALER" ? "mineTitle" : "title") : "personalTitle")}
-        subtitle={t(shopId ? (role === "DEALER" ? "mineSubtitle" : "subtitle") : "personalSubtitle")}
-      />
-      {sales.length === 0 ? (
-        <Card className="text-muted lg:max-w-xl">{t("empty")}</Card>
-      ) : (
-        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {sales.map((sale) => (
-            <li key={sale.id}>
-              <Card className="flex h-full flex-col gap-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold">{sale.devices?.model}</p>
-                    {sale.devices ? (
-                      <p className="text-sm text-muted">
-                        <Variant capacity={sale.devices.capacity} color={sale.devices.color} />
-                      </p>
-                    ) : null}
-                  </div>
-                  <Badge tone={saleTones[sale.status]}>{t(`status.${sale.status}`)}</Badge>
-                </div>
-
-                <p className="text-2xl font-bold tracking-tight">{money(sale.sale_price)}</p>
-
-                <dl className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <dt className="text-muted">{t("customer")}</dt>
-                    <dd className="truncate font-medium">{sale.customers?.name}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted">{t("date")}</dt>
-                    <dd className="font-medium">
-                      {format.dateTime(new Date(sale.created_at), { dateStyle: "medium" })}
-                    </dd>
-                  </div>
-                  {shopId && sale.users?.name && sale.seller_user_id !== userId ? (
-                    <div className="col-span-2">
-                      <dt className="text-muted">{t("seller")}</dt>
-                      <dd className="font-medium">{sale.users.name}</dd>
-                    </div>
-                  ) : null}
-                  {shopId && sale.shop_share !== null && sale.dealer_share !== null ? (
-                    <>
-                      <div>
-                        <dt className="text-muted">{t("shopShare")}</dt>
-                        <dd className="font-semibold">{money(sale.shop_share)}</dd>
-                      </div>
-                      {sale.consignment_id ? (
-                        <div>
-                          <dt className="text-muted">
-                            {t(sale.seller_user_id === userId ? "yourShare" : "dealerShare")}
-                          </dt>
-                          <dd className="font-semibold">{money(sale.dealer_share)}</dd>
-                        </div>
-                      ) : null}
-                    </>
-                  ) : null}
-                </dl>
-
-                {sale.status === "PENDING_APPROVAL" && sale.consignments ? (
-                  <p className="rounded-xl bg-warning-soft p-3 text-sm font-medium text-warning">
-                    {t("belowFloorNote", { floor: money(sale.consignments.floor_price) })}
-                  </p>
-                ) : null}
-
-                {sale.status === "COMPLETED" ? (
-                  <ButtonLink
-                    href={shopId ? `/s/${shopId}/sales/${sale.id}` : `/perso/sales/${sale.id}`}
-                    variant="secondary"
-                    className="mt-auto"
-                  >
-                    {t("viewSale")}
-                  </ButtonLink>
-                ) : null}
-
-                {sale.status === "PENDING_APPROVAL" && role === "OWNER" && shopId ? (
-                  <div className="mt-auto grid grid-cols-2 gap-2">
-                    <form action={decideSale.bind(null, shopId, sale.id, false)}>
-                      <Button type="submit" variant="danger" className="w-full">
-                        {t("reject")}
-                      </Button>
-                    </form>
-                    <form action={decideSale.bind(null, shopId, sale.id, true)}>
-                      <Button type="submit" className="w-full">
-                        {t("approve")}
-                      </Button>
-                    </form>
-                  </div>
-                ) : null}
-              </Card>
-            </li>
-          ))}
-        </ul>
-      )}
-    </>
-  );
-}
-
-// ---------- Clients ----------
-
-export async function CustomersList({
-  supabase,
-  shopId,
-  role,
-  userId,
-}: {
-  supabase: Supabase;
-  shopId: string | null;
-  role: MemberRole | null;
-  userId: string;
-}) {
-  const t = await getTranslations("customers");
-  const { data: customers } = await customersOf(supabase, shopId, userId);
-  const subtitle = !shopId
-    ? "personalSubtitle"
-    : role === "DEALER"
-      ? "mineSubtitle"
-      : "subtitle";
-
-  return (
-    <>
-      <PageHeader title={t(shopId ? "title" : "personalTitle")} subtitle={t(subtitle)} />
-      {!customers || customers.length === 0 ? (
-        <Card className="text-muted lg:max-w-xl">{t("empty")}</Card>
-      ) : (
-        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {customers.map((customer) => (
-            <li key={customer.id}>
-              <Card>
-                <p className="truncate font-semibold">{customer.name}</p>
-                <p className="text-sm text-muted">{customer.phone ?? t("noPhone")}</p>
-              </Card>
-            </li>
-          ))}
-        </ul>
-      )}
-    </>
   );
 }
