@@ -2,7 +2,7 @@
 // Les capacités et couleurs sont des clés traduites dans messages/fr.json
 // (catalog.capacity.*, catalog.color.*). Les modèles sont des noms propres.
 
-export const MODELS = [
+const APPLE = [
   "iPhone 17 Pro Max",
   "iPhone 17 Pro",
   "iPhone Air",
@@ -39,9 +39,77 @@ export const MODELS = [
   "iPhone X",
   "iPhone 8 Plus",
   "iPhone 8",
+  "iPhone 7 Plus",
+  "iPhone 7",
 ] as const;
 
-export const CAPACITIES = ["64GB", "128GB", "256GB", "512GB", "1TB", "2TB"] as const;
+const SAMSUNG = [
+  "Galaxy S25 Ultra",
+  "Galaxy S25+",
+  "Galaxy S25",
+  "Galaxy S24 Ultra",
+  "Galaxy S24+",
+  "Galaxy S24",
+  "Galaxy S24 FE",
+  "Galaxy S23 Ultra",
+  "Galaxy S23+",
+  "Galaxy S23",
+  "Galaxy S22 Ultra",
+  "Galaxy S22+",
+  "Galaxy S22",
+  "Galaxy S21 Ultra",
+  "Galaxy S21+",
+  "Galaxy S21",
+  "Galaxy S20 Ultra",
+  "Galaxy S20+",
+  "Galaxy S20",
+  "Galaxy S10+",
+  "Galaxy S10",
+  "Galaxy S10e",
+  "Galaxy S9+",
+  "Galaxy S9",
+  "Galaxy S8+",
+  "Galaxy S8",
+  "Galaxy S7 edge",
+  "Galaxy S7",
+  "Galaxy S6 edge",
+  "Galaxy Note 20 Ultra",
+  "Galaxy Note 20",
+  "Galaxy Note 10+",
+  "Galaxy Note 10",
+  "Galaxy Note 9",
+  "Galaxy Note 8",
+  "Galaxy Z Fold6",
+  "Galaxy Z Fold5",
+  "Galaxy Z Flip6",
+  "Galaxy Z Flip5",
+  "Galaxy A55",
+  "Galaxy A54",
+  "Galaxy A35",
+  "Galaxy A34",
+  "Galaxy A25",
+  "Galaxy A15",
+  "Galaxy A14",
+] as const;
+
+// Modèles regroupés par marque, dans l'ordre d'affichage.
+export const BRANDS = [
+  { brand: "Apple", models: APPLE },
+  { brand: "Samsung", models: SAMSUNG },
+] as const;
+
+export const MODELS: readonly string[] = BRANDS.flatMap((group) => group.models);
+
+export const CAPACITIES = [
+  "16GB",
+  "32GB",
+  "64GB",
+  "128GB",
+  "256GB",
+  "512GB",
+  "1TB",
+  "2TB",
+] as const;
 
 export const COLORS = [
   "BLACK",

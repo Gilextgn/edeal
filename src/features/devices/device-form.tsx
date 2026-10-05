@@ -1,12 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, ButtonLink, Field, FormMessage, Select } from "@/components/ui";
-import { CAPACITIES, COLORS, MODELS } from "@/domain/catalog";
-import { isValidImei, normalizeImei } from "@/domain/imei";
+import { BRANDS, CAPACITIES, COLORS } from "@/domain/catalog";
 import { currencyLabel } from "@/domain/money";
 import type { FormState } from "@/lib/form";
+import { ImeiScanner } from "./imei-scanner";
 
 type Props = {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
@@ -20,40 +20,23 @@ export function DeviceForm({ action, currency, cancelHref, initial }: Props) {
   const t = useTranslations();
   const [state, formAction, pending] = useActionState(action, null);
   const values = state?.values ?? initial ?? {};
-  const [imei, setImei] = useState(values.imei ?? "");
-  const digits = normalizeImei(imei);
   const editing = Boolean(initial);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
-      {editing ? null : (
-        <div>
-          <Field
-            name="imei"
-            label={t("devices.imei")}
-            hint={t("devices.imeiHint")}
-            inputMode="numeric"
-            autoComplete="off"
-            required
-            value={imei}
-            onChange={(event) => setImei(event.target.value)}
-          />
-          {digits.length >= 15 ? (
-            <p
-              className={`mt-1.5 text-sm font-medium ${isValidImei(digits) ? "text-success" : "text-danger"}`}
-            >
-              {t(isValidImei(digits) ? "devices.imeiValid" : "devices.imeiInvalid")}
-            </p>
-          ) : null}
-        </div>
-      )}
+      {/* La clé remonte le lecteur après un refus du serveur, avec l'IMEI déjà lu. */}
+      {editing ? null : <ImeiScanner key={values.imei ?? ""} initial={values.imei} />}
 
       <Select name="model" label={t("devices.model")} required defaultValue={values.model ?? ""}>
         <option value="" disabled>
           {t("devices.choose")}
         </option>
-        {MODELS.map((model) => (
-          <option key={model}>{model}</option>
+        {BRANDS.map((group) => (
+          <optgroup key={group.brand} label={group.brand}>
+            {group.models.map((model) => (
+              <option key={model}>{model}</option>
+            ))}
+          </optgroup>
         ))}
       </Select>
 

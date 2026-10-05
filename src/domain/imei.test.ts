@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { imeiCheckDigit, isValidImei, normalizeImei } from "./imei";
+import { extractImeis, imeiCheckDigit, isValidImei, normalizeImei } from "./imei";
 
 describe("isValidImei", () => {
   it("accepte des IMEI dont la clé de Luhn est correcte", () => {
@@ -49,5 +49,48 @@ describe("normalizeImei", () => {
     expect(normalizeImei("49 015420 323751 8")).toBe("490154203237518");
     expect(normalizeImei("49-015420-323751-8")).toBe("490154203237518");
     expect(normalizeImei("35 693803 564380 9")).toBe("356938035643809");
+  });
+});
+
+describe("extractImeis (lecture d'une photo)", () => {
+  it("lit l'IMEI de l'écran « À propos » d'un iPhone", () => {
+    const text = [
+      "Nom du modèle iPhone 13",
+      "Numéro de série F2LXK0ABCD12",
+      "IMEI 35 693803 564380 9",
+      "ICCID 8933 0123 4567 8901 2345",
+      "MEID 35693803564380",
+    ].join("\n");
+    expect(extractImeis(text)).toEqual(["356938035643809"]);
+  });
+
+  it("lit les deux IMEI d'un téléphone double SIM (écran *#06#)", () => {
+    const text = "IMEI1\n490154203237518 / 01\nIMEI2\n356938035643809 / 01\nSN\nR58M12ABCDE";
+    expect(extractImeis(text)).toEqual(["490154203237518", "356938035643809"]);
+  });
+
+  it("lit le contenu d'un code-barres", () => {
+    expect(extractImeis("490154203237518")).toEqual(["490154203237518"]);
+  });
+
+  it("lit deux IMEI collés sur une même ligne", () => {
+    expect(extractImeis("490154203237518356938035643809")).toEqual([
+      "490154203237518",
+      "356938035643809",
+    ]);
+  });
+
+  it("ignore les suites dont la clé de Luhn est fausse", () => {
+    expect(extractImeis("IMEI 35 693803 564380 8")).toEqual([]);
+    expect(extractImeis("123456789012345")).toEqual([]);
+  });
+
+  it("ignore numéros de téléphone, prix et numéros trop longs", () => {
+    expect(extractImeis("Tel 97 00 00 00\nPrix 250 000 F CFA\n8933012345678901234")).toEqual([]);
+    expect(extractImeis("")).toEqual([]);
+  });
+
+  it("ne renvoie pas deux fois le même IMEI", () => {
+    expect(extractImeis("490154203237518\nIMEI 49 015420 323751 8")).toEqual(["490154203237518"]);
   });
 });
