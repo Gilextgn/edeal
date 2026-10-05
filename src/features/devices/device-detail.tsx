@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { icons } from "@/components/icons";
+import { Precache } from "@/components/offline";
 import { Badge, Button, ButtonLink, Card, FormMessage, PageHeader } from "@/components/ui";
 import { formatMoney } from "@/domain/money";
 import type { createClient } from "@/lib/supabase/server";
@@ -67,6 +68,15 @@ export async function DeviceDetail({ supabase, scope, userId, deviceId, justCrea
   const inStock = device.status === "IN_STOCK";
   const canChangeStock = scope.canWrite && (inStock || device.status === "WITHDRAWN");
   const overdue = consignment ? consignment.due_on < new Date().toISOString().slice(0, 10) : false;
+  const available = inStock || device.status === "CONSIGNED";
+
+  // Formulaires à garder sur le téléphone pour pouvoir les ouvrir sans connexion.
+  const offlinePages = [
+    ...(inStock && scope.canSell ? [`${base}/sell`] : []),
+    ...(scope.canWrite ? [`${base}/reports/new`] : []),
+    ...(inStock && scope.canWrite && scope.shopId ? [`${base}/consign`] : []),
+    ...(consignment && scope.canWrite ? [`${base}/return`] : []),
+  ];
 
   return (
     <>
@@ -81,6 +91,8 @@ export async function DeviceDetail({ supabase, scope, userId, deviceId, justCrea
           ) : null
         }
       />
+
+      <Precache urls={offlinePages} />
 
       {justCreated ? (
         <div className="mb-4">
@@ -110,6 +122,11 @@ export async function DeviceDetail({ supabase, scope, userId, deviceId, justCrea
             <p className="text-sm text-muted">
               {t("devices.addedOn", { date: day(device.created_at) })}
             </p>
+            {available ? (
+              <ButtonLink href={`${base}/listing`} variant="secondary">
+                {t("listing.open")}
+              </ButtonLink>
+            ) : null}
             {scope.canWrite ? (
               <div className="flex flex-col gap-2">
                 {inStock && scope.shopId ? (

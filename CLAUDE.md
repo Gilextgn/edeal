@@ -47,6 +47,7 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 
 - `src/domain/` : logique pure (aucun accès base ni réseau), très testée. Calcul des parts, solde, IMEI, imputation des règlements.
 - `src/lib/` : accès Supabase, variables d'environnement, compression des photos (`photos/`), file d'envoi différé (`offline/`).
+- `src/features/share/` : reçu de vente (WhatsApp, impression) et annonce générée depuis le dernier constat.
 - `src/features/money/` : fiche de vente avec échéances, soldes des dealers, règlements.
 - `src/features/dashboard/` : tableaux de bord (boutique selon le rôle, espace perso).
 - `src/features/sales/` : dépôts, ventes, clients (formulaires, listes, validation du patron).
@@ -89,10 +90,9 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 - **Fonctions de contrôle d'accès en SQL** : toujours renvoyer un vrai booléen (`exists(...)` ou `coalesce(..., false)`). Une comparaison avec un `shop_id` vide vaut `NULL`, et `if not <NULL>` laisse passer.
 - **Type de vente** déduit par la base : appareil perso du vendeur → `PERSONAL` ; appareil confié au vendeur → `SHOP` avec commission ; appareil en stock vendu par le patron ou le caissier → `SHOP` sans commission.
 - **Constat + opération** : dépôt, retour et vente s'enregistrent chacun avec leur constat dans une seule transaction (`create_consignment`, `return_consignment`, `create_sale`) et passent tous par la file d'envoi différé. `ReportOperationForm` (`src/features/devices/report-fields.tsx`) est le formulaire commun.
-- **PWA** : manifeste + service worker minimal (`public/sw.js`). La file de synchronisation hors-ligne (IndexedDB, identifiants générés sur le téléphone) arrive avec les ventes et les photos.
+- **PWA et hors-ligne** : `public/sw.js` garde les fichiers statiques et chaque page ouverte ; sans réseau il les ressert (bandeau « Pas de connexion »). À l'ouverture d'une fiche d'appareil ou de dépôt, les formulaires liés (vente, constat, dépôt, retour) sont mis en cache d'avance (`<Precache>`), ce qui permet de saisir une vente sans réseau ; l'envoi passe par la file IndexedDB. Seules les opérations de cette file fonctionnent hors-ligne : créer un appareil, régler ou pointer une échéance demandent le réseau. Les pages gardées sont effacées à la déconnexion et au changement de compte. Changer `VERSION` dans `sw.js` quand sa logique change.
 - **Photos** : compressées sur le téléphone (1280 px max, JPEG), envoyées dans le bucket privé `photos` sous `<appareil>/<constat>/<photo>`. Seule la clé est en base ; l'URL signée est générée à la lecture. Ni modification ni suppression possibles.
-- **Envoi différé** : un constat est d'abord déposé dans IndexedDB (`src/lib/offline/report-queue.ts`), puis envoyé. Sans connexion il reste en file et repart au retour du réseau ; l'envoi est rejouable car les identifiants sont créés sur le téléphone. Le chargement des écrans eux-mêmes demande encore une connexion (phase 5).
-- **Valeurs d'énumération** en anglais dans le code et la base (`OWNER`, `IN_STOCK`, `LIKE_NEW`…), traduites dans `messages/fr.json`.
+- **Envoi différé** : un constat est d'abord déposé dans IndexedDB (`src/lib/offline/report-queue.ts`), puis envoyé. Sans connexion il reste en file et repart au retour du réseau ; l'envoi est rejouable car les identifiants sont créés sur le téléphone.- **Valeurs d'énumération** en anglais dans le code et la base (`OWNER`, `IN_STOCK`, `LIKE_NEW`…), traduites dans `messages/fr.json`.
 
 ## Avancement
 
@@ -101,4 +101,4 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 - [x] Phase 2 : appareils, constats, photos
 - [x] Phase 3 : dépôts et ventes
 - [x] Phase 4 : argent (échéances, règlements, soldes, tableau de bord)
-- [ ] Phase 5 : confort (reçu, annonce, hors-ligne complet)
+- [x] Phase 5 : confort (reçu, annonce, hors-ligne)

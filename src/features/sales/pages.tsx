@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { Precache } from "@/components/offline";
 import { Badge, Button, ButtonLink, Card, PageHeader } from "@/components/ui";
 import { amountToInput, formatMoney, PERSONAL_CURRENCY } from "@/domain/money";
 import { loadDevice } from "@/features/devices/device-detail";
 import { Variant } from "@/features/devices/labels";
 import { ReportCards } from "@/features/devices/report-cards";
 import { requireWritable, type DeviceScope } from "@/features/devices/scope";
+import { ListingPage } from "@/features/share/pages";
 import type { MemberRole } from "@/lib/session";
 import type { createClient } from "@/lib/supabase/server";
 import { decideSale } from "./actions";
@@ -321,6 +323,17 @@ export async function DealerConsignmentPage(context: ShopContext & { consignment
               {t("sales.awaitingOwner", { price: money(pendingSale.sale_price) })}
             </p>
           ) : null}
+          {active ? (
+            <ButtonLink
+              href={`/s/${shop.id}/consignments/${consignment.id}/listing`}
+              variant="secondary"
+            >
+              {t("listing.open")}
+            </ButtonLink>
+          ) : null}
+          {active && !pendingSale ? (
+            <Precache urls={[`/s/${shop.id}/consignments/${consignment.id}/sell`]} />
+          ) : null}
         </Card>
 
         <ReportCards supabase={supabase} deviceId={device.id} />
@@ -361,6 +374,22 @@ export async function DealerSellPage(
         customers={customers ?? []}
       />
     </div>
+  );
+}
+
+// Annonce d'un appareil confié, pour le dealer qui le vend.
+export async function DealerListingPage(
+  context: ShopContext & { consignmentId: string; contactPhone: string | null },
+) {
+  const { consignment, device } = await loadMyConsignment(context, context.consignmentId);
+  return (
+    <ListingPage
+      supabase={context.supabase}
+      device={device}
+      currency={context.shop.currency}
+      contactPhone={context.contactPhone}
+      backHref={`/s/${context.shop.id}/consignments/${consignment.id}`}
+    />
   );
 }
 

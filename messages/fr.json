@@ -561,9 +561,62 @@
       "method_required": "Choisissez le mode de paiement."
     }
   },
+  "receipt": {
+    "open": "Reçu",
+    "title": "Reçu de vente",
+    "subtitle": "À envoyer au client ou à imprimer.",
+    "sendWhatsapp": "Envoyer sur WhatsApp",
+    "print": "Imprimer ou enregistrer en PDF",
+    "number": "Reçu n° {number}",
+    "device": "Appareil",
+    "warrantyUntil": "Jusqu'au {date}",
+    "schedule": "Paiement en plusieurs fois",
+    "leftToPay": "Reste à payer",
+    "footer": "Merci de votre confiance. Reçu généré par eDeal.",
+    "message": {
+      "title": "{seller} — Reçu n° {number}",
+      "date": "Date : {date}",
+      "device": "Appareil : {device}",
+      "imei": "IMEI : {imei}",
+      "price": "Prix : {price}",
+      "warranty": "Garantie jusqu'au {date}",
+      "noWarranty": "Sans garantie",
+      "leftToPay": "Reste à payer : {amount}",
+      "thanks": "Merci de votre confiance."
+    }
+  },
+  "listing": {
+    "open": "Créer une annonce",
+    "title": "Annonce",
+    "subtitle": "Générée à partir du dernier constat d'état. Relisez-la avant de la publier.",
+    "needsReport": "Il faut un constat d'état avec photos pour générer une annonce.",
+    "share": "Partager avec les photos",
+    "whatsapp": "Envoyer le texte sur WhatsApp",
+    "copy": "Copier le texte",
+    "copied": "Texte copié",
+    "photos": "Photos",
+    "photosHint": "Touchez une photo pour l'ouvrir et l'enregistrer. L'écran « À propos » n'est pas inclus : il montre l'IMEI.",
+    "text": {
+      "title": "📱 {device}",
+      "grade": "État général : {grade}",
+      "screen": "Écran : {state}",
+      "body": "Châssis : {state}",
+      "battery": "Batterie : {value} %",
+      "allWorking": "Tout fonctionne : Face ID, appareils photo, son, charge",
+      "notWorking": "Ne fonctionne pas : {items}",
+      "icloudFree": "iCloud libre",
+      "icloudLocked": "iCloud verrouillé",
+      "neverRepaired": "Jamais réparé",
+      "repairs": "Réparations : {items}",
+      "accessories": "Fourni avec : {items}",
+      "price": "Prix : {price}",
+      "contact": "Contact : {phone}"
+    }
+  },
   "offline": {
     "title": "Pas de connexion",
     "body": "Vérifiez votre connexion, puis réessayez.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "banner": "Pas de connexion. Vous voyez les pages telles qu'à votre dernière visite ; vos saisies seront envoyées au retour du réseau."
   }
 }

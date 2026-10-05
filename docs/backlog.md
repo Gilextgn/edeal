@@ -58,3 +58,12 @@ Idées hors du périmètre de la phase en cours. Rien ici n'est engagé.
 - Rappels automatiques (WhatsApp ou SMS) pour les échéances et les dépôts en retard : aujourd'hui les retards s'affichent sur le tableau de bord.
 - Le bénéfice affiché ne tient pas compte des frais (réparations, transport).
 - Les statistiques sont calculées à l'affichage ; à déplacer en base si une boutique dépasse quelques milliers de ventes.
+
+## Notes de la phase 5
+
+- Reçu en vrai fichier PDF joint au message (aujourd'hui : message WhatsApp en texte, et impression ou « Enregistrer en PDF » du navigateur).
+- Annonce rédigée par une IA, ou publiée directement sur Facebook / Marketplace (aujourd'hui : texte généré par un modèle fixe, à partager soi-même).
+- Hors-ligne : seules les pages déjà ouvertes, et les formulaires d'un appareil dont la fiche a été ouverte, sont disponibles. Créer un appareil, enregistrer un règlement ou pointer une échéance demandent le réseau.
+- Hors-ligne : les données affichées datent de la dernière visite, sans indication de leur âge.
+- Logo de la boutique sur le reçu.
+- Tests de bout en bout automatisés (navigateur) à ajouter à la CI : les parcours ont été vérifiés avec des scripts jetables, non conservés.

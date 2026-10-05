@@ -86,3 +86,10 @@ body {
   background: var(--bg);
   color: var(--fg);
 }
+
+/* Impression d'un reçu : fond blanc. Les menus sont masqués par print:hidden. */
+@media print {
+  body {
+    background: #ffffff;
+  }
+}

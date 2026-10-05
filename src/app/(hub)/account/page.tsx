@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { ProfileForm } from "@/components/forms";
-import { Button, Card, PageHeader } from "@/components/ui";
+import { LogoutButton } from "@/components/offline";
+import { Card, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/session";
-import { signOut } from "../../(auth)/actions";
 import { updateProfile } from "../actions";
 
 export default async function AccountPage() {
@@ -30,11 +30,9 @@ export default async function AccountPage() {
           </dl>
         </ProfileForm>
       </Card>
-      <form action={signOut}>
-        <Button type="submit" variant="danger" className="w-full sm:w-auto">
-          {t("auth.logout")}
-        </Button>
-      </form>
+      <div>
+        <LogoutButton>{t("auth.logout")}</LogoutButton>
+      </div>
     </div>
   );
 }

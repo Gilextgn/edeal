@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { icons } from "@/components/icons";
-import { Badge, Button, Card, FormMessage, PageHeader } from "@/components/ui";
+import { Badge, Button, ButtonLink, Card, FormMessage, PageHeader } from "@/components/ui";
 import { isOverdue, outstanding } from "@/domain/installments";
 import { formatMoney, PERSONAL_CURRENCY } from "@/domain/money";
 import { Variant } from "@/features/devices/labels";
@@ -67,6 +67,16 @@ export async function SaleDetail({
       <PageHeader
         title={sale.devices?.model ?? t("sales.sale")}
         subtitle={sale.devices ? `${t("devices.imei")} ${sale.devices.imei}` : undefined}
+        action={
+          completed ? (
+            <ButtonLink
+              href={`${shopId ? `/s/${shopId}` : "/perso"}/sales/${sale.id}/receipt`}
+              className="w-full sm:w-auto"
+            >
+              {t("receipt.open")}
+            </ButtonLink>
+          ) : null
+        }
       />
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
