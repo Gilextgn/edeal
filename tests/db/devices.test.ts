@@ -386,21 +386,27 @@ describe("constats d'état", () => {
     expect((await user.client.from("photos").select("id")).data).toHaveLength(8);
   });
 
-  it("seul celui qui peut modifier l'appareil crée un constat ou envoie une photo", async () => {
+  it("seul celui qui peut modifier l'appareil crée un constat d'entrée", async () => {
     const { patron, dealer, cashier, shopId } = await shopWithTeam();
+    const stranger = await signUpUser("Inconnu", { email: randomEmail() });
     const deviceId = await createDevice(patron, { shop_id: shopId });
     const report = reportPayload(deviceId);
     const photos = await uploadPhotos(patron, deviceId, report.id);
-
-    for (const user of [dealer, cashier]) {
-      const upload = await user.client.storage
+    const upload = (user: typeof patron) =>
+      user.client.storage
         .from("photos")
         .upload(
           `${deviceId}/${report.id}/${randomUUID()}`,
           new Blob(["x"], { type: "image/jpeg" }),
         );
-      expect(upload.error).not.toBeNull();
 
+    // Le caissier envoie des photos (il en a besoin pour une vente directe) ;
+    // un dealer à qui l'appareil n'est pas confié et un inconnu ne le peuvent pas.
+    expect((await upload(cashier)).error).toBeNull();
+    expect((await upload(dealer)).error).not.toBeNull();
+    expect((await upload(stranger)).error).not.toBeNull();
+
+    for (const user of [dealer, cashier, stranger]) {
       const created = await user.client.rpc("create_intake_report", {
         p_report: report,
         p_photos: photos,

@@ -166,3 +166,82 @@ export async function createReport(user: TestUser, deviceId: string) {
   if (error) throw new Error(`Constat de test impossible : ${error.message}`);
   return { report, photos };
 }
+
+export async function membershipId(owner: TestUser, userId: string) {
+  const { data } = await owner.client
+    .from("memberships")
+    .select("id")
+    .eq("user_id", userId)
+    .single();
+  return data!.id as string;
+}
+
+const inDays = (days: number) =>
+  new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
+
+// Appelle create_consignment avec un constat de remise complet.
+export async function consign(
+  owner: TestUser,
+  deviceId: string,
+  dealerMembershipId: string,
+  overrides: Record<string, unknown> = {},
+) {
+  const report = reportPayload(deviceId);
+  const photos = await uploadPhotos(owner, deviceId, report.id);
+  const consignment = {
+    id: randomUUID(),
+    device_id: deviceId,
+    membership_id: dealerMembershipId,
+    due_on: inDays(14),
+    floor_price: 230000,
+    ...overrides,
+  };
+  const result = await owner.client.rpc("create_consignment", {
+    p_consignment: consignment,
+    p_report: report,
+    p_photos: photos,
+  });
+  return { ...result, consignment, report, photos };
+}
+
+// Appelle create_sale avec un constat de vente complet et un nouveau client.
+export async function sell(
+  seller: TestUser,
+  deviceId: string,
+  overrides: Record<string, unknown> = {},
+) {
+  const report = reportPayload(deviceId);
+  const photos = await uploadPhotos(seller, deviceId, report.id);
+  const sale = {
+    id: randomUUID(),
+    device_id: deviceId,
+    sale_price: 250000,
+    warranty_days: 30,
+    customer_id: randomUUID(),
+    customer_name: "Client Test",
+    customer_phone: "97000000",
+    ...overrides,
+  };
+  const result = await seller.client.rpc("create_sale", {
+    p_sale: sale,
+    p_report: report,
+    p_photos: photos,
+  });
+  return { ...result, sale, report, photos };
+}
+
+// Boutique avec un appareil (achat 200 000) confié au dealer (plancher 230 000).
+export async function shopWithConsignment() {
+  const team = await shopWithTeam();
+  const deviceId = await createDevice(team.patron, { shop_id: team.shopId });
+  const dealerMembership = await membershipId(team.patron, team.dealer.id);
+  const { error, consignment, report } = await consign(team.patron, deviceId, dealerMembership);
+  if (error) throw new Error(`Dépôt de test impossible : ${error.message}`);
+  return {
+    ...team,
+    deviceId,
+    dealerMembership,
+    consignmentId: consignment.id,
+    handoverReportId: report.id,
+  };
+}

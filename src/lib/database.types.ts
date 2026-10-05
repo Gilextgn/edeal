@@ -48,6 +48,92 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"consignments": {
+                  Row: {
+                    "created_at": string,"created_by": string,"dealer_user_id": string,"device_id": string,"due_on": string,"floor_price": number,"handed_over_on": string,"handover_report_id": string,"id": string,"membership_id": string,"return_report_id": string | null,"shop_id": string,"status": Database["public"]['Enums']["consignment_status"]
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"dealer_user_id": string,"device_id": string,"due_on": string,"floor_price": number,"handed_over_on"?: string,"handover_report_id": string,"id": string,"membership_id": string,"return_report_id"?: string | null,"shop_id": string,"status"?: Database["public"]['Enums']["consignment_status"]
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"dealer_user_id"?: string,"device_id"?: string,"due_on"?: string,"floor_price"?: number,"handed_over_on"?: string,"handover_report_id"?: string,"id"?: string,"membership_id"?: string,"return_report_id"?: string | null,"shop_id"?: string,"status"?: Database["public"]['Enums']["consignment_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "consignments_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consignments_dealer_user_id_fkey"
+      columns: ["dealer_user_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consignments_device_id_fkey"
+      columns: ["device_id"]
+isOneToOne: false
+      referencedRelation: "devices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consignments_handover_report_id_fkey"
+      columns: ["handover_report_id"]
+isOneToOne: true
+      referencedRelation: "condition_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consignments_membership_id_fkey"
+      columns: ["membership_id"]
+isOneToOne: false
+      referencedRelation: "memberships"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consignments_return_report_id_fkey"
+      columns: ["return_report_id"]
+isOneToOne: true
+      referencedRelation: "condition_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consignments_shop_id_fkey"
+      columns: ["shop_id"]
+isOneToOne: false
+      referencedRelation: "shops"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"customers": {
+                  Row: {
+                    "created_at": string,"created_by": string,"id": string,"name": string,"owner_user_id": string | null,"phone": string | null,"shop_id": string | null
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"id"?: string,"name": string,"owner_user_id"?: string | null,"phone"?: string | null,"shop_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"id"?: string,"name"?: string,"owner_user_id"?: string | null,"phone"?: string | null,"shop_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "customers_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "customers_owner_user_id_fkey"
+      columns: ["owner_user_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "customers_shop_id_fkey"
+      columns: ["shop_id"]
+isOneToOne: false
+      referencedRelation: "shops"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"devices": {
                   Row: {
                     "capacity": string,"color": string,"created_at": string,"created_by": string,"id": string,"imei": string,"model": string,"owner_user_id": string | null,"purchase_price": number,"shop_id": string | null,"status": Database["public"]['Enums']["device_status"],"target_price": number
@@ -142,6 +228,61 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"sales": {
+                  Row: {
+                    "commission_rate_bps": number,"consignment_id": string | null,"created_at": string,"customer_id": string,"dealer_share": number | null,"decided_at": string | null,"decided_by": string | null,"device_id": string,"id": string,"purchase_price": number,"report_id": string,"sale_price": number,"seller_user_id": string,"shop_id": string | null,"shop_share": number | null,"status": Database["public"]['Enums']["sale_status"],"type": Database["public"]['Enums']["sale_type"],"warranty_days": number
+                  }
+                  Insert: {
+                    "commission_rate_bps": number,"consignment_id"?: string | null,"created_at"?: string,"customer_id": string,"dealer_share"?: number | null,"decided_at"?: string | null,"decided_by"?: string | null,"device_id": string,"id": string,"purchase_price": number,"report_id": string,"sale_price": number,"seller_user_id": string,"shop_id"?: string | null,"shop_share"?: number | null,"status": Database["public"]['Enums']["sale_status"],"type": Database["public"]['Enums']["sale_type"],"warranty_days"?: number
+                  }
+                  Update: {
+                    "commission_rate_bps"?: number,"consignment_id"?: string | null,"created_at"?: string,"customer_id"?: string,"dealer_share"?: number | null,"decided_at"?: string | null,"decided_by"?: string | null,"device_id"?: string,"id"?: string,"purchase_price"?: number,"report_id"?: string,"sale_price"?: number,"seller_user_id"?: string,"shop_id"?: string | null,"shop_share"?: number | null,"status"?: Database["public"]['Enums']["sale_status"],"type"?: Database["public"]['Enums']["sale_type"],"warranty_days"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sales_consignment_id_fkey"
+      columns: ["consignment_id"]
+isOneToOne: false
+      referencedRelation: "consignments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "customers"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_device_id_fkey"
+      columns: ["device_id"]
+isOneToOne: false
+      referencedRelation: "devices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: true
+      referencedRelation: "condition_reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_seller_user_id_fkey"
+      columns: ["seller_user_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_shop_id_fkey"
+      columns: ["shop_id"]
+isOneToOne: false
+      referencedRelation: "shops"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"shops": {
                   Row: {
                     "address": string | null,"created_at": string,"currency": string,"id": string,"name": string,"phone": string | null
@@ -177,14 +318,31 @@ isOneToOne: false
             "add_member":
 { Args: { "p_commission_rate_bps"?: number,"p_email"?: string,"p_phone"?: string,"p_role": Database["public"]['Enums']["member_role"],"p_shop_id": string }; Returns: string
                            },
+"create_consignment":
+{ Args: { "p_consignment": Json,"p_photos": Json,"p_report": Json }; Returns: string
+                           },
 "create_intake_report":
 { Args: { "p_photos": Json,"p_report": Json }; Returns: string
+                           },
+"create_sale":
+{ Args: { "p_photos": Json,"p_report": Json,"p_sale": Json }; Returns: Database["public"]['Enums']["sale_status"]
                            },
 "create_shop":
 { Args: { "p_address"?: string,"p_name": string,"p_phone"?: string }; Returns: string
                            },
+"decide_sale":
+{ Args: { "p_approve": boolean,"p_sale_id": string }; Returns: undefined
+                           },
 "is_valid_imei":
 { Args: { "p_imei": string }; Returns: boolean
+                           },
+"preview_shares":
+{ Args: { "p_purchase_price": number,"p_rate_bps": number,"p_sale_price": number }; Returns: {
+              "dealer_share": number,"shop_share": number
+            }[]
+                           },
+"return_consignment":
+{ Args: { "p_consignment_id": string,"p_photos": Json,"p_report": Json }; Returns: undefined
                            },
 "set_device_withdrawn":
 { Args: { "p_device_id": string,"p_withdrawn": boolean }; Returns: undefined
@@ -194,7 +352,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "condition_grade": "NEW"|"LIKE_NEW"|"GOOD"|"FAIR","device_status": "IN_STOCK"|"CONSIGNED"|"SOLD"|"WITHDRAWN","member_role": "OWNER"|"DEALER"|"CASHIER","photo_angle": "FRONT"|"BACK"|"SIDES"|"SCREEN_ON"|"ABOUT"|"DEFECT","report_type": "INTAKE"|"HANDOVER"|"RETURN"|"SALE"
+            "condition_grade": "NEW"|"LIKE_NEW"|"GOOD"|"FAIR","consignment_status": "ACTIVE"|"SOLD"|"RETURNED"|"SETTLED","device_status": "IN_STOCK"|"CONSIGNED"|"SOLD"|"WITHDRAWN","member_role": "OWNER"|"DEALER"|"CASHIER","photo_angle": "FRONT"|"BACK"|"SIDES"|"SCREEN_ON"|"ABOUT"|"DEFECT","report_type": "INTAKE"|"HANDOVER"|"RETURN"|"SALE","sale_status": "PENDING_APPROVAL"|"COMPLETED"|"REJECTED"|"CANCELLED","sale_type": "SHOP"|"PERSONAL"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -314,7 +472,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "condition_grade": ["NEW", "LIKE_NEW", "GOOD", "FAIR"],"device_status": ["IN_STOCK", "CONSIGNED", "SOLD", "WITHDRAWN"],"member_role": ["OWNER", "DEALER", "CASHIER"],"photo_angle": ["FRONT", "BACK", "SIDES", "SCREEN_ON", "ABOUT", "DEFECT"],"report_type": ["INTAKE", "HANDOVER", "RETURN", "SALE"]
+            "condition_grade": ["NEW", "LIKE_NEW", "GOOD", "FAIR"],"consignment_status": ["ACTIVE", "SOLD", "RETURNED", "SETTLED"],"device_status": ["IN_STOCK", "CONSIGNED", "SOLD", "WITHDRAWN"],"member_role": ["OWNER", "DEALER", "CASHIER"],"photo_angle": ["FRONT", "BACK", "SIDES", "SCREEN_ON", "ABOUT", "DEFECT"],"report_type": ["INTAKE", "HANDOVER", "RETURN", "SALE"],"sale_status": ["PENDING_APPROVAL", "COMPLETED", "REJECTED", "CANCELLED"],"sale_type": ["SHOP", "PERSONAL"]
           }
         }
 } as const
