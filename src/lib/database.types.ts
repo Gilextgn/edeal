@@ -23,7 +23,63 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "invitations": {
+            "condition_reports": {
+                  Row: {
+                    "accessories": (string)[],"battery_health": number | null,"body_condition": string,"cameras_ok": boolean,"charging_ok": boolean,"comment": string | null,"created_at": string,"created_by": string,"device_id": string,"face_id_ok": boolean,"grade": Database["public"]['Enums']["condition_grade"],"icloud_unlocked": boolean,"id": string,"past_repairs": (string)[],"screen_condition": string,"speakers_ok": boolean,"type": Database["public"]['Enums']["report_type"]
+                  }
+                  Insert: {
+                    "accessories"?: (string)[],"battery_health"?: number | null,"body_condition": string,"cameras_ok": boolean,"charging_ok": boolean,"comment"?: string | null,"created_at"?: string,"created_by": string,"device_id": string,"face_id_ok": boolean,"grade": Database["public"]['Enums']["condition_grade"],"icloud_unlocked": boolean,"id": string,"past_repairs"?: (string)[],"screen_condition": string,"speakers_ok": boolean,"type": Database["public"]['Enums']["report_type"]
+                  }
+                  Update: {
+                    "accessories"?: (string)[],"battery_health"?: number | null,"body_condition"?: string,"cameras_ok"?: boolean,"charging_ok"?: boolean,"comment"?: string | null,"created_at"?: string,"created_by"?: string,"device_id"?: string,"face_id_ok"?: boolean,"grade"?: Database["public"]['Enums']["condition_grade"],"icloud_unlocked"?: boolean,"id"?: string,"past_repairs"?: (string)[],"screen_condition"?: string,"speakers_ok"?: boolean,"type"?: Database["public"]['Enums']["report_type"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "condition_reports_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "condition_reports_device_id_fkey"
+      columns: ["device_id"]
+isOneToOne: false
+      referencedRelation: "devices"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"devices": {
+                  Row: {
+                    "capacity": string,"color": string,"created_at": string,"created_by": string,"id": string,"imei": string,"model": string,"owner_user_id": string | null,"purchase_price": number,"shop_id": string | null,"status": Database["public"]['Enums']["device_status"],"target_price": number
+                  }
+                  Insert: {
+                    "capacity": string,"color": string,"created_at"?: string,"created_by"?: string,"id"?: string,"imei": string,"model": string,"owner_user_id"?: string | null,"purchase_price": number,"shop_id"?: string | null,"status"?: Database["public"]['Enums']["device_status"],"target_price": number
+                  }
+                  Update: {
+                    "capacity"?: string,"color"?: string,"created_at"?: string,"created_by"?: string,"id"?: string,"imei"?: string,"model"?: string,"owner_user_id"?: string | null,"purchase_price"?: number,"shop_id"?: string | null,"status"?: Database["public"]['Enums']["device_status"],"target_price"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "devices_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "devices_owner_user_id_fkey"
+      columns: ["owner_user_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "devices_shop_id_fkey"
+      columns: ["shop_id"]
+isOneToOne: false
+      referencedRelation: "shops"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"invitations": {
                   Row: {
                     "commission_rate_bps": number,"created_at": string,"email": string | null,"id": string,"phone": string | null,"role": Database["public"]['Enums']["member_role"],"shop_id": string
                   }
@@ -67,6 +123,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"photos": {
+                  Row: {
+                    "angle": Database["public"]['Enums']["photo_angle"],"created_at": string,"id": string,"report_id": string,"storage_key": string,"taken_at": string
+                  }
+                  Insert: {
+                    "angle": Database["public"]['Enums']["photo_angle"],"created_at"?: string,"id": string,"report_id": string,"storage_key": string,"taken_at": string
+                  }
+                  Update: {
+                    "angle"?: Database["public"]['Enums']["photo_angle"],"created_at"?: string,"id"?: string,"report_id"?: string,"storage_key"?: string,"taken_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "photos_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "condition_reports"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"shops": {
                   Row: {
                     "address": string | null,"created_at": string,"currency": string,"id": string,"name": string,"phone": string | null
@@ -102,15 +177,24 @@ isOneToOne: false
             "add_member":
 { Args: { "p_commission_rate_bps"?: number,"p_email"?: string,"p_phone"?: string,"p_role": Database["public"]['Enums']["member_role"],"p_shop_id": string }; Returns: string
                            },
+"create_intake_report":
+{ Args: { "p_photos": Json,"p_report": Json }; Returns: string
+                           },
 "create_shop":
 { Args: { "p_address"?: string,"p_name": string,"p_phone"?: string }; Returns: string
+                           },
+"is_valid_imei":
+{ Args: { "p_imei": string }; Returns: boolean
+                           },
+"set_device_withdrawn":
+{ Args: { "p_device_id": string,"p_withdrawn": boolean }; Returns: undefined
                            },
 "update_member":
 { Args: { "p_active": boolean,"p_commission_rate_bps": number,"p_membership_id": string,"p_role": Database["public"]['Enums']["member_role"] }; Returns: undefined
                            }
           }
           Enums: {
-            "member_role": "PATRON"|"DEALER"|"CAISSIER"
+            "condition_grade": "NEW"|"LIKE_NEW"|"GOOD"|"FAIR","device_status": "IN_STOCK"|"CONSIGNED"|"SOLD"|"WITHDRAWN","member_role": "OWNER"|"DEALER"|"CASHIER","photo_angle": "FRONT"|"BACK"|"SIDES"|"SCREEN_ON"|"ABOUT"|"DEFECT","report_type": "INTAKE"|"HANDOVER"|"RETURN"|"SALE"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -230,7 +314,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "member_role": ["PATRON", "DEALER", "CAISSIER"]
+            "condition_grade": ["NEW", "LIKE_NEW", "GOOD", "FAIR"],"device_status": ["IN_STOCK", "CONSIGNED", "SOLD", "WITHDRAWN"],"member_role": ["OWNER", "DEALER", "CASHIER"],"photo_angle": ["FRONT", "BACK", "SIDES", "SCREEN_ON", "ABOUT", "DEFECT"],"report_type": ["INTAKE", "HANDOVER", "RETURN", "SALE"]
           }
         }
 } as const
