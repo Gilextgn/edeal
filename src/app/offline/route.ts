@@ -16,12 +16,12 @@ export function GET() {
   body { margin: 0; min-height: 100vh; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 16px; padding: 24px;
     font-family: system-ui, sans-serif; text-align: center;
-    background: #022c22; color: #ffffff; }
+    background: #0b0b0d; color: #ffffff; }
   h1 { margin: 0; font-size: 22px; }
   p { margin: 0; font-size: 16px; }
   a { display: inline-flex; align-items: center; justify-content: center;
     min-height: 48px; padding: 0 24px; border-radius: 12px; font-weight: 600;
-    background: #f5b301; color: #2a1e00; text-decoration: none; }
+    background: #e0a800; color: #2a1e00; text-decoration: none; }
 </style>
 </head>
 <body>

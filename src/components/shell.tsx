@@ -8,6 +8,7 @@ import { usePersistentFlag, useTheme } from "@/lib/browser-store";
 import { clearOfflinePages } from "@/lib/offline/pages";
 import { icons, type IconName } from "./icons";
 import { OfflineBanner } from "./offline";
+import { PalettePicker } from "./palette-picker";
 import { SyncBanner } from "./sync-banner";
 import { BrandMark, focusRing } from "./ui";
 
@@ -34,6 +35,7 @@ export type ShellProps = {
     noAlerts: string;
     spaces: string;
     account: string;
+    palette: string;
     logout: string;
   };
   children: ReactNode;
@@ -197,8 +199,27 @@ export function Shell({
   }, []);
 
   const current = nav.filter((entry) => isActive(pathname, entry)).at(-1);
-  const overflow = nav.length > MAX_TABS;
-  const tabs = overflow ? nav.slice(0, MAX_TABS - 1) : nav;
+  // Barre du bas : l'action principale prend une place au centre.
+  const slots = primaryAction ? MAX_TABS - 1 : MAX_TABS;
+  const overflow = nav.length > slots;
+  const tabs = overflow ? nav.slice(0, slots - 1) : nav;
+  const half = Math.ceil((tabs.length + (overflow ? 1 : 0)) / 2);
+  const tabBase =
+    "flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-semibold focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary";
+  const tab = (entry: NavItem) => {
+    const active = isActive(pathname, entry);
+    return (
+      <Link
+        key={entry.href}
+        href={entry.href}
+        aria-current={active ? "page" : undefined}
+        className={`${tabBase} ${active ? "bg-primary-soft text-on-primary-soft" : "text-muted"}`}
+      >
+        {icons[entry.icon]}
+        <span className="max-w-full truncate px-1">{entry.label}</span>
+      </Link>
+    );
+  };
   const initials = user.name
     .split(/\s+/)
     .map((word) => word.charAt(0))
@@ -380,6 +401,10 @@ export function Shell({
                 {icons.spaces}
                 {labels.spaces}
               </Link>
+              <div className="flex items-center justify-between gap-2 px-3 py-1">
+                <span className="text-sm font-medium">{labels.palette}</span>
+                <PalettePicker />
+              </div>
               <button type="button" onClick={logout} className={`${menuItem} text-danger`}>
                 {icons.logout}
                 {labels.logout}
@@ -388,7 +413,7 @@ export function Shell({
           </Dropdown>
         </header>
 
-        <main className="flex-1 px-4 pb-24 pt-5 lg:px-8 lg:pb-10 lg:pt-8">
+        <main className="flex-1 px-4 pb-32 pt-5 lg:px-8 lg:pb-10 lg:pt-8">
           <div className="mx-auto w-full max-w-6xl">
             <OfflineBanner userId={user.id} />
             <SyncBanner userId={user.id} />
@@ -396,32 +421,27 @@ export function Shell({
           </div>
         </main>
 
-        <nav
-          className="fixed inset-x-0 bottom-0 z-10 grid border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] print:hidden lg:hidden"
-          style={{ gridTemplateColumns: `repeat(${tabs.length + (overflow ? 1 : 0)}, minmax(0, 1fr))` }}
-        >
-          {tabs.map((entry) => {
-            const active = isActive(pathname, entry);
-            return (
-              <Link
-                key={entry.href}
-                href={entry.href}
-                aria-current={active ? "page" : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary ${active ? "text-primary" : "text-muted"}`}
-              >
-                {icons[entry.icon]}
-                <span className="max-w-full truncate px-1">{entry.label}</span>
-              </Link>
-            );
-          })}
+        {/* Téléphone : barre flottante, avec l'action principale au centre. */}
+        <nav className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 flex items-center justify-between gap-1 rounded-3xl border border-border bg-surface/95 p-1.5 shadow-card backdrop-blur print:hidden lg:hidden">
+          {tabs.slice(0, half).map(tab)}
+          {primaryAction ? (
+            <Link
+              href={primaryAction.href}
+              aria-label={primaryAction.label}
+              className={`-mt-7 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent shadow-card ring-4 ring-bg transition active:scale-95 ${focusRing}`}
+            >
+              {icons.plus}
+            </Link>
+          ) : null}
+          {tabs.slice(half).map(tab)}
           {overflow ? (
             <button
               type="button"
               onClick={() => setDrawerOn(pathname)}
-              className="flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium text-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+              className={`${tabBase} text-muted`}
             >
               {icons.more}
-              {labels.more}
+              <span className="max-w-full truncate px-1">{labels.more}</span>
             </button>
           ) : null}
         </nav>

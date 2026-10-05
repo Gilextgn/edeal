@@ -7,6 +7,14 @@
       "trace": "Chaque téléphone suivi avec photos, de la remise à la vente.",
       "split": "Les parts de la boutique et du dealer calculées automatiquement.",
       "private": "Votre clientèle personnelle reste privée."
+    },
+    "slides": {
+      "iphone-13-fan": "Plusieurs iPhone 13 de couleurs différentes tenus en éventail",
+      "samsung-ultra": "Deux Samsung Galaxy verts et leur stylet",
+      "iphone-boxes": "Boîtes d'iPhone neufs tenues en éventail",
+      "samsung-green": "Samsung Galaxy vert, vu de face et de dos",
+      "iphone-13-box": "iPhone 13 bleu avec sa boîte et son câble",
+      "ipad-fan": "Plusieurs iPad bleus tenus en éventail"
     }
   },
   "nav": {
@@ -59,7 +67,7 @@
     "identifier": "Téléphone ou e-mail",
     "identifierHint": "Exemple : 97 00 00 00 ou nom@exemple.com",
     "password": "Mot de passe",
-    "passwordHint": "8 caractères minimum",
+    "passwordHint": "8 caractères au moins, avec des lettres et des chiffres.",
     "login": "Se connecter",
     "signup": "Créer mon compte",
     "logout": "Se déconnecter",
@@ -71,10 +79,25 @@
     "errors": {
       "nameRequired": "Indiquez votre nom.",
       "identifierInvalid": "Entrez un numéro de téléphone ou un e-mail valide.",
-      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
       "invalidCredentials": "Identifiant ou mot de passe incorrect.",
       "alreadyRegistered": "Un compte existe déjà avec cet identifiant.",
-      "generic": "Une erreur est survenue. Réessayez."
+      "generic": "Une erreur est survenue. Réessayez.",
+      "password_too_short": "Le mot de passe doit contenir au moins 8 caractères.",
+      "password_needs_letter": "Ajoutez au moins une lettre au mot de passe.",
+      "password_needs_digit": "Ajoutez au moins un chiffre au mot de passe.",
+      "password_too_common": "Ce mot de passe est trop facile à deviner. Choisissez-en un autre.",
+      "password_contains_identifier": "Le mot de passe ne doit pas contenir votre numéro ou votre e-mail.",
+      "passwordMismatch": "Les deux mots de passe ne sont pas identiques.",
+      "locked": "Trop d'essais ratés. Par sécurité, la connexion à ce compte est bloquée pendant {minutes, plural, one {# minute} other {# minutes}}."
+    },
+    "confirmation": "Confirmer le mot de passe",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "protected": "Connexion protégée : le compte se bloque après plusieurs essais ratés.",
+    "strength": {
+      "2": "Mot de passe correct.",
+      "3": "Bon mot de passe.",
+      "4": "Très bon mot de passe."
     }
   },
   "spaces": {
@@ -555,7 +578,15 @@
     "seeAll": "Tout voir",
     "dealersTitle": "Dealers",
     "noDealers": "Aucun dealer pour l'instant.",
-    "quickActions": "Raccourcis"
+    "quickActions": "Raccourcis",
+    "heroLabel": "Total vendu ce mois-ci",
+    "heroSales": "{count, plural, =0 {Aucune vente ce mois-ci} one {# vente ce mois-ci} other {# ventes ce mois-ci}}",
+    "trend": "14 derniers jours",
+    "stockRing": "{percent} du stock est chez les dealers",
+    "stockRingEmpty": "Aucun appareil en stock",
+    "inShop": "En boutique",
+    "withDealers": "Chez les dealers",
+    "kpiHint": "Faites glisser pour voir la suite"
   },
   "money": {
     "customerPayment": "Paiement du client",
@@ -686,6 +717,13 @@
     "edit": "Modifier",
     "delete": "Supprimer",
     "addedOn": "Ajouté le"
+  },
+  "palette": {
+    "label": "Couleurs de l'application",
+    "onyx": "Noir et or",
+    "grenat": "Bordeaux et or",
+    "mandarine": "Orange",
+    "orchidee": "Magenta et rose"
   },
   "offline": {
     "title": "Pas de connexion",

@@ -60,3 +60,30 @@ export function useTheme(): ["light" | "dark", () => void] {
   }, []);
   return [theme, toggle];
 }
+
+// Palettes de couleurs proposées (définies dans src/app/globals.css).
+// `swatch` : les deux couleurs montrées dans le sélecteur.
+export const PALETTES = [
+  { id: "onyx", swatch: ["#18181b", "#e0a800"] },
+  { id: "grenat", swatch: ["#9f1239", "#f59e0b"] },
+  { id: "mandarine", swatch: ["#c2410c", "#facc15"] },
+  { id: "orchidee", swatch: ["#86198f", "#fb7185"] },
+] as const;
+
+export type PaletteId = (typeof PALETTES)[number]["id"];
+
+const PALETTE_KEY = "edeal:palette";
+
+/** Palette choisie par l'utilisateur, gardée dans son navigateur. */
+export function usePalette(): [PaletteId, (palette: PaletteId) => void] {
+  const palette = useSyncExternalStore(
+    subscribe,
+    () => (document.documentElement.dataset.palette as PaletteId | undefined) ?? "onyx",
+    () => "onyx" as const,
+  );
+  const choose = useCallback((next: PaletteId) => {
+    document.documentElement.dataset.palette = next;
+    write(PALETTE_KEY, next);
+  }, []);
+  return [palette, choose];
+}

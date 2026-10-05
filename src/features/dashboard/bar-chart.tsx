@@ -130,16 +130,19 @@ export function BarChart({
         </p>
       ) : null}
 
-      <table className="sr-only">
-        <caption>{caption}</caption>
-        <tbody>
-          {points.map((point, index) => (
-            <tr key={index}>
-              <td>{point.detail}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Un tableau ne se laisse pas masquer lui-même : on masque son conteneur. */}
+      <div className="sr-only">
+        <table>
+          <caption>{caption}</caption>
+          <tbody>
+            {points.map((point, index) => (
+              <tr key={index}>
+                <td>{point.detail}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 }

@@ -72,7 +72,18 @@ Idées hors du périmètre de la phase en cours. Rien ici n'est engagé.
 
 - Lecture de l'IMEI : la reconnaissance de texte télécharge ses fichiers depuis Internet à la première utilisation (plusieurs Mo) et ne marche donc pas hors-ligne ; le code-barres, lui, se lit sans téléchargement. À héberger avec l'application si les connexions sont trop lentes.
 - Lecture de l'IMEI : vérifiée sur des images de synthèse nettes (un écran « À propos » et un code-barres), pas encore sur de vraies photos prises au téléphone (reflets, flou, angle).
-- Vraies photos ou vidéos de téléphones sur l'écran de connexion (aujourd'hui : téléphones dessinés et animés en CSS).
+- Photos de l'écran de connexion (`public/login/`) : fournies par le propriétaire du projet ; vérifier les droits d'utilisation avant la mise en ligne (certaines ressemblent à des visuels de marque).
+
+## Notes sur la sécurité
+
+- **Validation en deux étapes** (code d'une application d'authentification, ou code par SMS) : non faite. C'est la suite logique pour les comptes de patron.
+- **Numéro de téléphone non vérifié** : sans SMS, quelqu'un peut s'inscrire avec le numéro d'un autre. Reste le principal point faible.
+- Mot de passe oublié : toujours impossible sans canal de vérification (SMS ou e-mail confirmé).
+- Le blocage après 5 échecs permet à un tiers de bloquer 15 minutes le compte de quelqu'un dont il connaît le numéro. Compromis habituel ; à affiner (blocage par appareil ou adresse) si cela arrive.
+- Journal des actions sensibles (qui a validé, réglé, supprimé quoi).
+- Déconnexion automatique après une longue inactivité ; liste des appareils connectés.
+- CSP plus stricte (sans `'unsafe-inline'`), ce qui demande de générer un jeton par page.
+- Vitesse : mesurée seulement sur cet ordinateur (base locale dans Docker). À mesurer sur l'hébergement réel.
 - Recherche globale (clients, ventes) depuis la barre du haut ; aujourd'hui elle cherche dans les appareils.
 - Suppression d'un client sans vente, et d'un membre jamais actif.
 - Tri et filtres par statut dans les tableaux.

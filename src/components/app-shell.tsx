@@ -80,6 +80,7 @@ export async function AppShell({
         noAlerts: t("dashboard.noAlerts"),
         spaces: t("nav.spaces"),
         account: t("nav.account"),
+        palette: t("palette.label"),
         logout: t("auth.logout"),
       }}
     >

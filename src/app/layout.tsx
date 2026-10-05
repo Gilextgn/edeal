@@ -16,7 +16,8 @@ const script = Dancing_Script({
 
 // Pose le thème avant le premier affichage, pour éviter un flash : le choix
 // enregistré par l'utilisateur, sinon le réglage de son appareil.
-const themeScript = `try{var t=localStorage.getItem("edeal:theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}`;
+// Fait de même pour la palette de couleurs choisie.
+const themeScript = `try{var d=document.documentElement,t=localStorage.getItem("edeal:theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";d.dataset.theme=t;var p=localStorage.getItem("edeal:palette");d.dataset.palette=/^(onyx|grenat|mandarine|orchidee)$/.test(p)?p:"onyx"}catch(e){}`;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("app");
@@ -28,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#022C22",
+  themeColor: "#0B0B0D",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
