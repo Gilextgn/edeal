@@ -1,6 +1,8 @@
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import type { Database } from "@/lib/database.types";
+import { USER_HEADER } from "@/lib/session-header";
 import { createClient } from "@/lib/supabase/server";
 
 export type MemberRole = Database["public"]["Enums"]["member_role"];
@@ -9,18 +11,21 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Utilisateur connecté et son profil. `cache` évite de refaire l'appel
 // entre le layout et la page d'une même requête.
+//
+// L'identité vient de l'en-tête posé par le proxy, qui a déjà vérifié la
+// session pour cette requête : pas de second appel au service
+// d'authentification. Le profil est ensuite lu avec le jeton de session ; si
+// celui-ci ne correspondait pas, la base ne renverrait rien.
 export const requireUser = cache(async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const userId = (await headers()).get(USER_HEADER);
+  if (!userId) redirect("/login");
 
+  const supabase = await createClient();
   const { data: profile } = await supabase
     .from("users")
     .select("id, name, phone, email")
-    .eq("id", user.id)
-    .single();
+    .eq("id", userId)
+    .maybeSingle();
   if (!profile) redirect("/login");
 
   return { supabase, profile };
@@ -29,10 +34,15 @@ export const requireUser = cache(async () => {
 // Boutique et rôle de l'utilisateur dans celle-ci. La base ne renvoie la
 // boutique qu'à ses membres actifs : tout autre cas donne une page 404.
 export const requireShop = cache(async (shopId: string) => {
-  const { supabase, profile } = await requireUser();
+  const userId = (await headers()).get(USER_HEADER);
+  if (!userId) redirect("/login");
   if (!UUID.test(shopId)) notFound();
 
-  const [{ data: shop }, { data: membership }] = await Promise.all([
+  // Profil, boutique et rôle sont demandés en même temps : un aller-retour
+  // avec la base au lieu de deux.
+  const supabase = await createClient();
+  const [{ profile }, { data: shop }, { data: membership }] = await Promise.all([
+    requireUser(),
     supabase
       .from("shops")
       .select("id, name, phone, address, currency")
@@ -42,7 +52,7 @@ export const requireShop = cache(async (shopId: string) => {
       .from("memberships")
       .select("id, role, commission_rate_bps")
       .eq("shop_id", shopId)
-      .eq("user_id", profile.id)
+      .eq("user_id", userId)
       .maybeSingle(),
   ]);
   if (!shop || !membership) notFound();
