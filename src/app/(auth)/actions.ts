@@ -1,22 +1,36 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { parseIdentifier } from "@/domain/identifier";
+import { passwordIssues } from "@/domain/password";
 import { env } from "@/lib/env";
+import { loginLockSeconds, recordLoginAttempt } from "@/lib/login-throttle";
 import { createClient } from "@/lib/supabase/server";
 
 // Clés de messages/fr.json sous "auth.errors".
 export type AuthError =
   | "nameRequired"
   | "identifierInvalid"
-  | "passwordTooShort"
+  | "password_too_short"
+  | "password_needs_letter"
+  | "password_needs_digit"
+  | "password_too_common"
+  | "password_contains_identifier"
+  | "passwordMismatch"
   | "invalidCredentials"
+  | "locked"
   | "alreadyRegistered"
   | "generic";
 
-export type AuthState = { error: AuthError; identifier: string; name: string };
+export type AuthState = {
+  error: AuthError;
+  identifier: string;
+  name: string;
+  // Minutes d'attente quand la connexion est bloquée.
+  minutes?: number;
+};
 
-const MIN_PASSWORD_LENGTH = 8;
 const MAX_NAME_LENGTH = 80;
 
 function readForm(formData: FormData) {
@@ -24,6 +38,7 @@ function readForm(formData: FormData) {
     name: String(formData.get("name") ?? "").trim(),
     identifier: String(formData.get("identifier") ?? "").trim(),
     password: String(formData.get("password") ?? ""),
+    confirmation: String(formData.get("confirmation") ?? ""),
   };
 }
 
@@ -31,7 +46,7 @@ export async function signUp(
   _previous: AuthState | null,
   formData: FormData,
 ): Promise<AuthState> {
-  const { name, identifier, password } = readForm(formData);
+  const { name, identifier, password, confirmation } = readForm(formData);
   const fail = (error: AuthError): AuthState => ({ error, identifier, name });
 
   if (!name || name.length > MAX_NAME_LENGTH) return fail("nameRequired");
@@ -40,7 +55,10 @@ export async function signUp(
     env.NEXT_PUBLIC_DEFAULT_COUNTRY_CODE,
   );
   if (!parsed) return fail("identifierInvalid");
-  if (password.length < MIN_PASSWORD_LENGTH) return fail("passwordTooShort");
+
+  const [issue] = passwordIssues(password, identifier);
+  if (issue) return fail(`password_${issue}`);
+  if (password !== confirmation) return fail("passwordMismatch");
 
   const supabase = await createClient();
   const options = { data: { name } };
@@ -64,10 +82,11 @@ export async function signIn(
   formData: FormData,
 ): Promise<AuthState> {
   const { identifier, password } = readForm(formData);
-  const fail = (error: AuthError): AuthState => ({
+  const fail = (error: AuthError, minutes?: number): AuthState => ({
     error,
     identifier,
     name: "",
+    minutes,
   });
 
   const parsed = parseIdentifier(
@@ -75,20 +94,35 @@ export async function signIn(
     env.NEXT_PUBLIC_DEFAULT_COUNTRY_CODE,
   );
   if (!parsed || !password) return fail("invalidCredentials");
+  const account = parsed.kind === "email" ? parsed.email : parsed.phone;
+
+  // Trop d'essais ratés sur ce compte : on n'interroge même plus le mot de passe.
+  const wait = await loginLockSeconds(account);
+  if (wait > 0) return fail("locked", Math.ceil(wait / 60));
 
   const supabase = await createClient();
-  const { error } =
+  const { data, error } =
     parsed.kind === "email"
       ? await supabase.auth.signInWithPassword({ email: parsed.email, password })
       : await supabase.auth.signInWithPassword({ phone: parsed.phone, password });
 
+  if (error && error.code !== "invalid_credentials") return fail("generic");
   if (error) {
-    return fail(
-      error.code === "invalid_credentials" ? "invalidCredentials" : "generic",
-    );
+    await recordLoginAttempt(account, false);
+    const lockedFor = await loginLockSeconds(account);
+    return lockedFor > 0 ? fail("locked", Math.ceil(lockedFor / 60)) : fail("invalidCredentials");
   }
+  // Connexion réussie : la remise à zéro du compteur se fait après la
+  // réponse, pour ne pas faire attendre l'utilisateur.
+  after(() => recordLoginAttempt(account, true));
 
-  redirect("/");
+  // Va droit à la bonne page : le tableau de bord de la boutique quand il n'y
+  // en a qu'une, sinon l'accueil (qui applique la même règle).
+  const { data: memberships } = await supabase
+    .from("memberships")
+    .select("shop_id")
+    .eq("user_id", data.user.id);
+  redirect(memberships?.length === 1 ? `/s/${memberships[0].shop_id}` : "/");
 }
 
 export async function signOut() {

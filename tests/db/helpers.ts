@@ -17,7 +17,7 @@ export function anonClient(): SupabaseClient {
   return createClient(url!, key!, { auth: { persistSession: false } });
 }
 
-export const TEST_PASSWORD = "motdepasse-de-test";
+export const TEST_PASSWORD = "motdepasse-de-test-2026";
 
 export function randomEmail() {
   return `test-${randomUUID()}@exemple.test`;

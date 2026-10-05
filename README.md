@@ -10,7 +10,7 @@ Prérequis : Node.js 24, Docker Desktop lancé.
 npm install
 npm run db:start        # première fois : plusieurs minutes de téléchargement
 npm run db:status       # affiche l'URL et la clé publique locales
-cp .env.example .env.local   # puis coller la « Publishable key »
+cp .env.example .env.local   # puis coller la « Publishable key » et la « Secret key »
 npm run dev             # http://localhost:3000
 ```
 

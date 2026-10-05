@@ -468,10 +468,16 @@ isOneToOne: false
 "is_valid_imei":
 { Args: { "p_imei": string }; Returns: boolean
                            },
+"login_lock_seconds":
+{ Args: { "p_identifier_hash": string }; Returns: number
+                           },
 "preview_shares":
 { Args: { "p_purchase_price": number,"p_rate_bps": number,"p_sale_price": number }; Returns: {
               "dealer_share": number,"shop_share": number
             }[]
+                           },
+"record_login_attempt":
+{ Args: { "p_identifier_hash": string,"p_succeeded": boolean }; Returns: undefined
                            },
 "record_settlement":
 { Args: { "p_settlement": Json }; Returns: string

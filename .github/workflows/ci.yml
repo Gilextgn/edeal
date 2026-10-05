@@ -24,9 +24,12 @@ jobs:
 
       - name: Démarrer Supabase en local
         run: npm run db:start
-      - name: Lire la clé publique locale
+      - name: Lire les clés locales
         run: |
           key=$(npx supabase status -o env | grep '^PUBLISHABLE_KEY=' | cut -d= -f2- | tr -d '"')
+          secret=$(npx supabase status -o env | grep '^SECRET_KEY=' | cut -d= -f2- | tr -d '"')
+          echo "::add-mask::$secret"
           echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$key" >> "$GITHUB_ENV"
+          echo "SUPABASE_SECRET_KEY=$secret" >> "$GITHUB_ENV"
       - run: npm run test:db
       - run: npm run build

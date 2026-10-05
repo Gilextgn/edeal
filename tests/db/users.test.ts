@@ -44,7 +44,7 @@ describe("inscription et connexion", () => {
 
     const { error } = await anonClient().auth.signInWithPassword({
       email,
-      password: "mauvais-mot-de-passe",
+      password: "mauvais-mot-de-passe-1",
     });
     expect(error?.code).toBe("invalid_credentials");
   });
