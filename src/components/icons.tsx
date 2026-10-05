@@ -61,6 +61,31 @@ export const icons = {
       <path d="M10.5 18.5h3" />
     </Icon>
   ),
+  consign: (
+    <Icon>
+      <path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5" />
+    </Icon>
+  ),
+  sales: (
+    <Icon>
+      <path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" />
+      <path d="M9.5 8h5M9.5 12h5" />
+    </Icon>
+  ),
+  customers: (
+    <Icon>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
+      <circle cx="9" cy="11" r="2.2" />
+      <path d="M5.8 16.5c.5-1.6 1.7-2.5 3.2-2.5s2.7.9 3.2 2.5M15 9.5h3M15 13h3" />
+    </Icon>
+  ),
+  more: (
+    <Icon>
+      <circle cx="5" cy="12" r="1.3" />
+      <circle cx="12" cy="12" r="1.3" />
+      <circle cx="19" cy="12" r="1.3" />
+    </Icon>
+  ),
   chevron: (
     <Icon>
       <path d="m9 5 7 7-7 7" />

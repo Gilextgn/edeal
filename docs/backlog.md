@@ -38,3 +38,13 @@ Idées hors du périmètre de la phase en cours. Rien ici n'est engagé.
 - Nettoyage des photos envoyées dont le constat n'a jamais été enregistré.
 - Chargement des écrans sans connexion (aujourd'hui seul l'envoi d'un constat déjà saisi survit à une coupure) : prévu en phase 5.
 - Modèles d'iPhone : liste fixe dans `src/domain/catalog.ts`, à compléter à chaque nouvelle gamme.
+
+## Notes de la phase 3
+
+- **Annulation d'une vente** (erreur de saisie, client qui se rétracte) : le statut `CANCELLED` existe, pas encore l'opération ni l'écran.
+- Le dealer ne peut pas déclarer lui-même un retour : c'est le patron qui l'enregistre en reprenant l'appareil.
+- Fiche client : modifier un client, voir ses achats. Aujourd'hui les clients se créent uniquement au moment d'une vente.
+- Prolonger la date limite ou changer le prix plancher d'un dépôt en cours.
+- Durées de dépôt (7, 14, 30 jours) et de garantie (0, 7, 30, 90 jours) fixes : à rendre réglables par boutique si besoin.
+- Notification au patron quand une vente attend sa validation (aujourd'hui : visible sur son tableau de bord).
+- Le dealer voit le prix d'achat de l'appareil qui lui est confié (sa commission en dépend). À masquer si le patron ne le souhaite pas.

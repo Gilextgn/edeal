@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   amountToInput,
+  currencyLabel,
   currencyFractionDigits,
   formatMoney,
   parseAmountInput,
@@ -66,5 +67,12 @@ describe("formatMoney", () => {
 
   it("affiche les centimes d'une devise à deux décimales", () => {
     expect(formatMoney(1205, "EUR").replace(/\s/g, " ")).toBe("12,05 €");
+  });
+});
+
+describe("currencyLabel", () => {
+  it("donne le nom court de la devise", () => {
+    expect(currencyLabel("XOF")).toBe("F CFA");
+    expect(currencyLabel("EUR")).toBe("€");
   });
 });

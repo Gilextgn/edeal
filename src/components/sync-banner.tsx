@@ -35,7 +35,7 @@ export function SyncBanner({ userId }: { userId: string }) {
       if (waiting.length === 0) return;
 
       setSyncing(true);
-      if ((await syncPendingReports(userId)) > 0) router.refresh();
+      if ((await syncPendingReports(userId)).size > 0) router.refresh();
     } catch {
       // File illisible ou envoi interrompu : elle reste intacte, on peut réessayer.
     } finally {

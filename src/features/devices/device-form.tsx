@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Button, ButtonLink, Field, FormMessage, Select } from "@/components/ui";
 import { CAPACITIES, COLORS, MODELS } from "@/domain/catalog";
 import { isValidImei, normalizeImei } from "@/domain/imei";
+import { currencyLabel } from "@/domain/money";
 import type { FormState } from "@/lib/form";
 
 type Props = {
@@ -87,14 +88,14 @@ export function DeviceForm({ action, currency, cancelHref, initial }: Props) {
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
           name="purchase_price"
-          label={t("devices.purchasePrice", { currency })}
+          label={t("devices.purchasePrice", { currency: currencyLabel(currency) })}
           inputMode="numeric"
           required
           defaultValue={values.purchase_price}
         />
         <Field
           name="target_price"
-          label={t("devices.targetPrice", { currency })}
+          label={t("devices.targetPrice", { currency: currencyLabel(currency) })}
           inputMode="numeric"
           required
           defaultValue={values.target_price}

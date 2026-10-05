@@ -75,6 +75,7 @@ enum TypeVente {
 enum StatutVente {
   EN_ATTENTE_VALIDATION
   VALIDEE
+  REFUSEE
   ANNULEE
 }
 
@@ -276,7 +277,8 @@ end note
 note right of Depot
   Un seul dépôt ACTIF par appareil.
   L'appareil appartient à la boutique
-  du membre.
+  du membre. Seul le patron confie
+  et enregistre le retour.
 end note
 
 note right of Vente
@@ -286,7 +288,10 @@ note right of Vente
   pas de dépôt, partBoutique = 0.
   Vente directe boutique (sans dépôt) : partDealer = 0.
   Sous le prix plancher : EN_ATTENTE_VALIDATION
-  jusqu'à l'accord du patron.
+  jusqu'à la décision du patron (VALIDEE ou REFUSEE).
+  En attente ou refusée : pas de parts,
+  l'appareil reste confié.
+  Une seule vente en cours ou validée par appareil.
 end note
 
 note bottom of Reglement

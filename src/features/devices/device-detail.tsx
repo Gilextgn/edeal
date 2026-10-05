@@ -2,14 +2,12 @@ import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { icons } from "@/components/icons";
 import { Badge, Button, ButtonLink, Card, FormMessage, PageHeader } from "@/components/ui";
-import { FUNCTION_CHECKS } from "@/domain/condition-report";
 import { formatMoney } from "@/domain/money";
 import type { createClient } from "@/lib/supabase/server";
 import { setDeviceWithdrawn } from "./actions";
 import { StatusBadge, Variant } from "./labels";
+import { ReportCards } from "./report-cards";
 import type { DeviceScope } from "./scope";
-
-const SIGNED_URL_SECONDS = 3600;
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
@@ -47,23 +45,28 @@ export async function DeviceDetail({ supabase, scope, userId, deviceId, justCrea
   const device = await loadDevice(supabase, scope, userId, deviceId);
   const t = await getTranslations();
   const format = await getFormatter();
+  const money = (amount: number) => formatMoney(amount, scope.currency);
+  const day = (date: string) => format.dateTime(new Date(date), { dateStyle: "long" });
 
-  const { data: reports } = await supabase
-    .from("condition_reports")
-    .select("*, photos(id, angle, storage_key), users(name)")
-    .eq("device_id", device.id)
-    .order("created_at", { ascending: false });
-
-  // Seule la clé est en base : les liens signés sont créés à la lecture.
-  const keys = (reports ?? []).flatMap((r) => r.photos.map((p) => p.storage_key));
-  const { data: signed } = keys.length
-    ? await supabase.storage.from("photos").createSignedUrls(keys, SIGNED_URL_SECONDS)
-    : { data: [] };
-  const urlOf = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
+  const [{ data: consignment }, { data: sale }] = await Promise.all([
+    supabase
+      .from("consignments")
+      .select("id, due_on, floor_price, users!consignments_dealer_user_id_fkey(name)")
+      .eq("device_id", device.id)
+      .eq("status", "ACTIVE")
+      .maybeSingle(),
+    supabase
+      .from("sales")
+      .select("status, sale_price, shop_share, dealer_share, created_at, customers(name)")
+      .eq("device_id", device.id)
+      .in("status", ["PENDING_APPROVAL", "COMPLETED"])
+      .maybeSingle(),
+  ]);
 
   const base = `${scope.basePath}/${device.id}`;
-  const canChangeStock =
-    scope.canWrite && (device.status === "IN_STOCK" || device.status === "WITHDRAWN");
+  const inStock = device.status === "IN_STOCK";
+  const canChangeStock = scope.canWrite && (inStock || device.status === "WITHDRAWN");
+  const overdue = consignment ? consignment.due_on < new Date().toISOString().slice(0, 10) : false;
 
   return (
     <>
@@ -71,10 +74,9 @@ export async function DeviceDetail({ supabase, scope, userId, deviceId, justCrea
         title={device.model}
         subtitle={`${t("devices.imei")} ${device.imei}`}
         action={
-          scope.canWrite ? (
-            <ButtonLink href={`${base}/reports/new`} className="w-full sm:w-auto">
-              {icons.plus}
-              {t("reports.add")}
+          inStock && scope.canSell ? (
+            <ButtonLink href={`${base}/sell`} className="w-full sm:w-auto">
+              {t("sales.sell")}
             </ButtonLink>
           ) : null
         }
@@ -87,172 +89,117 @@ export async function DeviceDetail({ supabase, scope, userId, deviceId, justCrea
       ) : null}
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <Card className="flex flex-col gap-4 lg:sticky lg:top-9">
-          <div className="flex items-center justify-between gap-3">
-            <p className="font-semibold">
-              <Variant capacity={device.capacity} color={device.color} />
+        <div className="flex flex-col gap-4 lg:sticky lg:top-9">
+          <Card className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-semibold">
+                <Variant capacity={device.capacity} color={device.color} />
+              </p>
+              <StatusBadge status={device.status} />
+            </div>
+            <dl className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <dt className="text-muted">{t("devices.purchasePriceLabel")}</dt>
+                <dd className="font-semibold">{money(device.purchase_price)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted">{t("devices.targetPriceLabel")}</dt>
+                <dd className="font-semibold">{money(device.target_price)}</dd>
+              </div>
+            </dl>
+            <p className="text-sm text-muted">
+              {t("devices.addedOn", { date: day(device.created_at) })}
             </p>
-            <StatusBadge status={device.status} />
-          </div>
-          <dl className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <dt className="text-muted">{t("devices.purchasePriceLabel")}</dt>
-              <dd className="font-semibold">
-                {formatMoney(device.purchase_price, scope.currency)}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-muted">{t("devices.targetPriceLabel")}</dt>
-              <dd className="font-semibold">
-                {formatMoney(device.target_price, scope.currency)}
-              </dd>
-            </div>
-          </dl>
-          <p className="text-sm text-muted">
-            {t("devices.addedOn", {
-              date: format.dateTime(new Date(device.created_at), { dateStyle: "long" }),
-            })}
-          </p>
-          {scope.canWrite ? (
-            <div className="flex flex-col gap-2">
-              <ButtonLink href={`${base}/edit`} variant="secondary">
-                {t("devices.edit")}
-              </ButtonLink>
-              {canChangeStock ? (
-                <form
-                  action={setDeviceWithdrawn.bind(
-                    null,
-                    scope.shopId,
-                    device.id,
-                    device.status === "IN_STOCK",
-                  )}
-                >
-                  <Button
-                    type="submit"
-                    variant={device.status === "IN_STOCK" ? "danger" : "secondary"}
-                    className="w-full"
-                  >
-                    {t(device.status === "IN_STOCK" ? "devices.withdraw" : "devices.restore")}
-                  </Button>
-                </form>
+            {scope.canWrite ? (
+              <div className="flex flex-col gap-2">
+                {inStock && scope.shopId ? (
+                  <ButtonLink href={`${base}/consign`}>{t("consignments.consign")}</ButtonLink>
+                ) : null}
+                <ButtonLink href={`${base}/reports/new`} variant="secondary">
+                  {icons.plus}
+                  {t("reports.add")}
+                </ButtonLink>
+                <ButtonLink href={`${base}/edit`} variant="secondary">
+                  {t("devices.edit")}
+                </ButtonLink>
+                {canChangeStock ? (
+                  <form action={setDeviceWithdrawn.bind(null, scope.shopId, device.id, inStock)}>
+                    <Button
+                      type="submit"
+                      variant={inStock ? "danger" : "secondary"}
+                      className="w-full"
+                    >
+                      {t(inStock ? "devices.withdraw" : "devices.restore")}
+                    </Button>
+                  </form>
+                ) : null}
+              </div>
+            ) : null}
+          </Card>
+
+          {consignment ? (
+            <Card className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-semibold">{t("consignments.current")}</p>
+                {overdue ? <Badge tone="danger">{t("consignments.overdue")}</Badge> : null}
+              </div>
+              <dl className="grid grid-cols-2 gap-3 text-sm">
+                <div className="col-span-2">
+                  <dt className="text-muted">{t("consignments.dealer")}</dt>
+                  <dd className="font-semibold">{consignment.users?.name}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted">{t("consignments.dueOn")}</dt>
+                  <dd className="font-semibold">{day(consignment.due_on)}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted">{t("consignments.floor")}</dt>
+                  <dd className="font-semibold">{money(consignment.floor_price)}</dd>
+                </div>
+              </dl>
+              {scope.canWrite && sale?.status !== "PENDING_APPROVAL" ? (
+                <ButtonLink href={`${base}/return`} variant="secondary">
+                  {t("consignments.recordReturn")}
+                </ButtonLink>
               ) : null}
-            </div>
+            </Card>
           ) : null}
-        </Card>
 
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-            {t("reports.title")}
-          </h2>
-          {!reports || reports.length === 0 ? (
-            <Card className="text-muted">{t("reports.none")}</Card>
-          ) : (
-            reports.map((report) => {
-              const date = format.dateTime(new Date(report.created_at), {
-                dateStyle: "long",
-                timeStyle: "short",
-              });
-              return (
-                <Card key={report.id} className="flex flex-col gap-4">
-                  <div>
-                    <p className="font-semibold">{t(`reports.types.${report.type}`)}</p>
-                    <p className="text-sm text-muted">
-                      {report.users?.name
-                        ? t("reports.by", { name: report.users.name, date })
-                        : t("reports.onDate", { date })}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <Badge tone="primary">{t(`reports.grades.${report.grade}`)}</Badge>
-                    <Badge tone={report.icloud_unlocked ? "success" : "danger"}>
-                      {t(report.icloud_unlocked ? "reports.icloudUnlocked" : "reports.icloudLocked")}
-                    </Badge>
-                    <Badge>
-                      {report.battery_health === null
-                        ? t("reports.batteryUnknown")
-                        : t("reports.batteryValue", { value: report.battery_health })}
-                    </Badge>
-                  </div>
-
-                  <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+          {sale ? (
+            <Card className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-semibold">{t("sales.sale")}</p>
+                <Badge tone={sale.status === "COMPLETED" ? "success" : "warning"}>
+                  {t(`sales.status.${sale.status}`)}
+                </Badge>
+              </div>
+              <dl className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <dt className="text-muted">{t("sales.priceLabel")}</dt>
+                  <dd className="font-semibold">{money(sale.sale_price)}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted">{t("sales.customer")}</dt>
+                  <dd className="font-semibold">{sale.customers?.name}</dd>
+                </div>
+                {sale.shop_share !== null && scope.shopId ? (
+                  <>
                     <div>
-                      <dt className="text-muted">{t("reports.screen")}</dt>
-                      <dd className="font-medium">
-                        {t(`reports.screens.${report.screen_condition}`)}
-                      </dd>
+                      <dt className="text-muted">{t("sales.shopShare")}</dt>
+                      <dd className="font-semibold">{money(sale.shop_share)}</dd>
                     </div>
                     <div>
-                      <dt className="text-muted">{t("reports.body")}</dt>
-                      <dd className="font-medium">
-                        {t(`reports.bodies.${report.body_condition}`)}
-                      </dd>
+                      <dt className="text-muted">{t("sales.dealerShare")}</dt>
+                      <dd className="font-semibold">{money(sale.dealer_share ?? 0)}</dd>
                     </div>
-                    {FUNCTION_CHECKS.map((check) => (
-                      <div key={check}>
-                        <dt className="text-muted">{t(`reports.checks.${check}`)}</dt>
-                        <dd className={`font-medium ${report[check] ? "" : "text-danger"}`}>
-                          {t(report[check] ? "reports.works" : "reports.broken")}
-                        </dd>
-                      </div>
-                    ))}
-                    <div>
-                      <dt className="text-muted">{t("reports.repairs")}</dt>
-                      <dd className="font-medium">
-                        {report.past_repairs.length
-                          ? report.past_repairs
-                              .map((r) => t(`reports.repairOptions.${r}`))
-                              .join(", ")
-                          : t("reports.repairsNone")}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted">{t("reports.accessories")}</dt>
-                      <dd className="font-medium">
-                        {report.accessories.length
-                          ? report.accessories
-                              .map((a) => t(`reports.accessoryOptions.${a}`))
-                              .join(", ")
-                          : t("reports.accessoriesNone")}
-                      </dd>
-                    </div>
-                  </dl>
+                  </>
+                ) : null}
+              </dl>
+            </Card>
+          ) : null}
+        </div>
 
-                  {report.comment ? (
-                    <p className="rounded-xl bg-surface-2 p-3 text-sm">{report.comment}</p>
-                  ) : null}
-
-                  <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-6">
-                    {report.photos.map((photo) => {
-                      const url = urlOf.get(photo.storage_key);
-                      const label = t(`reports.angles.${photo.angle}`);
-                      return url ? (
-                        <li key={photo.id}>
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                          >
-                            {/* Lien signé temporaire : pas d'optimisation d'image possible. */}
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={url}
-                              alt={label}
-                              loading="lazy"
-                              className="aspect-square w-full rounded-lg border border-border object-cover"
-                            />
-                            <span className="mt-1 block truncate text-xs text-muted">{label}</span>
-                          </a>
-                        </li>
-                      ) : null;
-                    })}
-                  </ul>
-                </Card>
-              );
-            })
-          )}
-        </section>
+        <ReportCards supabase={supabase} deviceId={device.id} />
       </div>
     </>
   );

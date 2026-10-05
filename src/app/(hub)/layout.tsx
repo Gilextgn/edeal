@@ -12,6 +12,7 @@ export default async function HubLayout({ children }: LayoutProps<"/">) {
       subtitle={t("spaces.hubSubtitle")}
       userName={profile.name}
       userId={profile.id}
+      moreLabel={t("nav.more")}
       nav={[
         { href: "/", label: t("nav.spaces"), icon: "spaces", exact: true },
         { href: "/account", label: t("nav.account"), icon: "account" },

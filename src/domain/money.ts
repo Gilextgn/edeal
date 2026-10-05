@@ -44,3 +44,9 @@ export function formatMoney(amount: number, currency: string): string {
     amount / 10 ** digits,
   );
 }
+
+/** Nom court de la devise pour un libellé : "XOF" → « F CFA », "EUR" → « € ». */
+export function currencyLabel(currency: string): string {
+  const parts = new Intl.NumberFormat("fr-FR", { style: "currency", currency }).formatToParts(0);
+  return parts.find((part) => part.type === "currency")?.value.replace(/\s/g, " ") ?? currency;
+}

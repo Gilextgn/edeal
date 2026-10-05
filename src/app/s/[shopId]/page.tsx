@@ -17,27 +17,39 @@ export default async function ShopHomePage({ params }: PageProps<"/s/[shopId]">)
   const t = await getTranslations();
   const format = await getFormatter();
   const { role } = membership;
-  const seesStock = role === "OWNER" || role === "CASHIER";
+  const base = `/s/${shop.id}`;
+  const count = { count: "exact", head: true } as const;
 
-  // Chaque requête ne renvoie que ce que le rôle a le droit de voir.
-  const [stock, members, invitations] = await Promise.all([
-    seesStock
-      ? supabase
+  // Chaque requête ne renvoie que ce que le rôle a le droit de voir :
+  // pour un dealer, « dépôts en cours » ne compte que les siens.
+  const [stock, consignments, pendingSales, members, invitations] = await Promise.all([
+    role === "DEALER"
+      ? null
+      : supabase
           .from("devices")
-          .select("id", { count: "exact", head: true })
+          .select("id", count)
           .eq("shop_id", shop.id)
-          .eq("status", "IN_STOCK")
-      : null,
+          .eq("status", "IN_STOCK"),
+    role === "CASHIER"
+      ? null
+      : supabase
+          .from("consignments")
+          .select("id", count)
+          .eq("shop_id", shop.id)
+          .eq("status", "ACTIVE"),
+    supabase
+      .from("sales")
+      .select("id", count)
+      .eq("shop_id", shop.id)
+      .eq("status", "PENDING_APPROVAL"),
     role === "OWNER"
       ? supabase.from("memberships").select("role").eq("shop_id", shop.id).eq("active", true)
       : null,
     role === "OWNER"
-      ? supabase
-          .from("invitations")
-          .select("id", { count: "exact", head: true })
-          .eq("shop_id", shop.id)
+      ? supabase.from("invitations").select("id", count).eq("shop_id", shop.id)
       : null,
   ]);
+  const toReview = pendingSales.count ?? 0;
 
   return (
     <>
@@ -45,30 +57,31 @@ export default async function ShopHomePage({ params }: PageProps<"/s/[shopId]">)
         title={shop.name}
         subtitle={t("shop.homeSubtitle")}
         action={
-          seesStock ? (
-            <ButtonLink href={`/s/${shop.id}/devices`} className="w-full sm:w-auto">
+          role === "OWNER" && toReview > 0 ? (
+            <ButtonLink href={`${base}/sales`} className="w-full sm:w-auto">
+              {t("shop.reviewSales")}
+            </ButtonLink>
+          ) : role === "DEALER" ? (
+            <ButtonLink href={`${base}/consignments`} className="w-full sm:w-auto">
+              {t("consignments.mineTitle")}
+            </ButtonLink>
+          ) : (
+            <ButtonLink href={`${base}/devices`} className="w-full sm:w-auto">
               {t("shop.viewStock")}
             </ButtonLink>
-          ) : null
+          )
         }
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {stock ? <Stat label={t("shop.inStock")} value={stock.count ?? 0} /> : null}
-        {members ? (
-          <>
-            <Stat label={t("shop.members")} value={members.data?.length ?? 0} />
-            <Stat
-              label={t("shop.dealers")}
-              value={members.data?.filter((m) => m.role === "DEALER").length ?? 0}
-            />
-          </>
-        ) : (
-          <Stat label={t("shop.myRole")} value={t(`roles.${role}`)} />
-        )}
-        {invitations ? (
-          <Stat label={t("shop.invitations")} value={invitations.count ?? 0} />
+        {consignments ? (
+          <Stat
+            label={t(role === "DEALER" ? "shop.myConsignments" : "shop.activeConsignments")}
+            value={consignments.count ?? 0}
+          />
         ) : null}
+        <Stat label={t("shop.pendingSales")} value={toReview} />
         {role === "DEALER" ? (
           <Stat
             label={t("shop.myRate")}
@@ -77,6 +90,15 @@ export default async function ShopHomePage({ params }: PageProps<"/s/[shopId]">)
               maximumFractionDigits: 2,
             })}
           />
+        ) : null}
+        {members ? (
+          <Stat
+            label={t("shop.dealers")}
+            value={members.data?.filter((m) => m.role === "DEALER").length ?? 0}
+          />
+        ) : null}
+        {invitations ? (
+          <Stat label={t("shop.invitations")} value={invitations.count ?? 0} />
         ) : null}
       </div>
 

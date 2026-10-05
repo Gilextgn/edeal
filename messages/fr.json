@@ -16,7 +16,11 @@
     "stock": "Stock",
     "devices": "Appareils",
     "settings": "Réglages",
-    "account": "Compte"
+    "account": "Compte",
+    "consignments": "Dépôts",
+    "sales": "Ventes",
+    "customers": "Clients",
+    "more": "Plus"
   },
   "roles": {
     "OWNER": "Patron",
@@ -98,10 +102,14 @@
     "myRate": "Votre commission",
     "myRole": "Votre rôle",
     "currency": "Devise",
-    "comingSoon": "Les dépôts et les ventes arrivent dans les prochaines étapes.",
+    "comingSoon": "Les échéances, les règlements et les soldes arrivent dans la prochaine étape.",
     "inStock": "Appareils en stock",
     "viewStock": "Voir le stock",
-    "manageMembers": "Gérer les membres"
+    "manageMembers": "Gérer les membres",
+    "activeConsignments": "Dépôts en cours",
+    "myConsignments": "Mes dépôts en cours",
+    "pendingSales": "Ventes à valider",
+    "reviewSales": "Voir les ventes à valider"
   },
   "members": {
     "title": "Membres",
@@ -141,9 +149,10 @@
   "personal": {
     "title": "Mon espace perso",
     "subtitle": "Espace privé",
-    "empty": "Vos clients et vos ventes personnelles arriveront dans les prochaines étapes. Aucune boutique ne peut voir cet espace.",
+    "empty": "Les échéances de paiement arrivent dans la prochaine étape. Aucune boutique ne peut voir cet espace.",
     "devices": "Mes appareils en stock",
-    "viewDevices": "Voir mes appareils"
+    "viewDevices": "Voir mes appareils",
+    "sales": "Mes ventes"
   },
   "account": {
     "title": "Mon compte",
@@ -341,20 +350,122 @@
     }
   },
   "sync": {
-    "pending": "{count, plural, one {# constat en attente d'envoi} other {# constats en attente d'envoi}}",
+    "pending": "{count, plural, one {# enregistrement en attente d'envoi} other {# enregistrements en attente d'envoi}}",
     "pendingHint": "Enregistré sur ce téléphone. L'envoi reprendra dès le retour de la connexion.",
     "failed": "L'envoi a été refusé : {reason}",
     "retry": "Réessayer",
     "discard": "Supprimer",
     "syncing": "Envoi en cours…",
-    "savedOffline": "Constat enregistré sur ce téléphone. Il sera envoyé dès le retour de la connexion.",
+    "savedOffline": "Enregistré sur ce téléphone. L'envoi se fera dès le retour de la connexion.",
     "errors": {
-      "not_allowed": "vous n'avez plus accès à cet appareil.",
+      "not_allowed": "vous n'avez pas ou plus le droit de faire cette opération.",
       "missing_photos": "il manque des photos obligatoires.",
       "photo_not_uploaded": "une photo n'a pas pu être envoyée.",
       "invalid_report": "le constat est invalide.",
-      "generic": "erreur inattendue."
+      "generic": "erreur inattendue.",
+      "device_unavailable": "l'appareil n'est plus disponible.",
+      "invalid_dealer": "ce dealer ne fait plus partie de la boutique.",
+      "invalid_due_date": "la date limite est dépassée.",
+      "invalid_price": "le prix est invalide.",
+      "invalid_warranty": "la garantie est invalide.",
+      "consignment_closed": "ce dépôt est déjà terminé.",
+      "sale_pending": "une vente attend encore la validation du patron.",
+      "customer_required": "il manque le client.",
+      "invalid_customer": "ce client n'appartient pas à cet espace."
     }
+  },
+  "consignments": {
+    "title": "Dépôts",
+    "subtitle": "Les téléphones confiés aux dealers.",
+    "empty": "Aucun dépôt pour l'instant. Ouvrez un appareil du stock pour le confier à un dealer.",
+    "mineTitle": "Mes dépôts",
+    "mineSubtitle": "Les téléphones que la boutique vous a confiés.",
+    "mineEmpty": "La boutique ne vous a confié aucun téléphone pour l'instant.",
+    "status": {
+      "ACTIVE": "En cours",
+      "SOLD": "Vendu",
+      "RETURNED": "Rendu",
+      "SETTLED": "Réglé"
+    },
+    "overdue": "En retard",
+    "current": "Dépôt en cours",
+    "consign": "Confier à un dealer",
+    "consignTitle": "Confier l'appareil",
+    "returnTitle": "Retour de l'appareil",
+    "deviceLine": "{model} · IMEI {imei}",
+    "dealer": "Dealer",
+    "dealerRate": "Commission {rate}",
+    "dueIn": "À rendre ou vendre sous",
+    "days": "{count, plural, one {# jour} other {# jours}}",
+    "dueOn": "Date limite",
+    "floor": "Prix plancher",
+    "floorPrice": "Prix plancher ({currency})",
+    "floorHint": "En dessous de ce prix, la vente attendra votre validation.",
+    "handoverReport": "État de l'appareil à la remise",
+    "submit": "Confier l'appareil",
+    "recordReturn": "Enregistrer le retour",
+    "submitReturn": "Enregistrer le retour",
+    "noDealers": "La boutique n'a encore aucun dealer actif. Ajoutez-en un pour pouvoir lui confier un appareil.",
+    "addDealer": "Ajouter un dealer",
+    "errors": {
+      "dealer_required": "Choisissez le dealer.",
+      "invalid_price": "Entrez un prix plancher valide."
+    }
+  },
+  "sales": {
+    "title": "Ventes",
+    "subtitle": "Toutes les ventes de la boutique.",
+    "mineTitle": "Mes ventes",
+    "mineSubtitle": "Vos ventes pour cette boutique.",
+    "personalTitle": "Mes ventes",
+    "personalSubtitle": "Vos ventes personnelles. Aucune boutique ne les voit.",
+    "empty": "Aucune vente pour l'instant.",
+    "sell": "Vendre",
+    "sale": "Vente",
+    "sellTitle": "Vendre l'appareil",
+    "deviceLine": "{model} · IMEI {imei}",
+    "status": {
+      "PENDING_APPROVAL": "À valider",
+      "COMPLETED": "Vendue",
+      "REJECTED": "Refusée",
+      "CANCELLED": "Annulée"
+    },
+    "customer": "Client",
+    "newCustomer": "Nouveau client",
+    "customerName": "Nom du client",
+    "customerPhone": "Téléphone du client",
+    "optional": "Facultatif",
+    "price": "Prix de vente ({currency})",
+    "priceLabel": "Prix de vente",
+    "date": "Date",
+    "seller": "Vendeur",
+    "yourShare": "Votre part",
+    "dealerShare": "Part du dealer",
+    "shopShare": "Part de la boutique",
+    "belowFloor": "Ce prix est sous le prix plancher ({floor}). La vente attendra la validation du patron ; l'appareil reste chez vous en attendant.",
+    "belowFloorNote": "Sous le prix plancher ({floor}).",
+    "awaitingOwner": "Vente à {price} en attente de validation par le patron.",
+    "warranty": "Garantie",
+    "noWarranty": "Aucune",
+    "warrantyDays": "{count, plural, one {# jour} other {# jours}}",
+    "saleReport": "État de l'appareil à la vente",
+    "submit": "Enregistrer la vente",
+    "submitForApproval": "Demander la validation",
+    "approve": "Valider",
+    "reject": "Refuser",
+    "errors": {
+      "customer_required": "Indiquez le nom du client.",
+      "invalid_price": "Entrez un prix de vente valide."
+    }
+  },
+  "customers": {
+    "title": "Clients",
+    "subtitle": "Les clients de la boutique.",
+    "mineSubtitle": "Les clients de la boutique que vous avez enregistrés.",
+    "personalTitle": "Mes clients",
+    "personalSubtitle": "Votre clientèle personnelle. Aucune boutique ne la voit.",
+    "empty": "Aucun client pour l'instant. Les clients s'ajoutent au moment d'une vente.",
+    "noPhone": "Pas de téléphone"
   },
   "offline": {
     "title": "Pas de connexion",

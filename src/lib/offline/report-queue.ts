@@ -1,8 +1,9 @@
 import { photoStorageKey } from "@/domain/condition-report";
 import { createClient } from "@/lib/supabase/client";
 
-// File d'attente des constats, gardée sur le téléphone (IndexedDB).
-// Un constat y est déposé avant tout envoi, puis retiré une fois enregistré
+// File d'attente gardée sur le téléphone (IndexedDB) pour tout ce qui
+// s'accompagne d'un constat avec photos : constat d'entrée, dépôt, retour, vente.
+// L'enregistrement y est déposé avant tout envoi, puis retiré une fois accepté
 // par le serveur. Si la connexion tombe, il reste là et repart plus tard.
 // L'envoi est rejouable : les identifiants sont créés sur le téléphone.
 
@@ -10,13 +11,23 @@ const DB_NAME = "edeal-offline";
 const STORE = "pending-reports";
 export const QUEUE_CHANGED = "edeal:queue-changed";
 
+// Opérations de la base qui prennent un constat et ses photos.
+export type QueuedRpc =
+  | "create_intake_report"
+  | "create_consignment"
+  | "return_consignment"
+  | "create_sale";
+
 export type PendingPhoto = { id: string; angle: string; taken_at: string; blob: Blob };
 
 export type PendingReport = {
+  // Identifiant du constat, créé sur le téléphone.
   id: string;
   userId: string;
   deviceId: string;
-  // Champs du constat, tels qu'attendus par la fonction create_intake_report.
+  rpc: QueuedRpc;
+  // Arguments propres à l'opération, hors constat et photos.
+  args: Record<string, unknown>;
   report: Record<string, unknown>;
   photos: PendingPhoto[];
   createdAt: string;
@@ -30,6 +41,15 @@ const REJECTIONS = new Set([
   "missing_photos",
   "photo_not_uploaded",
   "invalid_report",
+  "device_unavailable",
+  "invalid_dealer",
+  "invalid_due_date",
+  "invalid_price",
+  "invalid_warranty",
+  "consignment_closed",
+  "sale_pending",
+  "customer_required",
+  "invalid_customer",
 ]);
 
 function openDb(): Promise<IDBDatabase> {
@@ -77,7 +97,7 @@ export async function discardReport(id: string) {
   notify();
 }
 
-type Outcome = "sent" | "offline" | { rejected: string };
+type Outcome = { sent: unknown } | "offline" | { rejected: string };
 
 async function send(item: PendingReport): Promise<Outcome> {
   const supabase = createClient();
@@ -102,29 +122,35 @@ async function send(item: PendingReport): Promise<Outcome> {
     photos.push({ id: photo.id, angle: photo.angle, taken_at: photo.taken_at, storage_key });
   }
 
-  const { error } = await supabase.rpc("create_intake_report", {
+  // Les quatre opérations partagent la même forme : leurs arguments propres,
+  // plus le constat et ses photos.
+  const { data, error } = await supabase.rpc(item.rpc, {
+    ...item.args,
     p_report: { ...item.report, id: item.id, device_id: item.deviceId },
     p_photos: photos,
-  });
-  if (!error) return "sent";
+  } as never);
+  if (!error) return { sent: data };
   if (REJECTIONS.has(error.message)) return { rejected: error.message };
   // PostgREST renvoie un code pour toute réponse du serveur.
   return error.code ? { rejected: "generic" } : "offline";
 }
 
-let running: Promise<number> | null = null;
+let running: Promise<Map<string, unknown>> | null = null;
 
-/** Envoie les constats en attente de cet utilisateur. Retourne le nombre envoyé. */
-export function syncPendingReports(userId: string): Promise<number> {
+/**
+ * Envoie ce qui attend pour cet utilisateur. Retourne, pour chaque
+ * enregistrement accepté, la réponse du serveur (par identifiant).
+ */
+export function syncPendingReports(userId: string): Promise<Map<string, unknown>> {
   running ??= (async () => {
-    let sent = 0;
+    const sent = new Map<string, unknown>();
     try {
       for (const item of await listPendingReports(userId)) {
         const outcome = await send(item);
         if (outcome === "offline") break;
-        if (outcome === "sent") {
+        if ("sent" in outcome) {
           await run("readwrite", (store) => store.delete(item.id));
-          sent += 1;
+          sent.set(item.id, outcome.sent);
         } else {
           await run("readwrite", (store) =>
             store.put({ ...item, error: outcome.rejected }),

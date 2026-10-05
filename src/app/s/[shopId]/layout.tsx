@@ -17,6 +17,17 @@ export default async function ShopLayout({
   if (membership.role !== "DEALER") {
     nav.push({ href: `${base}/devices`, label: t("nav.stock"), icon: "phone" });
   }
+  if (membership.role !== "CASHIER") {
+    nav.push({
+      href: `${base}/consignments`,
+      label: t("nav.consignments"),
+      icon: "consign",
+    });
+  }
+  nav.push(
+    { href: `${base}/sales`, label: t("nav.sales"), icon: "sales" },
+    { href: `${base}/customers`, label: t("nav.customers"), icon: "customers" },
+  );
   if (membership.role === "OWNER") {
     nav.push(
       { href: `${base}/members`, label: t("nav.members"), icon: "members" },
@@ -31,6 +42,7 @@ export default async function ShopLayout({
       subtitle={t(`roles.${membership.role}`)}
       userName={profile.name}
       userId={profile.id}
+      moreLabel={t("nav.more")}
       nav={nav}
     >
       {children}

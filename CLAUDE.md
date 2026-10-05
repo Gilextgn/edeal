@@ -47,6 +47,7 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 
 - `src/domain/` : logique pure (aucun accès base ni réseau), très testée. Calcul des parts, solde, IMEI, imputation des règlements.
 - `src/lib/` : accès Supabase, variables d'environnement, compression des photos (`photos/`), file d'envoi différé (`offline/`).
+- `src/features/sales/` : dépôts, ventes, clients (formulaires, listes, validation du patron).
 - `src/features/devices/` : écrans d'appareil partagés entre l'espace boutique et l'espace perso (le « scope » dit dans lequel on se trouve). Les fichiers de `src/app/**/devices/` ne font que les appeler.
 - `src/app/` : pages et Server Actions. `(auth)` connexion, `(hub)` choix d'espace et compte, `s/[shopId]` espace boutique, `perso` espace personnel.
 - `src/lib/session.ts` : `requireUser`, `requireShop`, `requireOwner` — à appeler en tête de chaque page protégée.
@@ -68,9 +69,10 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 9. Vente directe boutique (patron ou caissier, sans dépôt) : pas de commission.
 10. Solde dû par un dealer = somme des `shopShare` de ses ventes issues de dépôts − somme de ses règlements. Toute la part est due dès la vente.
 11. Un règlement appartient au couple dealer-boutique, couvre une ou plusieurs ventes, et est enregistré par le patron ou le caissier.
-12. Visibilité : le patron voit tout l'espace boutique, jamais l'espace perso d'un dealer ; le dealer voit ses dépôts et ventes boutique et son espace perso (pas le reste du stock) ; le caissier voit le stock et les ventes boutique, sans pouvoir modifier le stock.
-13. Un seul patron par boutique (son créateur). Le patron ajoute dealers et caissiers par téléphone ou e-mail ; une personne sans compte est invitée et rejoint la boutique à son inscription. Un membre désactivé ne voit plus la boutique.
-14. Montants en entiers dans la plus petite unité de la devise. Taux en points de base (2500 = 25 %). Devise par boutique, FCFA par défaut.
+12. Seul le patron confie un appareil et enregistre son retour. Un appareil confié ne peut être vendu que par son dealer. Le dealer ne voit que les appareils qui lui sont confiés, ses constats, ses ventes et les clients boutique qu'il a lui-même enregistrés.
+13. Visibilité : le patron voit tout l'espace boutique, jamais l'espace perso d'un dealer ; le dealer voit ses dépôts et ventes boutique et son espace perso (pas le reste du stock) ; le caissier voit le stock et les ventes boutique, sans pouvoir modifier le stock.
+14. Un seul patron par boutique (son créateur). Le patron ajoute dealers et caissiers par téléphone ou e-mail ; une personne sans compte est invitée et rejoint la boutique à son inscription. Un membre désactivé ne voit plus la boutique.
+15. Montants en entiers dans la plus petite unité de la devise. Taux en points de base (2500 = 25 %). Devise par boutique, FCFA par défaut.
 
 ## Décisions d'architecture
 
@@ -79,7 +81,9 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 - **Authentification** : téléphone ou e-mail + mot de passe, sans SMS. Hachage et sessions gérés par Supabase Auth. Le profil `public.users` est créé par un déclencheur à l'inscription.
 - **Opérations sensibles** (créer une boutique, gérer les membres, confier, vendre, valider, régler) : fonctions PostgreSQL appelées en RPC, en transaction. Elles lèvent des codes d'erreur (`not_owner`…) traduits dans `messages/fr.json` sous `errors`.
 - **Politiques d'accès** : fonctions d'aide dans le schéma `private` (`private.my_role(shop_id)`). Pas d'`insert`/`update` direct sur les tables sensibles.
-- **Stratégie de rémunération** remplaçable, isolée dans `src/domain/`.
+- **Calcul des parts** : `src/domain/shares.ts` (module pur, stratégie remplaçable) sert à l'aperçu ; la base refait le calcul à l'enregistrement (`private.compute_dealer_share`) et fait foi. `tests/db/shares.test.ts` vérifie que les deux concordent sur les cas de `src/domain/shares.cases.ts` : toute nouvelle règle doit y être ajoutée des deux côtés.
+- **Type de vente** déduit par la base : appareil perso du vendeur → `PERSONAL` ; appareil confié au vendeur → `SHOP` avec commission ; appareil en stock vendu par le patron ou le caissier → `SHOP` sans commission.
+- **Constat + opération** : dépôt, retour et vente s'enregistrent chacun avec leur constat dans une seule transaction (`create_consignment`, `return_consignment`, `create_sale`) et passent tous par la file d'envoi différé. `ReportOperationForm` (`src/features/devices/report-fields.tsx`) est le formulaire commun.
 - **PWA** : manifeste + service worker minimal (`public/sw.js`). La file de synchronisation hors-ligne (IndexedDB, identifiants générés sur le téléphone) arrive avec les ventes et les photos.
 - **Photos** : compressées sur le téléphone (1280 px max, JPEG), envoyées dans le bucket privé `photos` sous `<appareil>/<constat>/<photo>`. Seule la clé est en base ; l'URL signée est générée à la lecture. Ni modification ni suppression possibles.
 - **Envoi différé** : un constat est d'abord déposé dans IndexedDB (`src/lib/offline/report-queue.ts`), puis envoyé. Sans connexion il reste en file et repart au retour du réseau ; l'envoi est rejouable car les identifiants sont créés sur le téléphone. Le chargement des écrans eux-mêmes demande encore une connexion (phase 5).
@@ -90,6 +94,6 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 - [x] Phase 0 : fondations
 - [x] Phase 1 : organisation (boutiques, membres, rôles, taux)
 - [x] Phase 2 : appareils, constats, photos
-- [ ] Phase 3 : dépôts et ventes
+- [x] Phase 3 : dépôts et ventes
 - [ ] Phase 4 : argent (échéances, règlements, soldes, tableau de bord)
 - [ ] Phase 5 : confort (reçu, annonce, hors-ligne complet)

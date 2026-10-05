@@ -169,11 +169,12 @@ export function FormMessage({
   tone,
   children,
 }: {
-  tone: "danger" | "success";
+  tone: "danger" | "success" | "warning";
   children: ReactNode;
 }) {
   const tones = {
     danger: "bg-danger-soft text-danger",
+    warning: "bg-warning-soft text-warning",
     success: "bg-success-soft text-success",
   };
   return (

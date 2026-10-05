@@ -9,6 +9,8 @@ export type DeviceScope = {
   basePath: string;
   currency: string;
   canWrite: boolean;
+  // Vendre un appareil en stock : patron, caissier, ou propriétaire perso.
+  canSell: boolean;
 };
 
 export function devicesPath(shopId: string | null) {
@@ -26,6 +28,7 @@ export async function shopDeviceScope(shopId: string) {
     basePath: devicesPath(context.shop.id),
     currency: context.shop.currency,
     canWrite: role === "OWNER",
+    canSell: true,
   };
   return { ...context, scope };
 }
@@ -37,6 +40,7 @@ export async function personalDeviceScope() {
     basePath: devicesPath(null),
     currency: PERSONAL_CURRENCY,
     canWrite: true,
+    canSell: true,
   };
   return { ...context, scope };
 }
