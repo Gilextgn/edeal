@@ -165,6 +165,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"installments": {
+                  Row: {
+                    "amount": number,"created_at": string,"due_on": string,"id": string,"paid_on": string | null,"sale_id": string
+                  }
+                  Insert: {
+                    "amount": number,"created_at"?: string,"due_on": string,"id": string,"paid_on"?: string | null,"sale_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"due_on"?: string,"id"?: string,"paid_on"?: string | null,"sale_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "installments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sale_dues"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "installments_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"invitations": {
                   Row: {
                     "commission_rate_bps": number,"created_at": string,"email": string | null,"id": string,"phone": string | null,"role": Database["public"]['Enums']["member_role"],"shop_id": string
@@ -283,6 +308,74 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"settlement_allocations": {
+                  Row: {
+                    "amount": number,"sale_id": string,"settlement_id": string
+                  }
+                  Insert: {
+                    "amount": number,"sale_id": string,"settlement_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"sale_id"?: string,"settlement_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "settlement_allocations_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sale_dues"
+      referencedColumns: ["sale_id"]
+    },{
+      foreignKeyName: "settlement_allocations_sale_id_fkey"
+      columns: ["sale_id"]
+isOneToOne: false
+      referencedRelation: "sales"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "settlement_allocations_settlement_id_fkey"
+      columns: ["settlement_id"]
+isOneToOne: false
+      referencedRelation: "settlements"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"settlements": {
+                  Row: {
+                    "amount": number,"created_at": string,"dealer_user_id": string,"id": string,"membership_id": string,"method": Database["public"]['Enums']["payment_method"],"paid_at": string,"recorded_by": string,"shop_id": string
+                  }
+                  Insert: {
+                    "amount": number,"created_at"?: string,"dealer_user_id": string,"id": string,"membership_id": string,"method": Database["public"]['Enums']["payment_method"],"paid_at"?: string,"recorded_by": string,"shop_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"dealer_user_id"?: string,"id"?: string,"membership_id"?: string,"method"?: Database["public"]['Enums']["payment_method"],"paid_at"?: string,"recorded_by"?: string,"shop_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "settlements_dealer_user_id_fkey"
+      columns: ["dealer_user_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "settlements_membership_id_fkey"
+      columns: ["membership_id"]
+isOneToOne: false
+      referencedRelation: "memberships"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "settlements_recorded_by_fkey"
+      columns: ["recorded_by"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "settlements_shop_id_fkey"
+      columns: ["shop_id"]
+isOneToOne: false
+      referencedRelation: "shops"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"shops": {
                   Row: {
                     "address": string | null,"created_at": string,"currency": string,"id": string,"name": string,"phone": string | null
@@ -312,7 +405,38 @@ isOneToOne: false
                 }
           }
           Views: {
-            [_ in never]: never
+            "sale_dues": {
+                  Row: {
+                    "dealer_user_id": string | null,"device_id": string | null,"due": number | null,"membership_id": string | null,"sale_id": string | null,"settled": number | null,"shop_id": string | null,"shop_share": number | null,"sold_at": string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "consignments_dealer_user_id_fkey"
+      columns: ["dealer_user_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consignments_membership_id_fkey"
+      columns: ["membership_id"]
+isOneToOne: false
+      referencedRelation: "memberships"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_device_id_fkey"
+      columns: ["device_id"]
+isOneToOne: false
+      referencedRelation: "devices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sales_shop_id_fkey"
+      columns: ["shop_id"]
+isOneToOne: false
+      referencedRelation: "shops"
+      referencedColumns: ["id"]
+    }
+                  ]
+                }
           }
           Functions: {
             "add_member":
@@ -330,6 +454,11 @@ isOneToOne: false
 "create_shop":
 { Args: { "p_address"?: string,"p_name": string,"p_phone"?: string }; Returns: string
                            },
+"dealer_balances":
+{ Args: { "p_shop_id": string }; Returns: {
+              "active": boolean,"balance": number,"dealer_name": string,"dealer_user_id": string,"membership_id": string,"total_owed": number,"total_settled": number
+            }[]
+                           },
 "decide_sale":
 { Args: { "p_approve": boolean,"p_sale_id": string }; Returns: undefined
                            },
@@ -341,18 +470,27 @@ isOneToOne: false
               "dealer_share": number,"shop_share": number
             }[]
                            },
+"record_settlement":
+{ Args: { "p_settlement": Json }; Returns: string
+                           },
 "return_consignment":
 { Args: { "p_consignment_id": string,"p_photos": Json,"p_report": Json }; Returns: undefined
                            },
 "set_device_withdrawn":
 { Args: { "p_device_id": string,"p_withdrawn": boolean }; Returns: undefined
                            },
+"set_installment_paid":
+{ Args: { "p_installment_id": string,"p_paid": boolean }; Returns: undefined
+                           },
+"set_installments":
+{ Args: { "p_installments": Json,"p_sale_id": string }; Returns: undefined
+                           },
 "update_member":
 { Args: { "p_active": boolean,"p_commission_rate_bps": number,"p_membership_id": string,"p_role": Database["public"]['Enums']["member_role"] }; Returns: undefined
                            }
           }
           Enums: {
-            "condition_grade": "NEW"|"LIKE_NEW"|"GOOD"|"FAIR","consignment_status": "ACTIVE"|"SOLD"|"RETURNED"|"SETTLED","device_status": "IN_STOCK"|"CONSIGNED"|"SOLD"|"WITHDRAWN","member_role": "OWNER"|"DEALER"|"CASHIER","photo_angle": "FRONT"|"BACK"|"SIDES"|"SCREEN_ON"|"ABOUT"|"DEFECT","report_type": "INTAKE"|"HANDOVER"|"RETURN"|"SALE","sale_status": "PENDING_APPROVAL"|"COMPLETED"|"REJECTED"|"CANCELLED","sale_type": "SHOP"|"PERSONAL"
+            "condition_grade": "NEW"|"LIKE_NEW"|"GOOD"|"FAIR","consignment_status": "ACTIVE"|"SOLD"|"RETURNED"|"SETTLED","device_status": "IN_STOCK"|"CONSIGNED"|"SOLD"|"WITHDRAWN","member_role": "OWNER"|"DEALER"|"CASHIER","payment_method": "CASH"|"MOBILE_MONEY"|"BANK_TRANSFER"|"OTHER","photo_angle": "FRONT"|"BACK"|"SIDES"|"SCREEN_ON"|"ABOUT"|"DEFECT","report_type": "INTAKE"|"HANDOVER"|"RETURN"|"SALE","sale_status": "PENDING_APPROVAL"|"COMPLETED"|"REJECTED"|"CANCELLED","sale_type": "SHOP"|"PERSONAL"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -472,7 +610,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "condition_grade": ["NEW", "LIKE_NEW", "GOOD", "FAIR"],"consignment_status": ["ACTIVE", "SOLD", "RETURNED", "SETTLED"],"device_status": ["IN_STOCK", "CONSIGNED", "SOLD", "WITHDRAWN"],"member_role": ["OWNER", "DEALER", "CASHIER"],"photo_angle": ["FRONT", "BACK", "SIDES", "SCREEN_ON", "ABOUT", "DEFECT"],"report_type": ["INTAKE", "HANDOVER", "RETURN", "SALE"],"sale_status": ["PENDING_APPROVAL", "COMPLETED", "REJECTED", "CANCELLED"],"sale_type": ["SHOP", "PERSONAL"]
+            "condition_grade": ["NEW", "LIKE_NEW", "GOOD", "FAIR"],"consignment_status": ["ACTIVE", "SOLD", "RETURNED", "SETTLED"],"device_status": ["IN_STOCK", "CONSIGNED", "SOLD", "WITHDRAWN"],"member_role": ["OWNER", "DEALER", "CASHIER"],"payment_method": ["CASH", "MOBILE_MONEY", "BANK_TRANSFER", "OTHER"],"photo_angle": ["FRONT", "BACK", "SIDES", "SCREEN_ON", "ABOUT", "DEFECT"],"report_type": ["INTAKE", "HANDOVER", "RETURN", "SALE"],"sale_status": ["PENDING_APPROVAL", "COMPLETED", "REJECTED", "CANCELLED"],"sale_type": ["SHOP", "PERSONAL"]
           }
         }
 } as const
