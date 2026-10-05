@@ -30,10 +30,10 @@ export const marginCommission: CompensationStrategy = ({
   purchasePrice,
   commissionRateBps,
 }) => {
-  const margin = BigInt(salePrice) - BigInt(purchasePrice);
-  if (margin <= 0n) return 0;
+  if (salePrice <= purchasePrice) return 0;
   // BigInt : le produit taux × marge peut dépasser la précision des nombres JS.
-  return Number((BigInt(commissionRateBps) * margin) / 10_000n);
+  const margin = BigInt(salePrice) - BigInt(purchasePrice);
+  return Number((BigInt(commissionRateBps) * margin) / BigInt(10_000));
 };
 
 export type SaleKind =
