@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Les composants n'utilisent que ces variables,
+ * jamais de couleur en dur. Le jaune (--accent) sert de fond de bouton,
+ * jamais de couleur de texte sur fond clair.
+ */
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --fg: #0b1533;
+  --muted: #4a5578;
+  --border: #d5dae8;
+
+  --primary: #011f7b;
+  --on-primary: #ffffff;
+  --accent: #ffba09;
+  --on-accent: #011f7b;
+  --link: #011f7b;
+
+  --success: #15803d;
+  --danger: #b91c1c;
+  --warning: #92400e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #060d24;
+    --surface: #0e1838;
+    --fg: #eef1fa;
+    --muted: #a9b3d1;
+    --border: #26335f;
+
+    --link: #9db2ff;
+
+    --success: #4ade80;
+    --danger: #f87171;
+    --warning: #fbbf24;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-link: var(--link);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}

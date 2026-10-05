@@ -1,0 +1,40 @@
+{
+  "app": {
+    "name": "iDépôt",
+    "description": "Dépôt-vente d'iPhone entre boutiques et dealers"
+  },
+  "auth": {
+    "loginTitle": "Connexion",
+    "signupTitle": "Créer un compte",
+    "name": "Nom complet",
+    "identifier": "Téléphone ou e-mail",
+    "identifierHint": "Exemple : 97 00 00 00 ou nom@exemple.com",
+    "password": "Mot de passe",
+    "passwordHint": "8 caractères minimum",
+    "login": "Se connecter",
+    "signup": "Créer mon compte",
+    "logout": "Se déconnecter",
+    "noAccount": "Pas encore de compte ?",
+    "hasAccount": "Déjà un compte ?",
+    "goToSignup": "Créer un compte",
+    "goToLogin": "Se connecter",
+    "pending": "Un instant…",
+    "errors": {
+      "nameRequired": "Indiquez votre nom.",
+      "identifierInvalid": "Entrez un numéro de téléphone ou un e-mail valide.",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+      "invalidCredentials": "Identifiant ou mot de passe incorrect.",
+      "alreadyRegistered": "Un compte existe déjà avec cet identifiant.",
+      "generic": "Une erreur est survenue. Réessayez."
+    }
+  },
+  "home": {
+    "greeting": "Bonjour {name}",
+    "empty": "Votre compte est prêt. Les boutiques et les appareils arrivent dans les prochaines étapes."
+  },
+  "offline": {
+    "title": "Pas de connexion",
+    "body": "Vérifiez votre connexion, puis réessayez.",
+    "retry": "Réessayer"
+  }
+}
