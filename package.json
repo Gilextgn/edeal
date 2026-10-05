@@ -13,7 +13,8 @@
     "db:start": "supabase start -x realtime,edge-runtime,logflare,vector,imgproxy,supavisor",
     "db:stop": "supabase stop",
     "db:status": "supabase status",
-    "db:reset": "supabase db reset"
+    "db:reset": "supabase db reset",
+    "db:types": "supabase gen types typescript --local > src/lib/database.types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
