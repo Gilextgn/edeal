@@ -10,13 +10,13 @@ import { readImeiFromPhoto } from "@/lib/photos/read-imei";
 
 type Status = "idle" | "reading" | "found" | "none" | "manual";
 
-// L'IMEI ne se tape pas : on le lit sur une photo (prise sur place ou
-// importée). La saisie à la main n'apparaît qu'en secours, si la photo est
-// illisible. Le champ caché « imei » porte la valeur envoyée au serveur.
+// L'IMEI se lit sur une photo (prise sur place ou importée) pour éviter les
+// fautes de frappe ; la saisie à la main reste toujours possible. Le champ
+// caché « imei » porte la valeur envoyée au serveur.
 export function ImeiScanner({ initial = "" }: { initial?: string }) {
   const t = useTranslations("devices.scan");
-  // AprÃ¨s un refus du serveur, l'IMEI dÃ©jÃ  saisi revient : on ne l'annonce
-  // Â« lu Â» que s'il est valide, sinon on rouvre la saisie pour le corriger.
+  // Après un refus du serveur, l'IMEI déjà saisi revient : on ne l'annonce
+  // « lu » que s'il est valide, sinon on rouvre la saisie pour le corriger.
   const [status, setStatus] = useState<Status>(
     !initial ? "idle" : isValidImei(initial) ? "found" : "manual",
   );
@@ -121,8 +121,10 @@ export function ImeiScanner({ initial = "" }: { initial?: string }) {
             autoComplete="off"
             value={imei}
             maxLength={15}
-            // Chiffres uniquement, 15 au plus : un IMEI collÃ© avec des espaces est nettoyÃ©.
-            onChange={(event) => setImei(normalizeImei(event.target.value).replace(/\D/g, "").slice(0, 15))}
+            // Chiffres uniquement, 15 au plus : un IMEI collé avec des espaces est nettoyé.
+            onChange={(event) =>
+              setImei(normalizeImei(event.target.value).replace(/\D/g, "").slice(0, 15))
+            }
           />
           {digits.length >= 15 ? (
             <p
