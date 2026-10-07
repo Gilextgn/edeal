@@ -22,6 +22,7 @@ export type AuthError =
   | "invalidCredentials"
   | "locked"
   | "alreadyRegistered"
+  | "phoneUnavailable"
   | "generic";
 
 export type AuthState = {
@@ -69,11 +70,20 @@ export async function signUp(
       : await supabase.auth.signUp({ phone: parsed.phone, password, options });
 
   if (error) {
-    return fail(
-      error.code === "user_already_exists" ? "alreadyRegistered" : "generic",
-    );
+    if (error.code === "user_already_exists") return fail("alreadyRegistered");
+    // Le projet Supabase veut confirmer le numéro par SMS, que l'application
+    // n'envoie pas : « confirmations par téléphone » doit y être désactivé.
+    if (error.code === "sms_send_failed" || error.code === "phone_provider_disabled") {
+      return fail("phoneUnavailable");
+    }
+    console.error("signUp :", error.code, error.message);
+    return fail("generic");
   }
-  if (!data.session) return fail("generic");
+  // Compte créé mais pas de session : le projet exige une confirmation.
+  if (!data.session) {
+    console.error("signUp : compte créé sans session (confirmation exigée par Supabase)");
+    return fail(parsed.kind === "phone" ? "phoneUnavailable" : "generic");
+  }
 
   redirect("/");
 }
@@ -107,7 +117,10 @@ export async function signIn(
       ? await supabase.auth.signInWithPassword({ email: parsed.email, password })
       : await supabase.auth.signInWithPassword({ phone: parsed.phone, password });
 
-  if (error && error.code !== "invalid_credentials") return fail("generic");
+  if (error && error.code !== "invalid_credentials") {
+    console.error("signIn :", error.code, error.message);
+    return fail("generic");
+  }
   if (error) {
     await recordLoginAttempt(account, false);
     const lockedFor = await loginLockSeconds(account);

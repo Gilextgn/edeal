@@ -81,6 +81,7 @@
       "identifierInvalid": "Entrez un numéro de téléphone ou un e-mail valide.",
       "invalidCredentials": "Identifiant ou mot de passe incorrect.",
       "alreadyRegistered": "Un compte existe déjà avec cet identifiant.",
+      "phoneUnavailable": "L'inscription par numéro de téléphone n'est pas encore disponible. Utilisez une adresse e-mail.",
       "generic": "Une erreur est survenue. Réessayez.",
       "password_too_short": "Le mot de passe doit contenir au moins 8 caractères.",
       "password_needs_letter": "Ajoutez au moins une lettre au mot de passe.",

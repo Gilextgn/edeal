@@ -25,7 +25,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
 
   return (
     <div className="min-h-dvh bg-device lg:grid lg:grid-cols-[1.1fr_1fr]">
-      <section className="relative h-[40dvh] min-h-64 overflow-hidden text-on-brand lg:h-auto lg:min-h-dvh">
+      <section className="relative h-[46dvh] min-h-72 overflow-hidden text-on-brand lg:h-auto lg:min-h-dvh">
         <div className="absolute inset-0">
           {SLIDES.map((file, index) => (
             <div
@@ -43,15 +43,19 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
                 sizes="55vw"
                 className="hidden scale-110 object-cover opacity-50 blur-2xl lg:block"
               />
-              <Image
-                src={`/login/${file}.jpg`}
-                alt={t(`slides.${file}`)}
-                fill
-                unoptimized
-                priority={index === 0}
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                className="object-cover lg:object-contain lg:p-24"
-              />
+              {/* Grand écran : la photo prend toute la hauteur, sans dépasser
+                  sa largeur réelle (736 px), pour rester nette. */}
+              <div className="absolute inset-0 lg:inset-6 lg:mx-auto lg:max-w-184">
+                <Image
+                  src={`/login/${file}.jpg`}
+                  alt={t(`slides.${file}`)}
+                  fill
+                  unoptimized
+                  priority={index === 0}
+                  sizes="(min-width: 1024px) 46rem, 100vw"
+                  className="object-cover lg:rounded-3xl lg:object-contain"
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -82,7 +86,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </div>
       </section>
 
-      <main className="relative -mt-6 flex min-h-[calc(60dvh+1.5rem)] items-start justify-center rounded-t-[2rem] bg-bg px-5 pb-10 pt-8 lg:mt-0 lg:min-h-dvh lg:items-center lg:rounded-none lg:px-8">
+      <main className="relative -mt-6 flex min-h-[calc(54dvh+1.5rem)] items-start justify-center rounded-t-[2rem] bg-bg px-5 pb-10 pt-8 lg:mt-0 lg:min-h-dvh lg:items-center lg:rounded-none lg:px-8">
         <div className="w-full max-w-sm animate-rise">{children}</div>
       </main>
     </div>
