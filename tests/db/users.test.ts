@@ -49,13 +49,26 @@ describe("inscription et connexion", () => {
     expect(error?.code).toBe("invalid_credentials");
   });
 
-  it("refuse une inscription sans nom", async () => {
-    const { data, error } = await anonClient().auth.signUp({
+  it("sans nom fourni, prend le début de l'adresse e-mail", async () => {
+    const email = randomEmail();
+    const client = anonClient();
+    const { error } = await client.auth.signUp({ email, password: TEST_PASSWORD });
+    expect(error).toBeNull();
+
+    const { data } = await client.from("users").select("name").single();
+    expect(data?.name).toBe(email.split("@")[0]);
+  });
+
+  it("prend le nom fourni par Google (« full_name »)", async () => {
+    const client = anonClient();
+    await client.auth.signUp({
       email: randomEmail(),
       password: TEST_PASSWORD,
+      options: { data: { full_name: "  Awa Dossou  " } },
     });
-    expect(error).not.toBeNull();
-    expect(data.user).toBeNull();
+
+    const { data } = await client.from("users").select("name").single();
+    expect(data?.name).toBe("Awa Dossou");
   });
 
   it("refuse un second compte avec le même identifiant", async () => {

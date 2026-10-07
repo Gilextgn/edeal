@@ -18,7 +18,7 @@ const csp = [
   `connect-src 'self' data: ${supabase} ${supabase.replace(/^http/, "ws")} ${ocr}`,
   `worker-src 'self' blob: ${ocr}`,
   "frame-ancestors 'none'",
-  "form-action 'self'",
+  `form-action 'self' https://accounts.google.com ${supabase}`,
   "base-uri 'self'",
   "object-src 'none'",
 ].join("; ");

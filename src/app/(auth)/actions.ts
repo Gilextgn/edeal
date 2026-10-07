@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { parseIdentifier } from "@/domain/identifier";
@@ -123,6 +124,22 @@ export async function signIn(
     .select("shop_id")
     .eq("user_id", data.user.id);
   redirect(memberships?.length === 1 ? `/s/${memberships[0].shop_id}` : "/");
+}
+
+// Connexion avec un compte Google : l'utilisateur choisit son adresse chez
+// Google, qui le renvoie ensuite sur /auth/callback.
+export async function signInWithGoogle() {
+  const origin = (await headers()).get("origin");
+  const supabase = await createClient();
+  const { data } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+      // Toujours proposer le choix du compte, même s'il n'y en a qu'un.
+      queryParams: { prompt: "select_account" },
+    },
+  });
+  redirect(data?.url ?? "/login?error=google");
 }
 
 export async function signOut() {

@@ -38,9 +38,11 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAuthPage = AUTH_PAGES.includes(pathname);
+  // Retour de Google : la session n'existe pas encore, la route la crée.
+  const isCallback = pathname === "/auth/callback";
 
   let response: NextResponse;
-  if (!user && !isAuthPage) {
+  if (!user && !isAuthPage && !isCallback) {
     response = redirectTo(request, "/login");
   } else if (user && isAuthPage) {
     response = redirectTo(request, "/");
