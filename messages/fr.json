@@ -88,7 +88,8 @@
       "password_too_common": "Ce mot de passe est trop facile à deviner. Choisissez-en un autre.",
       "password_contains_identifier": "Le mot de passe ne doit pas contenir votre numéro ou votre e-mail.",
       "passwordMismatch": "Les deux mots de passe ne sont pas identiques.",
-      "locked": "Trop d'essais ratés. Par sécurité, la connexion à ce compte est bloquée pendant {minutes, plural, one {# minute} other {# minutes}}."
+      "locked": "Trop d'essais ratés. Par sécurité, la connexion à ce compte est bloquée pendant {minutes, plural, one {# minute} other {# minutes}}.",
+      "google": "La connexion avec Google n’a pas abouti. Réessayez, ou utilisez votre mot de passe."
     },
     "confirmation": "Confirmer le mot de passe",
     "showPassword": "Afficher le mot de passe",
@@ -98,7 +99,9 @@
       "2": "Mot de passe correct.",
       "3": "Bon mot de passe.",
       "4": "Très bon mot de passe."
-    }
+    },
+    "google": "Continuer avec Google",
+    "or": "ou"
   },
   "spaces": {
     "title": "Bonjour {name}",
@@ -281,16 +284,16 @@
     },
     "scan": {
       "label": "IMEI",
-      "hint": "Photographiez l'écran qui s'affiche en composant *#06#, l'écran Réglages > Informations, ou l'étiquette de la boîte.",
+      "hint": "Photographiez l’écran qui s’affiche en composant *#06#, l’écran Réglages > Informations, ou l’étiquette de la boîte. L’IMEI est lu sur la photo pour éviter les fautes de frappe.",
       "take": "Prendre une photo",
       "upload": "Importer une photo",
-      "reading": "Lecture de l'IMEI en cours…",
+      "reading": "Lecture de l’IMEI en cours… La première fois, cela peut prendre jusqu’à une minute.",
       "found": "IMEI lu",
       "several": "Plusieurs IMEI trouvés : choisissez celui de l'appareil",
       "notFound": "Aucun IMEI lisible sur cette photo. Rapprochez-vous, évitez les reflets, puis réessayez.",
       "typeInstead": "Saisir l'IMEI à la main",
       "manualLabel": "IMEI (15 chiffres)",
-      "manualHint": "À utiliser seulement si la photo ne peut pas être lue.",
+      "manualHint": "15 chiffres. Composez *#06# sur le téléphone pour l’afficher.",
       "valid": "IMEI valide",
       "invalid": "IMEI incorrect : vérifiez les chiffres."
     }
@@ -520,7 +523,9 @@
       "invalid_price": "Entrez un prix de vente valide."
     },
     "viewSale": "Voir la vente",
-    "soldBy": "Vendu par {name}"
+    "soldBy": "Vendu par {name}",
+    "searchCustomer": "Chercher un client…",
+    "noCustomerFound": "Aucun client trouvé."
   },
   "customers": {
     "title": "Clients",
@@ -716,14 +721,8 @@
     "view": "Voir",
     "edit": "Modifier",
     "delete": "Supprimer",
-    "addedOn": "Ajouté le"
-  },
-  "palette": {
-    "label": "Couleurs de l'application",
-    "onyx": "Noir et or",
-    "grenat": "Bordeaux et or",
-    "mandarine": "Orange",
-    "orchidee": "Magenta et rose"
+    "addedOn": "Ajouté le",
+    "searchIn": "Chercher dans la liste…"
   },
   "offline": {
     "title": "Pas de connexion",

@@ -69,25 +69,6 @@ export function Field({ label, hint, name, className = "", ...props }: FieldProp
   );
 }
 
-export function Select({
-  label,
-  name,
-  children,
-  className = "",
-  ...props
-}: ComponentProps<"select"> & { label: string; name: string }) {
-  return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label htmlFor={name} className="text-sm font-semibold text-fg">
-        {label}
-      </label>
-      <select id={name} name={name} className={control} {...props}>
-        {children}
-      </select>
-    </div>
-  );
-}
-
 export function Textarea({
   label,
   hint,
@@ -152,7 +133,7 @@ export function PageHeader({
   return (
     <div className="mb-5 flex animate-rise flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:mb-7">
       <div className="min-w-0">
-        <h1 className="font-display text-4xl leading-tight text-fg lg:text-5xl">{title}</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-fg lg:text-3xl">{title}</h1>
         {subtitle ? <p className="mt-1 text-muted">{subtitle}</p> : null}
       </div>
       {action}
@@ -189,12 +170,20 @@ export function FormMessage({
 }
 
 // Carré de marque : initiale de la boutique, ou « e » pour eDeal.
-export function BrandMark({ name, size = "md" }: { name: string; size?: "md" | "lg" }) {
-  const sizes = { md: "size-10 text-xl", lg: "size-12 text-2xl" };
+export function BrandMark({
+  name,
+  size = "md",
+  inverted = false,
+}: {
+  name: string;
+  size?: "md" | "lg";
+  inverted?: boolean;
+}) {
+  const sizes = { md: "size-10 text-lg", lg: "size-12 text-xl" };
   return (
     <span
       aria-hidden
-      className={`inline-flex shrink-0 items-center justify-center rounded-xl bg-accent font-display text-on-accent shadow-card ${sizes[size]}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-xl font-extrabold uppercase shadow-card ${inverted ? "bg-on-brand text-brand" : "bg-primary text-on-primary"} ${sizes[size]}`}
     >
       {name.trim().charAt(0) || "e"}
     </span>

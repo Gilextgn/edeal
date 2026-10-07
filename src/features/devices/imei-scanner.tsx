@@ -68,6 +68,17 @@ export function ImeiScanner({ initial = "" }: { initial?: string }) {
         {picker(false)}
       </div>
 
+      {/* Toujours possible de taper l'IMEI, sans attendre la lecture. */}
+      {status === "manual" ? null : (
+        <button
+          type="button"
+          onClick={() => setStatus("manual")}
+          className={`min-h-11 self-start rounded-xl px-1 text-sm font-semibold text-primary underline ${focusRing}`}
+        >
+          {t("typeInstead")}
+        </button>
+      )}
+
       {status === "reading" ? <FormMessage tone="warning">{t("reading")}</FormMessage> : null}
 
       {status === "found" && candidates.length === 1 ? (
@@ -93,13 +104,6 @@ export function ImeiScanner({ initial = "" }: { initial?: string }) {
       {status === "none" ? (
         <div className="flex flex-col gap-2">
           <FormMessage tone="danger">{t("notFound")}</FormMessage>
-          <button
-            type="button"
-            onClick={() => setStatus("manual")}
-            className={`min-h-11 self-start rounded-xl px-1 text-sm font-semibold text-primary underline ${focusRing}`}
-          >
-            {t("typeInstead")}
-          </button>
         </div>
       ) : null}
 

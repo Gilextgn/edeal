@@ -36,7 +36,7 @@ type Action = { href: string; icon: IconName; label: string };
 // Tuiles colorées : un fond teinté par indicateur, pour les distinguer d'un coup d'œil.
 const tileTones: Record<Tone, string> = {
   primary: "bg-primary-soft text-on-primary-soft",
-  accent: "bg-accent-soft text-warning",
+  accent: "bg-primary text-on-primary",
   success: "bg-success-soft text-success",
   warning: "bg-warning-soft text-warning",
 };
@@ -52,11 +52,11 @@ async function KpiTile({ kpi }: { kpi: Kpi }) {
         {icons[kpi.icon]}
       </span>
       <div className="flex items-center justify-between gap-2">
-        <span aria-hidden className="inline-flex size-10 items-center justify-center rounded-2xl bg-surface/70">
+        <span aria-hidden className="inline-flex size-10 items-center justify-center rounded-2xl bg-surface/70 text-fg">
           {icons[kpi.icon]}
         </span>
         {kpi.change !== undefined && kpi.change !== null ? (
-          <span className="rounded-full bg-surface/80 px-2 py-1 text-xs font-bold">
+          <span className="rounded-full bg-surface/80 px-2 py-1 text-xs font-bold text-fg">
             {format.number(kpi.change, {
               style: "percent",
               maximumFractionDigits: 0,
@@ -66,7 +66,7 @@ async function KpiTile({ kpi }: { kpi: Kpi }) {
         ) : null}
       </div>
       <p className="text-sm font-semibold opacity-90">{kpi.label}</p>
-      <p className="text-2xl font-extrabold tracking-tight text-fg">{kpi.value}</p>
+      <p className={`text-2xl font-extrabold tracking-tight ${kpi.tone === "accent" ? "" : "text-fg"}`}>{kpi.value}</p>
       {kpi.note ? <p className="mt-auto text-xs font-medium opacity-80">{kpi.note}</p> : null}
     </div>
   );
@@ -87,11 +87,11 @@ function Sparkline({ series }: { series: DayTotal[] }) {
   const line = points.map(([x, y], index) => `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
   return (
     <svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden className="h-16 w-full">
-      <path d={`${line} L100,40 L0,40 Z`} className="fill-accent/20" />
+      <path d={`${line} L100,40 L0,40 Z`} className="fill-on-brand/15" />
       <path
         d={line}
         fill="none"
-        className="stroke-accent"
+        className="stroke-on-brand"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -160,19 +160,15 @@ async function DashboardView({
     <>
       {/* Carte d'accueil : le chiffre du mois, sur le dégradé de la marque. */}
       <section className="relative animate-rise overflow-hidden rounded-[2rem] bg-linear-to-br from-brand to-brand-2 p-5 text-on-brand shadow-card lg:p-8">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -right-16 -top-20 size-64 animate-glow rounded-full bg-accent/30 blur-3xl"
-        />
         <div className="relative grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-end">
           <div>
-            <h1 className="font-display text-4xl leading-tight lg:text-5xl">{greeting}</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight lg:text-3xl">{greeting}</h1>
             <p className="mt-1 text-sm text-on-brand-muted">{subtitle}</p>
             <p className="mt-5 text-sm font-semibold text-on-brand-muted">{t("dashboard.heroLabel")}</p>
             <div className="mt-1 flex flex-wrap items-end gap-3">
               <p className="text-4xl font-extrabold tracking-tight lg:text-5xl">{money(revenue)}</p>
               {revenueChange !== null ? (
-                <span className="mb-1.5 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-on-accent">
+                <span className="mb-1.5 rounded-full bg-on-brand px-2.5 py-1 text-xs font-bold text-brand">
                   {format.number(revenueChange, {
                     style: "percent",
                     maximumFractionDigits: 0,

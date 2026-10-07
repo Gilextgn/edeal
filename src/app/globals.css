@@ -2,173 +2,90 @@
 
 /*
  * Design tokens. Les composants n'utilisent que ces variables, jamais de
- * couleur en dur.
+ * couleur en dur. Changer la palette = modifier ce fichier uniquement.
  *
- * Deux réglages, portés par des attributs de <html> et posés avant
- * l'affichage par un petit script du layout :
- *   data-theme   = light | dark                       (bouton lune/soleil)
- *   data-palette = onyx | grenat | mandarine | orchidee   (choix des couleurs)
+ * Palette unique, neutre : noir, blanc et gris purs (ni bleu, ni vert, ni
+ * marron, ni doré). La couleur est réservée aux statuts :
+ *   success (vert)  réglé, vendu, payé
+ *   danger  (rouge) en retard, refusé, erreur
+ *   warning (orange) en attente, à valider
  *
- * Les gris sont communs à toutes les palettes. Une palette ne change que :
  *   primary  actions principales (boutons, liens, élément actif)
- *   accent   touche qui attire l'œil (jamais du texte sur fond clair)
- *   brand    dégradé de marque (menu latéral, carte d'accueil, connexion)
- *   chart    couleur des graphiques (validée sur fond clair et sombre)
- * Pour ajouter une palette : copier un bloc « clair » et son bloc « sombre »,
- * puis l'ajouter à PALETTES dans src/lib/browser-store.ts.
+ *   accent   même teinte que primary : bouton d'action flottant, pastilles
+ *   brand    fond sombre de marque (menu latéral, carte d'accueil, connexion)
+ *   chart    couleur des graphiques
+ *
+ * Le thème clair/sombre est porté par data-theme sur <html> ; un petit script
+ * du layout le pose avant l'affichage.
  */
 :root {
-  --bg: #f7f6f3;
+  --bg: #f5f5f6;
   --surface: #ffffff;
-  --surface-2: #efede8;
-  --fg: #1a1814;
-  --muted: #5f5b52;
-  --border: #e2ded5;
+  --surface-2: #ececee;
+  --fg: #111113;
+  --muted: #5c5c63;
+  --border: #e1e1e4;
+
+  --primary: #111113;
+  --primary-hover: #000000;
+  --on-primary: #ffffff;
+  --primary-soft: #ececee;
+  --on-primary-soft: #111113;
+
+  --accent: #111113;
+  --on-accent: #ffffff;
+  --accent-soft: #ececee;
+
+  --brand: #0b0b0d;
+  --brand-2: #2b2b30;
+  --on-brand: #ffffff;
+  --on-brand-muted: #b9b9c0;
+  /* Coque et voile sombre posé sur les photos. */
+  --device: #0b0b0d;
+
+  --chart: #3f3f46;
 
   --success: #15803d;
   --success-soft: #e3f6e8;
   --danger: #b91c1c;
   --danger-soft: #fdecec;
-  --warning: #92400e;
-  --warning-soft: #fdf0d5;
+  --warning: #c2410c;
+  --warning-soft: #ffedd5;
 
-  /* Coque des téléphones et voile sombre posé sur les photos. */
-  --device: #0b0b0d;
-  --on-brand: #ffffff;
-
-  --shadow: 0 1px 2px rgb(26 24 20 / 0.04), 0 10px 30px -14px rgb(26 24 20 / 0.18);
+  --shadow: 0 1px 2px rgb(17 17 19 / 0.04), 0 10px 30px -14px rgb(17 17 19 / 0.18);
 }
 
 [data-theme="dark"] {
-  --bg: #0e0d0b;
-  --surface: #181613;
-  --surface-2: #24211c;
-  --fg: #f3f0ea;
-  --muted: #a8a296;
-  --border: #332f28;
+  --bg: #0b0b0c;
+  --surface: #161618;
+  --surface-2: #232326;
+  --fg: #f4f4f5;
+  --muted: #a1a1aa;
+  --border: #2f2f34;
+
+  --primary: #fafafa;
+  --primary-hover: #ffffff;
+  --on-primary: #111113;
+  --primary-soft: #27272b;
+  --on-primary-soft: #fafafa;
+
+  --accent: #fafafa;
+  --on-accent: #111113;
+  --accent-soft: #27272b;
+
+  --brand: #000000;
+  --brand-2: #232326;
+
+  --chart: #a1a1aa;
 
   --success: #4ade80;
   --success-soft: #12301f;
   --danger: #f87171;
   --danger-soft: #3a1717;
-  --warning: #fbbf24;
-  --warning-soft: #382a0c;
+  --warning: #fb923c;
+  --warning-soft: #3a1a08;
 
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -14px rgb(0 0 0 / 0.7);
-}
-
-/* ---------- Onyx : noir profond et or (palette par défaut) ---------- */
-:root,
-[data-palette="onyx"] {
-  --primary: #18181b;
-  --primary-hover: #000000;
-  --on-primary: #ffffff;
-  --primary-soft: #f3ecd9;
-  --on-primary-soft: #4a3b0b;
-  --accent: #e0a800;
-  --on-accent: #1f1600;
-  --accent-soft: #fbf1d0;
-  --brand: #0b0b0d;
-  --brand-2: #3a2f17;
-  --on-brand-muted: #cfc6ae;
-  --chart: #b7791f;
-}
-
-[data-theme="dark"],
-[data-theme="dark"][data-palette="onyx"] {
-  --primary: #f1c232;
-  --primary-hover: #f7d566;
-  --on-primary: #1f1600;
-  --primary-soft: #2e2710;
-  --on-primary-soft: #f5d77a;
-  --accent: #f1c232;
-  --on-accent: #1f1600;
-  --accent-soft: #2e2710;
-  --chart: #c08a1e;
-}
-
-/* ---------- Grenat : bordeaux et or ---------- */
-[data-palette="grenat"] {
-  --primary: #9f1239;
-  --primary-hover: #881337;
-  --on-primary: #ffffff;
-  --primary-soft: #fce7ec;
-  --on-primary-soft: #881337;
-  --accent: #f59e0b;
-  --on-accent: #2a1e00;
-  --accent-soft: #fef3c7;
-  --brand: #4c0519;
-  --brand-2: #be123c;
-  --on-brand-muted: #fecdd3;
-  --chart: #be123c;
-}
-
-[data-theme="dark"][data-palette="grenat"] {
-  --primary: #fb7185;
-  --primary-hover: #fda4af;
-  --on-primary: #4c0519;
-  --primary-soft: #3b0a18;
-  --on-primary-soft: #fecdd3;
-  --accent: #fbbf24;
-  --on-accent: #2a1e00;
-  --accent-soft: #3a2c08;
-  --chart: #f43f5e;
-}
-
-/* ---------- Mandarine : orange chaud et brun ---------- */
-[data-palette="mandarine"] {
-  --primary: #c2410c;
-  --primary-hover: #9a3412;
-  --on-primary: #ffffff;
-  --primary-soft: #ffedd5;
-  --on-primary-soft: #9a3412;
-  --accent: #facc15;
-  --on-accent: #2a1e00;
-  --accent-soft: #fef9c3;
-  --brand: #431407;
-  --brand-2: #ea580c;
-  --on-brand-muted: #fed7aa;
-  --chart: #ea580c;
-}
-
-[data-theme="dark"][data-palette="mandarine"] {
-  --primary: #fb923c;
-  --primary-hover: #fdba74;
-  --on-primary: #431407;
-  --primary-soft: #3a1a08;
-  --on-primary-soft: #fed7aa;
-  --accent: #fde047;
-  --on-accent: #2a1e00;
-  --accent-soft: #3a3208;
-  --chart: #ea580c;
-}
-
-/* ---------- Orchidée : magenta profond et rose ---------- */
-[data-palette="orchidee"] {
-  --primary: #86198f;
-  --primary-hover: #701a75;
-  --on-primary: #ffffff;
-  --primary-soft: #fae8ff;
-  --on-primary-soft: #701a75;
-  --accent: #fb7185;
-  --on-accent: #4c0519;
-  --accent-soft: #ffe4e6;
-  --brand: #4a044e;
-  --brand-2: #c026d3;
-  --on-brand-muted: #f5d0fe;
-  --chart: #c026d3;
-}
-
-[data-theme="dark"][data-palette="orchidee"] {
-  --primary: #e879f9;
-  --primary-hover: #f0abfc;
-  --on-primary: #4a044e;
-  --primary-soft: #3b0a45;
-  --on-primary-soft: #f5d0fe;
-  --accent: #fda4af;
-  --on-accent: #4c0519;
-  --accent-soft: #3b0a18;
-  --chart: #d946ef;
 }
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -202,24 +119,9 @@
   --color-warning-soft: var(--warning-soft);
   --shadow-card: var(--shadow);
   --font-sans: var(--font-body);
-  /* Cursive : marque et grands titres uniquement. */
-  --font-display: var(--font-script);
 
-  --animate-glow: glow 7s ease-in-out infinite;
   --animate-rise: rise 0.45s ease-out both;
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
-}
-
-@keyframes glow {
-  0%,
-  100% {
-    opacity: 0.4;
-    scale: 1;
-  }
-  50% {
-    opacity: 0.75;
-    scale: 1.1;
-  }
 }
 
 @keyframes rise {
@@ -240,47 +142,12 @@
 }
 
 /*
- * Diaporama de l'écran de connexion : six photos, six secondes chacune,
- * fondu enchaîné et zoom très lent. Chaque photo reçoit un délai (--slide)
- * égal à son rang × 6 s. Sans animation, seule la première reste visible.
+ * Diaporama de l'écran de connexion : six photos, six secondes chacune, en
+ * simple fondu enchaîné (pas de zoom : les photos gardent leur netteté).
+ * Chaque photo reçoit un délai (--slide) égal à son rang × 6 s. Sans
+ * animation, seule la première reste visible.
  */
 @keyframes slide {
-  0% {
-    opacity: 0;
-    scale: 1;
-  }
-  4%,
-  16.6% {
-    opacity: 1;
-  }
-  22% {
-    opacity: 0;
-    scale: 1.07;
-  }
-  100% {
-    opacity: 0;
-    scale: 1.07;
-  }
-}
-
-.slide {
-  opacity: 0;
-  animation: slide 36s linear infinite;
-  animation-delay: calc(var(--slide) * 6s);
-}
-
-.slide:first-child {
-  opacity: 1;
-}
-
-/* Trait de progression sous le slogan : s'allume pendant sa photo. */
-.slide-dot {
-  opacity: 0;
-  animation: slide-dot 36s linear infinite;
-  animation-delay: calc(var(--slide) * 6s);
-}
-
-@keyframes slide-dot {
   0%,
   22%,
   100% {
@@ -290,6 +157,17 @@
   16.6% {
     opacity: 1;
   }
+}
+
+.slide,
+.slide-dot {
+  opacity: 0;
+  animation: slide 36s linear infinite;
+  animation-delay: calc(var(--slide) * 6s);
+}
+
+.slide:first-child {
+  opacity: 1;
 }
 
 /* Respecte le réglage « réduire les animations » de l'appareil. */

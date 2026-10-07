@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChoiceCards } from "@/components/choices";
-import { ButtonLink, Card, Field, FormMessage, Select } from "@/components/ui";
+import { SearchSelect } from "@/components/search-select";
+import { ButtonLink, Card, Field, FormMessage } from "@/components/ui";
 import { currencyLabel, formatMoney, parseAmountInput } from "@/domain/money";
 import { computeShares, needsApproval, type SaleKind } from "@/domain/shares";
 import { ReportOperationForm } from "@/features/devices/report-fields";
@@ -196,19 +197,22 @@ export function SellForm({
     >
       <Card className="flex flex-col gap-5">
         {customers.length > 0 ? (
-          <Select
+          <SearchSelect
             name="customer"
             label={t("customer")}
             value={customer}
-            onChange={(event) => setCustomer(event.target.value)}
-          >
-            <option value={NEW_CUSTOMER}>{t("newCustomer")}</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.phone ? `${c.name} · ${c.phone}` : c.name}
-              </option>
-            ))}
-          </Select>
+            onChange={setCustomer}
+            placeholder={t("newCustomer")}
+            searchPlaceholder={t("searchCustomer")}
+            emptyLabel={t("noCustomerFound")}
+            options={[
+              { value: NEW_CUSTOMER, label: t("newCustomer") },
+              ...customers.map((c) => ({
+                value: c.id,
+                label: c.phone ? `${c.name} · ${c.phone}` : c.name,
+              })),
+            ]}
+          />
         ) : null}
         {customer === NEW_CUSTOMER ? (
           <div className="grid gap-5 sm:grid-cols-2">

@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, ButtonLink, Field, FormMessage, Select } from "@/components/ui";
+import { SearchSelect } from "@/components/search-select";
+import { Button, ButtonLink, Field, FormMessage } from "@/components/ui";
 import { BRANDS, CAPACITIES, COLORS } from "@/domain/catalog";
 import { currencyLabel } from "@/domain/money";
 import type { FormState } from "@/lib/form";
@@ -21,51 +22,46 @@ export function DeviceForm({ action, currency, cancelHref, initial }: Props) {
   const [state, formAction, pending] = useActionState(action, null);
   const values = state?.values ?? initial ?? {};
   const editing = Boolean(initial);
+  // Textes communs aux listes déroulantes avec recherche.
+  const choice = {
+    placeholder: t("devices.choose"),
+    searchPlaceholder: t("list.searchIn"),
+    emptyLabel: t("list.noResult"),
+  };
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
       {/* La clé remonte le lecteur après un refus du serveur, avec l'IMEI déjà lu. */}
       {editing ? null : <ImeiScanner key={values.imei ?? ""} initial={values.imei} />}
 
-      <Select name="model" label={t("devices.model")} required defaultValue={values.model ?? ""}>
-        <option value="" disabled>
-          {t("devices.choose")}
-        </option>
-        {BRANDS.map((group) => (
-          <optgroup key={group.brand} label={group.brand}>
-            {group.models.map((model) => (
-              <option key={model}>{model}</option>
-            ))}
-          </optgroup>
-        ))}
-      </Select>
+      <SearchSelect
+        name="model"
+        label={t("devices.model")}
+        defaultValue={values.model ?? ""}
+        options={BRANDS.flatMap((group) =>
+          group.models.map((model) => ({ value: model, label: model, group: group.brand })),
+        )}
+        {...choice}
+      />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Select
+        <SearchSelect
           name="capacity"
           label={t("devices.capacity")}
-          required
           defaultValue={values.capacity ?? ""}
-        >
-          <option value="" disabled>
-            {t("devices.choose")}
-          </option>
-          {CAPACITIES.map((capacity) => (
-            <option key={capacity} value={capacity}>
-              {t(`catalog.capacity.${capacity}`)}
-            </option>
-          ))}
-        </Select>
-        <Select name="color" label={t("devices.color")} required defaultValue={values.color ?? ""}>
-          <option value="" disabled>
-            {t("devices.choose")}
-          </option>
-          {COLORS.map((color) => (
-            <option key={color} value={color}>
-              {t(`catalog.color.${color}`)}
-            </option>
-          ))}
-        </Select>
+          options={CAPACITIES.map((capacity) => ({
+            value: capacity,
+            label: t(`catalog.capacity.${capacity}`),
+          }))}
+          {...choice}
+        />
+        <SearchSelect
+          name="color"
+          label={t("devices.color")}
+          defaultValue={values.color ?? ""}
+          options={COLORS.map((color) => ({ value: color, label: t(`catalog.color.${color}`) }))}
+          {...choice}
+        />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">

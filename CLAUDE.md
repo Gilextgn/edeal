@@ -38,14 +38,17 @@ Configuration : copier `.env.example` en `.env.local`. Aucun secret dans le dép
 - Commits : Conventional Commits.
 - Tests écrits en même temps que le code.
 - Pas de sur-ingénierie : seulement ce que la phase demande.
-- Couleurs : uniquement les tokens de `src/app/globals.css` (`bg-primary`, `text-muted`…), jamais de couleur en dur. Quatre palettes au choix de l'utilisateur, ni bleu ni vert (`data-palette` : `onyx` noir et or par défaut, `grenat`, `mandarine`, `orchidee`), et un thème clair/sombre (`data-theme`) ; les deux sont posés sur `<html>` avant l'affichage et gardés dans le navigateur (`src/lib/browser-store.ts`, `PalettePicker`). Zones tactiles ≥ 44 px.
+- Couleurs : uniquement les tokens de `src/app/globals.css` (`bg-primary`, `text-muted`…), jamais de couleur en dur. Palette unique et neutre : noir, blanc et gris purs — ni bleu, ni vert, ni marron, ni doré, et pas de choix de couleurs pour l'utilisateur. La couleur est réservée aux statuts (vert, rouge, orange). Thème clair/sombre (`data-theme` sur `<html>`, posé avant l'affichage, gardé dans le navigateur par `src/lib/browser-store.ts`). Zones tactiles ≥ 44 px.
+- Listes déroulantes : toujours `SearchSelect` (`src/components/search-select.tsx`), qui permet de chercher ; pas de `<select>` natif.
+- Photos de l'écran de connexion (`public/login/`) : servies telles quelles, sans zoom ni agrandissement au-delà de leur taille.
 - **Téléphone d'abord** : c'est l'usage principal. Concevoir chaque écran à 360 px, puis l'élargir. Barre du bas flottante avec l'action principale au centre, bandeaux à faire glisser, grandes cartes arrondies ; pas de tableau large sans colonnes masquées.
-- Polices : cursive (`font-display`, Dancing Script) pour la marque, les titres de page et l'accueil ; police droite (`font-sans`, Plus Jakarta Sans) pour tout le reste, en particulier les montants, IMEI, tableaux et formulaires.
+- Police : une seule, droite (Plus Jakarta Sans). Aucune cursive.
 - Mise en page : `AppShell` (`src/components/app-shell.tsx`, partie interactive dans `shell.tsx`) — menu latéral repliable aux couleurs de la marque, barre du haut (recherche Ctrl+K, espace courant, action principale selon le profil, thème, cloche des alertes, menu du compte avec palette et déconnexion) ; sur téléphone, le menu devient un tiroir et une barre flottante reste en bas. Chaque écran doit être soigné à 360 px **et** sur ordinateur.
 - Listes : tableaux (`TableCard`, `Th`, `Td`) paginés par 10 (`ListPagination`, `src/domain/pagination.ts`), actions par ligne avec `ActionLink` / `ActionButton` (voir, modifier, supprimer) ; une suppression passe par `ConfirmForm`. Sur téléphone, les colonnes secondaires sont masquées.
 - Graphiques : SVG maison (`src/features/dashboard/bar-chart.tsx`), une seule teinte (`--chart`), infobulle au survol, tableau de données pour les lecteurs d'écran.
 - Page d'arrivée (`/`) selon le profil : une seule boutique → son tableau de bord ; aucune → accueil ; plusieurs → choix. « Créer une boutique » n'est mis en avant que pour un patron ou un nouveau compte ; un dealer ou caissier le trouve dans « Compte ».
-- IMEI : jamais tapé par défaut. Il est lu sur une photo (`src/lib/photos/read-imei.ts` : code-barres puis texte), la saisie à la main n'apparaît qu'après un échec de lecture.
+- IMEI : lu sur une photo (`src/lib/photos/read-imei.ts` : code-barres puis texte) pour éviter les fautes de frappe ; un lien « Saisir l'IMEI à la main » reste toujours disponible.
+- Connexion : « Continuer avec Google » en premier (`signInWithGoogle`, retour sur `/auth/callback`), puis téléphone ou e-mail + mot de passe. Le fournisseur Google doit être activé dans Supabase avec un identifiant client Google ; il ne l'est pas en local.
 - Nom affiché : « eDeal » dans l'espace perso et les écrans communs ; le nom de la boutique (modifiable par le patron) dans un espace boutique.
 - Next.js 16 : le middleware s'appelle `proxy` (`src/proxy.ts`). Lire `node_modules/next/dist/docs/` avant d'utiliser une API Next.
 

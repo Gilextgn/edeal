@@ -8,7 +8,6 @@ import { usePersistentFlag, useTheme } from "@/lib/browser-store";
 import { clearOfflinePages } from "@/lib/offline/pages";
 import { icons, type IconName } from "./icons";
 import { OfflineBanner } from "./offline";
-import { PalettePicker } from "./palette-picker";
 import { SyncBanner } from "./sync-banner";
 import { BrandMark, focusRing } from "./ui";
 
@@ -35,7 +34,6 @@ export type ShellProps = {
     noAlerts: string;
     spaces: string;
     account: string;
-    palette: string;
     logout: string;
   };
   children: ReactNode;
@@ -118,14 +116,14 @@ function SidebarContent({
   logoutLabel: string;
 }) {
   const pathname = usePathname();
-  const item = `flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent ${collapsed ? "justify-center" : ""}`;
+  const item = `flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-brand ${collapsed ? "justify-center" : ""}`;
 
   return (
     <>
       <div className={`flex h-16 shrink-0 items-center gap-3 ${collapsed ? "justify-center px-2" : "px-5"}`}>
-        <BrandMark name={brand} />
+        <BrandMark name={brand} inverted />
         {collapsed ? null : (
-          <p className="truncate font-display text-2xl leading-tight text-on-brand">{brand}</p>
+          <p className="truncate text-lg font-extrabold tracking-tight text-on-brand">{brand}</p>
         )}
       </div>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-3">
@@ -137,7 +135,7 @@ function SidebarContent({
               href={entry.href}
               title={collapsed ? entry.label : undefined}
               aria-current={active ? "page" : undefined}
-              className={`${item} ${active ? "bg-on-brand/15 text-on-brand shadow-[inset_3px_0_0_var(--accent)]" : "text-on-brand-muted hover:bg-on-brand/10 hover:text-on-brand"}`}
+              className={`${item} ${active ? "bg-on-brand/15 text-on-brand shadow-[inset_3px_0_0_var(--on-brand)]" : "text-on-brand-muted hover:bg-on-brand/10 hover:text-on-brand"}`}
             >
               {icons[entry.icon]}
               {collapsed ? <span className="sr-only">{entry.label}</span> : entry.label}
@@ -401,10 +399,6 @@ export function Shell({
                 {icons.spaces}
                 {labels.spaces}
               </Link>
-              <div className="flex items-center justify-between gap-2 px-3 py-1">
-                <span className="text-sm font-medium">{labels.palette}</span>
-                <PalettePicker />
-              </div>
               <button type="button" onClick={logout} className={`${menuItem} text-danger`}>
                 {icons.logout}
                 {labels.logout}
@@ -428,7 +422,7 @@ export function Shell({
             <Link
               href={primaryAction.href}
               aria-label={primaryAction.label}
-              className={`-mt-7 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent shadow-card ring-4 ring-bg transition active:scale-95 ${focusRing}`}
+              className={`-mt-7 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-card ring-4 ring-bg transition active:scale-95 ${focusRing}`}
             >
               {icons.plus}
             </Link>
