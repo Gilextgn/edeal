@@ -12,7 +12,7 @@ export function GoogleButton({ failed }: { failed: boolean }) {
       <form action={signInWithGoogle}>
         <button
           type="submit"
-          className={`flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-border bg-surface px-5 text-base font-semibold shadow-card transition hover:bg-surface-2 active:scale-[0.98] ${focusRing}`}
+          className={`flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl border border-border bg-surface px-5 text-base font-semibold shadow-card transition hover:bg-surface-2 active:scale-[0.98] ${focusRing}`}
         >
           {/* Logo officiel de Google : ses quatre couleurs sont imposées par la marque. */}
           <svg viewBox="0 0 48 48" width="22" height="22" aria-hidden>

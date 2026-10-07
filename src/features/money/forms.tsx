@@ -77,7 +77,7 @@ export function InstallmentForm({
       />
 
       {schedule ? (
-        <ol className="flex flex-col gap-2 rounded-xl bg-surface-2 p-4 text-sm">
+        <ol className="flex flex-col gap-2 rounded-2xl bg-surface-2 p-4 text-sm">
           {schedule.map((installment, index) => (
             <li key={index} className="flex items-center justify-between gap-3">
               <span className="text-muted">
@@ -162,7 +162,7 @@ export function SettlementForm({
         <ul className="flex flex-col gap-2">
           {dues.map((due) => (
             <li key={due.saleId}>
-              <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-border bg-surface p-3 has-checked:border-primary has-checked:bg-primary-soft has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary">
+              <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border border-border bg-surface p-3 has-checked:border-primary has-checked:bg-primary-soft has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary">
                 <input
                   type="checkbox"
                   name="sale_ids"
@@ -195,7 +195,7 @@ export function SettlementForm({
       </fieldset>
 
       {allocations && parsed !== null ? (
-        <p className="rounded-xl bg-surface-2 p-4 text-sm">
+        <p className="rounded-2xl bg-surface-2 p-4 text-sm">
           {t("settlementPreview", {
             count: settledCount,
             remaining: money(balance - parsed),

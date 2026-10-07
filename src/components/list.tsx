@@ -62,12 +62,12 @@ export async function ListSearch({
           defaultValue={value}
           placeholder={placeholder}
           aria-label={placeholder}
-          className={`h-12 w-full rounded-xl border border-border bg-surface pl-10 pr-3 text-base placeholder:text-muted ${focusRing}`}
+          className={`h-12 w-full rounded-2xl border border-border bg-surface pl-10 pr-3 text-base placeholder:text-muted ${focusRing}`}
         />
       </div>
       <button
         type="submit"
-        className={`min-h-12 rounded-xl border border-border bg-surface px-4 text-sm font-semibold hover:bg-surface-2 ${focusRing}`}
+        className={`min-h-12 rounded-2xl border border-border bg-surface px-4 text-sm font-semibold hover:bg-surface-2 ${focusRing}`}
       >
         {t("search")}
       </button>

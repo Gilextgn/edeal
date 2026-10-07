@@ -40,7 +40,7 @@ export function ImeiScanner({ initial = "" }: { initial?: string }) {
 
   const picker = (capture: boolean) => (
     <label
-      className={`flex min-h-24 flex-1 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border bg-surface-2 p-3 text-center text-sm font-semibold hover:border-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary`}
+      className={`flex min-h-24 flex-1 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-border bg-surface-2 p-3 text-center text-sm font-semibold hover:border-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary`}
     >
       <span className="text-primary">{capture ? icons.camera : icons.upload}</span>
       {t(capture ? "take" : "upload")}
@@ -77,7 +77,7 @@ export function ImeiScanner({ initial = "" }: { initial?: string }) {
         <button
           type="button"
           onClick={() => setStatus("manual")}
-          className={`min-h-11 self-start rounded-xl px-1 text-sm font-semibold text-primary underline ${focusRing}`}
+          className={`min-h-11 self-start rounded-2xl px-1 text-sm font-semibold text-primary underline ${focusRing}`}
         >
           {t("typeInstead")}
         </button>
@@ -86,7 +86,7 @@ export function ImeiScanner({ initial = "" }: { initial?: string }) {
       {status === "reading" ? <FormMessage tone="warning">{t("reading")}</FormMessage> : null}
 
       {status === "found" && candidates.length === 1 ? (
-        <div className="flex items-center gap-3 rounded-xl bg-success-soft px-4 py-3 text-success">
+        <div className="flex items-center gap-3 rounded-2xl bg-success-soft px-4 py-3 text-success">
           {icons.check}
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider">{t("found")}</p>

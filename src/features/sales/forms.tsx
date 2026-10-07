@@ -249,7 +249,7 @@ export function SellForm({
         />
 
         {shares ? (
-          <dl className="grid grid-cols-2 gap-3 rounded-xl bg-surface-2 p-4 text-sm">
+          <dl className="grid grid-cols-2 gap-3 rounded-2xl bg-surface-2 p-4 text-sm">
             {kind === "DIRECT" ? null : (
               <div>
                 <dt className="text-muted">{t("yourShare")}</dt>

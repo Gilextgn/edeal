@@ -30,7 +30,7 @@ export function ChoiceCards({
         {options.map((option) => (
           <label
             key={option.value}
-            className={`flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border border-border bg-surface p-3.5 has-checked:border-primary has-checked:bg-primary-soft ${focus}`}
+            className={`flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface p-3.5 has-checked:border-primary has-checked:bg-primary-soft ${focus}`}
           >
             <input
               type="radio"

@@ -321,7 +321,7 @@ export function ReportOperationForm({
           {(["SIDES", "DEFECT"] as const).map((angle) => (
             <label
               key={angle}
-              className="inline-flex min-h-11 cursor-pointer items-center rounded-xl border border-border bg-surface px-4 text-sm font-semibold hover:bg-surface-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary"
+              className="inline-flex min-h-11 cursor-pointer items-center rounded-2xl border border-border bg-surface px-4 text-sm font-semibold hover:bg-surface-2 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary"
             >
               + {t(`reports.angles.${angle}`)}
               <input
@@ -383,7 +383,7 @@ function PhotoSlot({
 }) {
   return (
     <li className="flex flex-col gap-1.5">
-      <label className="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border-2 border-dashed border-border bg-surface-2 p-2 text-center has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary">
+      <label className="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl border-2 border-dashed border-border bg-surface-2 p-2 text-center has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary">
         {photo ? (
           // Aperçu local (blob:) : pas d'optimisation d'image possible.
           // eslint-disable-next-line @next/next/no-img-element

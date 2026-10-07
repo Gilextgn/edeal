@@ -7,7 +7,7 @@ import { Button, Field, FormMessage, focusRing } from "@/components/ui";
 import { passwordIssues, passwordStrength } from "@/domain/password";
 import { signIn, signUp } from "./actions";
 
-const control = `min-h-12 w-full rounded-xl border border-border bg-surface px-4 pr-14 text-base text-fg ${focusRing}`;
+const control = `min-h-12 w-full rounded-2xl border border-border bg-surface px-4 pr-14 text-base text-fg ${focusRing}`;
 
 // Champ mot de passe avec bouton « afficher / masquer ».
 function PasswordField({

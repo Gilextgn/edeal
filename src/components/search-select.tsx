@@ -118,7 +118,7 @@ export function SearchSelect({
         aria-expanded={open}
         aria-labelledby={`${id}-label ${id}-value`}
         onClick={toggle}
-        className={`flex min-h-12 items-center justify-between gap-2 rounded-xl border border-border bg-surface px-4 text-left text-base ${focusRing}`}
+        className={`flex min-h-12 items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 text-left text-base ${focusRing}`}
       >
         <span id={`${id}-value`} className={`truncate ${selected ? "text-fg" : "text-muted"}`}>
           {selected?.label ?? placeholder}
@@ -174,7 +174,7 @@ export function SearchSelect({
                     data-active={index === active}
                     onClick={() => choose(option.value)}
                     onPointerMove={() => setActive(index)}
-                    className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3 text-left text-sm ${index === active ? "bg-surface-2" : ""} ${option.value === value ? "font-bold" : ""}`}
+                    className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-2xl px-3 text-left text-sm ${index === active ? "bg-surface-2" : ""} ${option.value === value ? "font-bold" : ""}`}
                   >
                     <span className="truncate">{option.label}</span>
                     {option.value === value ? icons.check : null}

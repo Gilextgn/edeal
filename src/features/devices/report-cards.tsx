@@ -106,7 +106,7 @@ export async function ReportCards({
               </dl>
 
               {report.comment ? (
-                <p className="rounded-xl bg-surface-2 p-3 text-sm">{report.comment}</p>
+                <p className="rounded-2xl bg-surface-2 p-3 text-sm">{report.comment}</p>
               ) : null}
 
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-6">

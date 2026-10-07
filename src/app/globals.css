@@ -43,7 +43,7 @@
   /* Coque et voile sombre posé sur les photos. */
   --device: #0b0b0d;
 
-  --chart: #3f3f46;
+  --chart: #18181b;
 
   /* Teintes pastel des grandes cartes (accueil, indicateurs), texte noir dessus. */
   --tint-1: #e6dfff;
@@ -57,7 +57,11 @@
   --warning: #c2410c;
   --warning-soft: #ffedd5;
 
-  --shadow: 0 1px 2px rgb(17 17 19 / 0.04), 0 10px 30px -14px rgb(17 17 19 / 0.18);
+  /* Relief discret : un filet d'un pixel, puis une ombre large et douce. */
+  --shadow: 0 0 0 1px rgb(17 17 19 / 0.04), 0 1px 2px rgb(17 17 19 / 0.03),
+    0 14px 32px -18px rgb(17 17 19 / 0.16);
+  /* Menus et listes déroulantes, qui passent par-dessus la page. */
+  --shadow-pop: 0 0 0 1px rgb(17 17 19 / 0.05), 0 24px 48px -16px rgb(17 17 19 / 0.28);
 }
 
 [data-theme="dark"] {
@@ -81,7 +85,7 @@
   --brand: #000000;
   --brand-2: #232326;
 
-  --chart: #a1a1aa;
+  --chart: #e4e4e7;
 
   --tint-1: #2d2747;
   --tint-2: #40291d;
@@ -94,7 +98,8 @@
   --warning: #fb923c;
   --warning-soft: #3a1a08;
 
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+  --shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 14px 32px -18px rgb(0 0 0 / 0.7);
+  --shadow-pop: 0 0 0 1px rgb(255 255 255 / 0.1), 0 24px 48px -16px rgb(0 0 0 / 0.85);
 }
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -130,6 +135,7 @@
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --shadow-card: var(--shadow);
+  --shadow-pop: var(--shadow-pop);
   --font-sans: var(--font-body);
 
   --animate-rise: rise 0.45s ease-out both;
@@ -195,6 +201,9 @@
 body {
   background: var(--bg);
   color: var(--fg);
+  /* Chiffres de même largeur : les montants s'alignent d'une ligne à l'autre. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Barres de défilement discrètes pour les bandeaux à faire glisser. */

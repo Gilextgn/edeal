@@ -87,13 +87,13 @@ function Dropdown({
         aria-label={label}
         aria-expanded={open}
         onClick={() => setOpenedOn(open ? null : pathname)}
-        className={`flex min-h-11 items-center gap-2 rounded-xl px-2 hover:bg-surface-2 ${focusRing}`}
+        className={`flex min-h-11 items-center gap-2 rounded-full px-1 hover:bg-surface-2 ${focusRing}`}
       >
         {trigger}
       </button>
       {open ? (
         <div
-          className={`absolute top-full z-30 mt-2 w-72 max-w-[calc(100vw-1.5rem)] animate-rise rounded-2xl border border-border bg-surface p-2 shadow-card ${align === "right" ? "right-0" : "left-0"}`}
+          className={`absolute top-full z-30 mt-3 w-72 max-w-[calc(100vw-1.5rem)] animate-rise rounded-3xl bg-surface p-2 shadow-pop ${align === "right" ? "right-0" : "left-0"}`}
         >
           {children}
         </div>
@@ -102,25 +102,29 @@ function Dropdown({
   );
 }
 
-const menuItem = `flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium hover:bg-surface-2 ${focusRing}`;
+const menuItem = `flex min-h-11 w-full items-center gap-3 rounded-2xl px-3 text-left text-sm font-medium hover:bg-surface-2 ${focusRing}`;
 
 function SidebarContent({
   brand,
   nav,
   collapsed,
   logoutLabel,
+  user,
+  initials,
 }: {
   brand: string;
   nav: NavItem[];
   collapsed: boolean;
   logoutLabel: string;
+  user: ShellProps["user"];
+  initials: string;
 }) {
   const pathname = usePathname();
-  const item = `flex min-h-11 items-center gap-3 rounded-full px-4 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary ${collapsed ? "justify-center px-0" : ""}`;
+  const item = `flex min-h-12 items-center gap-3 rounded-full px-4 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary ${collapsed ? "justify-center px-0" : ""}`;
 
   return (
     <>
-      <div className={`flex h-16 shrink-0 items-center gap-3 ${collapsed ? "justify-center px-2" : "px-5"}`}>
+      <div className={`flex h-20 shrink-0 items-center gap-3 ${collapsed ? "justify-center px-2" : "px-5"}`}>
         <BrandMark name={brand} />
         {collapsed ? null : (
           <p className="truncate text-lg font-extrabold tracking-tight">{brand}</p>
@@ -143,16 +147,35 @@ function SidebarContent({
           );
         })}
       </nav>
-      <div className="border-t border-border p-3">
-        <button
-          type="button"
-          title={collapsed ? logoutLabel : undefined}
-          onClick={logout}
-          className={`${item} w-full text-muted hover:bg-surface-2 hover:text-fg`}
+      {/* Pied du menu : qui est connecté, et la déconnexion. */}
+      <div className="p-3">
+        <div
+          className={`flex items-center gap-3 rounded-3xl bg-surface-2 ${collapsed ? "flex-col p-1.5" : "p-2 pl-3"}`}
         >
-          {icons.logout}
-          {collapsed ? <span className="sr-only">{logoutLabel}</span> : logoutLabel}
-        </button>
+          {collapsed ? null : (
+            <>
+              <span
+                aria-hidden
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary"
+              >
+                {initials}
+              </span>
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block truncate text-sm font-semibold">{user.name}</span>
+                <span className="block truncate text-xs text-muted">{user.role}</span>
+              </span>
+            </>
+          )}
+          <button
+            type="button"
+            title={logoutLabel}
+            aria-label={logoutLabel}
+            onClick={logout}
+            className={`inline-flex size-11 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface hover:text-danger ${focusRing}`}
+          >
+            {icons.logout}
+          </button>
+        </div>
       </div>
     </>
   );
@@ -164,7 +187,7 @@ async function logout() {
   await signOut();
 }
 
-const sidebarSurface = "border-r border-border bg-surface";
+const sidebarSurface = "bg-surface shadow-card";
 
 export function Shell({
   brand,
@@ -224,15 +247,25 @@ export function Shell({
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const iconButton = `relative size-11 items-center justify-center rounded-xl text-muted hover:bg-surface-2 hover:text-fg ${focusRing}`;
+  const iconButton = `relative size-11 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-fg ${focusRing}`;
 
   return (
     <div className="flex min-h-dvh">
       {/* Menu latéral, ordinateur : repliable en bande d'icônes. */}
+      {/* Il flotte sur le fond, comme une carte, détaché des bords. */}
       <aside
-        className={`sticky top-0 hidden h-dvh shrink-0 flex-col transition-[width] duration-200 print:!hidden lg:flex ${sidebarSurface} ${collapsed ? "w-[76px]" : "w-64"}`}
+        className={`sticky top-0 hidden h-dvh shrink-0 py-3 pl-3 transition-[width] duration-200 print:!hidden lg:block ${collapsed ? "w-[92px]" : "w-[17rem]"}`}
       >
-        <SidebarContent brand={brand} nav={nav} collapsed={collapsed} logoutLabel={labels.logout} />
+        <div className={`flex h-full flex-col overflow-hidden rounded-[1.75rem] ${sidebarSurface}`}>
+          <SidebarContent
+            brand={brand}
+            nav={nav}
+            collapsed={collapsed}
+            logoutLabel={labels.logout}
+            user={user}
+            initials={initials}
+          />
+        </div>
       </aside>
 
       {/* Menu latéral, téléphone : tiroir par-dessus la page. */}
@@ -244,14 +277,27 @@ export function Shell({
             onClick={() => setDrawerOn(null)}
             className="absolute inset-0 bg-fg/50"
           />
-          <aside className={`relative flex h-full w-72 max-w-[85vw] animate-rise flex-col ${sidebarSurface}`}>
-            <SidebarContent brand={brand} nav={nav} collapsed={false} logoutLabel={labels.logout} />
+          <aside
+            className={`relative flex h-full w-72 max-w-[85vw] animate-rise flex-col overflow-hidden rounded-r-[1.75rem] ${sidebarSurface}`}
+          >
+            <SidebarContent
+              brand={brand}
+              nav={nav}
+              collapsed={false}
+              logoutLabel={labels.logout}
+              user={user}
+              initials={initials}
+            />
           </aside>
         </div>
       ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-1.5 border-b border-border bg-surface/90 px-2 backdrop-blur print:hidden sm:gap-2 lg:px-5">
+        {/* Barre du haut, sans fond propre : à gauche le titre, au centre la
+            recherche (elle prend la place libre), à droite les actions. */}
+        <header className="sticky top-0 z-20 bg-bg/85 px-3 backdrop-blur-md print:hidden lg:px-8">
+          {/* Même largeur que le contenu : les bords s'alignent sur grand écran. */}
+          <div className="mx-auto flex h-16 w-full max-w-[90rem] items-center gap-2 lg:h-20 lg:gap-3">
           <button
             type="button"
             aria-label={labels.menu}
@@ -271,11 +317,19 @@ export function Shell({
             {icons.menu}
           </button>
 
-          <p className="min-w-0 flex-1 truncate font-semibold lg:flex-none lg:shrink-0">{current?.label ?? brand}</p>
+          {/* Sur ordinateur, le menu latéral et le titre de la page disent déjà
+              où l'on est : ce rappel ne sert que sur petit écran. */}
+          <p className="min-w-0 flex-1 truncate text-lg font-bold tracking-tight lg:hidden">
+            {current?.label ?? brand}
+          </p>
 
           {search ? (
-            <form action={search.href} role="search" className="relative hidden md:block">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+            <form
+              action={search.href}
+              role="search"
+              className="relative hidden min-w-40 flex-1 md:block md:max-w-xs lg:mx-auto lg:max-w-xl"
+            >
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">
                 {icons.search}
               </span>
               <input
@@ -284,22 +338,24 @@ export function Shell({
                 name="q"
                 placeholder={search.placeholder}
                 aria-label={search.placeholder}
-                className={`h-11 w-56 rounded-xl border border-border bg-surface-2 pl-10 pr-16 text-sm placeholder:text-muted xl:w-72 ${focusRing}`}
+                className={`h-12 w-full rounded-full bg-surface pl-12 pr-20 text-sm shadow-card placeholder:text-muted ${focusRing}`}
               />
-              <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md border border-border bg-surface px-1.5 py-0.5 text-[11px] font-semibold text-muted">
+              <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-muted xl:block">
                 Ctrl K
               </kbd>
             </form>
-          ) : null}
+          ) : (
+            <div className="hidden flex-1 lg:block" />
+          )}
 
           {/* Espace courant ; déroule la liste des espaces de l'utilisateur. */}
           <div className="hidden sm:block">
             <Dropdown
               label={labels.spaces}
               trigger={
-                <span className="flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-semibold">
+                <span className="flex h-12 items-center gap-2 rounded-full bg-surface px-4 text-sm font-semibold shadow-card">
                   <span aria-hidden className="size-2 rounded-full bg-primary" />
-                  <span className="max-w-32 truncate">{brand}</span>
+                  <span className="max-w-28 truncate">{brand}</span>
                   {icons.chevronDown}
                 </span>
               }
@@ -322,13 +378,15 @@ export function Shell({
           {primaryAction ? (
             <Link
               href={primaryAction.href}
-              className={`hidden min-h-11 shrink-0 items-center gap-2 rounded-full bg-primary px-5 whitespace-nowrap text-sm font-semibold text-on-primary shadow-card hover:bg-primary-hover md:inline-flex ${focusRing}`}
+              className={`hidden h-12 shrink-0 items-center gap-2 rounded-full bg-primary px-5 whitespace-nowrap text-sm font-semibold text-on-primary shadow-card transition hover:bg-primary-hover active:scale-[0.98] md:inline-flex ${focusRing}`}
             >
               {icons.plus}
               {primaryAction.label}
             </Link>
           ) : null}
 
+          {/* Thème, alertes et compte, réunis dans une même pastille. */}
+          <div className="flex shrink-0 items-center rounded-full bg-surface p-0.5 shadow-card">
           <button
             type="button"
             aria-label={labels.theme}
@@ -378,11 +436,11 @@ export function Shell({
                 <span className="inline-flex size-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">
                   {initials}
                 </span>
-                <span className="hidden min-w-0 text-left leading-tight xl:block">
+                <span className="hidden min-w-0 text-left leading-tight 2xl:block">
                   <span className="block max-w-36 truncate text-sm font-semibold">{user.name}</span>
-                  <span className="block text-xs font-medium text-primary">{user.role}</span>
+                  <span className="block text-xs font-medium text-muted">{user.role}</span>
                 </span>
-                <span className="hidden text-muted xl:block">{icons.chevronDown}</span>
+                <span className="hidden pr-1 text-muted 2xl:block">{icons.chevronDown}</span>
               </>
             }
           >
@@ -405,10 +463,12 @@ export function Shell({
               </button>
             </div>
           </Dropdown>
+          </div>
+          </div>
         </header>
 
-        <main className="flex-1 px-4 pb-32 pt-5 lg:px-8 lg:pb-10 lg:pt-8">
-          <div className="mx-auto w-full max-w-6xl">
+        <main className="flex-1 px-4 pb-32 pt-3 lg:px-8 lg:pb-10 lg:pt-2">
+          <div className="mx-auto w-full max-w-[90rem]">
             <OfflineBanner userId={user.id} />
             <SyncBanner userId={user.id} />
             {children}

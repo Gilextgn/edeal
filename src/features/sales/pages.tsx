@@ -232,7 +232,7 @@ export async function DealerConsignmentPage(context: ShopContext & { consignment
             </div>
           </dl>
           {pendingSale ? (
-            <p className="rounded-xl bg-warning-soft p-3 text-sm font-medium text-warning">
+            <p className="rounded-2xl bg-warning-soft p-3 text-sm font-medium text-warning">
               {t("sales.awaitingOwner", { price: money(pendingSale.sale_price) })}
             </p>
           ) : null}

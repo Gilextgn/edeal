@@ -297,7 +297,7 @@
       "manualLabel": "IMEI (15 chiffres)",
       "manualHint": "15 chiffres. Composez *#06# sur le téléphone pour l’afficher.",
       "valid": "IMEI valide",
-      "invalid": "IMEI incorrect : vérifiez les chiffres."
+      "invalid": "Ce numéro n'est pas un vrai IMEI. Recopiez celui qui s'affiche en composant *#06# sur le téléphone."
     }
   },
   "reports": {

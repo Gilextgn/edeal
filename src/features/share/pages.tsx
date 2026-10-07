@@ -293,7 +293,7 @@ export async function ListingPage({
     <div className="lg:max-w-2xl">
       <PageHeader title={t("listing.title")} subtitle={t("listing.subtitle")} />
       <Card className="flex flex-col gap-4">
-        <p className="whitespace-pre-line rounded-xl bg-surface-2 p-4 text-sm">{text}</p>
+        <p className="whitespace-pre-line rounded-2xl bg-surface-2 p-4 text-sm">{text}</p>
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <SharePhotosButton text={text} photos={photos}>
             {t("listing.share")}

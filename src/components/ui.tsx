@@ -44,7 +44,7 @@ export function ButtonLink({
   );
 }
 
-const control = `min-h-12 rounded-xl border border-border bg-surface px-4 text-base text-fg placeholder:text-muted ${focusRing}`;
+const control = `min-h-12 rounded-2xl border border-border bg-surface px-4 text-base text-fg transition-colors placeholder:text-muted hover:border-muted focus:border-primary ${focusRing}`;
 
 type FieldProps = ComponentProps<"input"> & {
   label: string;
@@ -120,7 +120,7 @@ export function Badge({
   );
 }
 
-// Titre de page en cursive (police de marque) ; le reste en police droite.
+// En-tête de page : grand titre, sous-titre, action à droite.
 export function PageHeader({
   title,
   subtitle,
@@ -133,7 +133,7 @@ export function PageHeader({
   return (
     <div className="mb-5 flex animate-rise flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:mb-7">
       <div className="min-w-0">
-        <h1 className="text-2xl font-extrabold tracking-tight text-fg lg:text-3xl">{title}</h1>
+        <h1 className="text-[1.75rem] leading-tight font-extrabold tracking-tight text-fg lg:text-4xl">{title}</h1>
         {subtitle ? <p className="mt-1 text-muted">{subtitle}</p> : null}
       </div>
       {action}
@@ -162,7 +162,7 @@ export function FormMessage({
   return (
     <p
       role={tone === "danger" ? "alert" : "status"}
-      className={`rounded-xl px-4 py-3 text-sm font-medium ${tones[tone]}`}
+      className={`rounded-2xl px-4 py-3 text-sm font-medium ${tones[tone]}`}
     >
       {children}
     </p>
@@ -183,7 +183,7 @@ export function BrandMark({
   return (
     <span
       aria-hidden
-      className={`inline-flex shrink-0 items-center justify-center rounded-xl font-extrabold uppercase shadow-card ${inverted ? "bg-on-brand text-brand" : "bg-primary text-on-primary"} ${sizes[size]}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-2xl font-extrabold uppercase ${inverted ? "bg-on-brand text-brand" : "bg-primary text-on-primary"} ${sizes[size]}`}
     >
       {name.trim().charAt(0) || "e"}
     </span>
@@ -193,14 +193,14 @@ export function BrandMark({
 // ---------- Actions d'une ligne de liste : voir, modifier, supprimer ----------
 
 const actionTones = {
-  view: "text-primary bg-primary-soft hover:bg-primary hover:text-on-primary",
-  edit: "text-warning bg-accent-soft hover:bg-accent hover:text-on-accent",
+  view: "text-fg bg-surface-2 hover:bg-primary hover:text-on-primary",
+  edit: "text-fg bg-surface-2 hover:bg-primary hover:text-on-primary",
   delete: "text-danger bg-danger-soft hover:bg-danger hover:text-surface",
 };
 
 const actionIcons = { view: icons.eye, edit: icons.pencil, delete: icons.trash };
 
-const actionBase = `inline-flex size-11 items-center justify-center rounded-xl transition ${focusRing}`;
+const actionBase = `inline-flex size-11 items-center justify-center rounded-full transition-colors ${focusRing}`;
 
 type ActionKind = keyof typeof actionTones;
 
@@ -249,7 +249,7 @@ export function RowActions({ children }: { children: ReactNode }) {
 
 export function TableCard({ children }: { children: ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
+    <div className="overflow-hidden rounded-3xl bg-surface shadow-card">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">{children}</table>
       </div>
@@ -261,7 +261,7 @@ export function Th({ className = "", ...props }: ComponentProps<"th">) {
   return (
     <th
       scope="col"
-      className={`border-b border-border bg-surface-2 px-3 py-3 text-xs sm:px-4 font-bold uppercase tracking-wider text-muted ${className}`}
+      className={`border-b border-border px-3 py-4 text-xs font-semibold uppercase tracking-wider text-muted sm:px-5 ${className}`}
       {...props}
     />
   );
@@ -270,7 +270,7 @@ export function Th({ className = "", ...props }: ComponentProps<"th">) {
 export function Td({ className = "", ...props }: ComponentProps<"td">) {
   return (
     <td
-      className={`border-b border-border px-3 py-3 align-middle sm:px-4 [tr:last-child>&]:border-b-0 ${className}`}
+      className={`border-b border-border px-3 py-3.5 align-middle sm:px-5 [tr:last-child>&]:border-b-0 ${className}`}
       {...props}
     />
   );
@@ -295,9 +295,9 @@ export function Pagination({
   labels: { summary: string; previous: string; next: string };
 }) {
   if (total === 0) return null;
-  const link = `inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border bg-surface px-3 text-sm font-semibold hover:bg-surface-2 ${focusRing}`;
+  const link = `inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-surface px-3 text-sm font-semibold shadow-card hover:bg-surface-2 ${focusRing}`;
   const disabled =
-    "inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-border px-3 text-muted opacity-50";
+    "inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 text-muted opacity-40";
 
   // Pages affichées : la première, la dernière, et celles autour de la page courante.
   const shown = [...new Set([1, page - 1, page, page + 1, pageCount])]
@@ -331,7 +331,7 @@ export function Pagination({
               {p === page ? (
                 <span
                   aria-current="page"
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-primary px-3 text-sm font-bold text-on-primary"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-primary px-3 text-sm font-bold text-on-primary"
                 >
                   {p}
                 </span>

@@ -121,7 +121,7 @@ export function BarChart({
       {active !== null ? (
         <p
           role="status"
-          className="pointer-events-none absolute top-0 z-10 max-w-56 -translate-x-1/2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium shadow-card"
+          className="pointer-events-none absolute top-0 z-10 max-w-56 -translate-x-1/2 rounded-2xl border border-border bg-surface px-3 py-2 text-xs font-medium shadow-card"
           style={{
             left: `clamp(7rem, ${((PAD.left + band * (active + 0.5)) / WIDTH) * 100}%, calc(100% - 7rem))`,
           }}

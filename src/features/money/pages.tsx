@@ -146,7 +146,7 @@ export async function SaleDetail({
 
             {installments.length === 0 ? (
               <details className="group">
-                <summary className="inline-flex min-h-12 cursor-pointer list-none items-center gap-2 rounded-xl border border-border bg-surface px-5 font-semibold hover:bg-surface-2">
+                <summary className="inline-flex min-h-12 cursor-pointer list-none items-center gap-2 rounded-2xl border border-border bg-surface px-5 font-semibold hover:bg-surface-2">
                   {icons.plus}
                   {t("money.payInInstallments")}
                 </summary>
@@ -167,7 +167,7 @@ export async function SaleDetail({
                   return (
                     <li
                       key={installment.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-3"
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border p-3"
                     >
                       <div>
                         <p className="font-semibold">{money(installment.amount)}</p>
@@ -375,7 +375,7 @@ export async function BalanceDetail({
               {unpaid.map((d) => (
                 <li
                   key={d.saleId}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border p-3"
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-border p-3"
                 >
                   <span className="min-w-0 truncate font-medium">{labels[d.saleId]}</span>
                   <span className="shrink-0 font-semibold">{money(d.due)}</span>
@@ -402,7 +402,7 @@ export async function BalanceDetail({
               {settlements.map((s) => (
                 <li
                   key={s.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border p-3"
+                  className="flex items-center justify-between gap-3 rounded-2xl border border-border p-3"
                 >
                   <div>
                     <p className="font-semibold">{money(s.amount)}</p>
