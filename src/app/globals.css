@@ -45,6 +45,11 @@
 
   --chart: #3f3f46;
 
+  /* Teintes pastel des grandes cartes (accueil, indicateurs), texte noir dessus. */
+  --tint-1: #e6dfff;
+  --tint-2: #ffe1d2;
+  --tint-3: #ffdfe9;
+
   --success: #15803d;
   --success-soft: #e3f6e8;
   --danger: #b91c1c;
@@ -77,6 +82,10 @@
   --brand-2: #232326;
 
   --chart: #a1a1aa;
+
+  --tint-1: #2d2747;
+  --tint-2: #40291d;
+  --tint-3: #40212c;
 
   --success: #4ade80;
   --success-soft: #12301f;
@@ -111,6 +120,9 @@
   --color-on-brand-muted: var(--on-brand-muted);
   --color-device: var(--device);
   --color-chart: var(--chart);
+  --color-tint-1: var(--tint-1);
+  --color-tint-2: var(--tint-2);
+  --color-tint-3: var(--tint-3);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);

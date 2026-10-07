@@ -5,7 +5,14 @@ import { icons, type IconName } from "@/components/icons";
 import type { ShellAlert } from "@/components/shell";
 import { Badge, Card, SectionTitle, focusRing } from "@/components/ui";
 import { currencyFractionDigits, formatMoney, PERSONAL_CURRENCY } from "@/domain/money";
-import { dailyTotals, monthBounds, relativeChange, type DayTotal } from "@/domain/stats";
+import {
+  PERIODS,
+  periodBounds,
+  periodTotals,
+  relativeChange,
+  type Bucket,
+  type Period,
+} from "@/domain/stats";
 import type { MemberRole } from "@/lib/session";
 import type { createClient } from "@/lib/supabase/server";
 import { loadPersonalAlerts, loadShopAlerts } from "./alerts";
@@ -13,8 +20,6 @@ import { BarChart } from "./bar-chart";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 type Translate = Awaited<ReturnType<typeof getTranslations>>;
-
-const CHART_DAYS = 14;
 
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 
@@ -33,30 +38,33 @@ type Kpi = {
 
 type Action = { href: string; icon: IconName; label: string };
 
-// Tuiles colorées : un fond teinté par indicateur, pour les distinguer d'un coup d'œil.
+// Tuiles d'indicateur : une noire, deux pastel, une blanche, pour les
+// distinguer d'un coup d'œil.
 const tileTones: Record<Tone, string> = {
-  primary: "bg-primary-soft text-on-primary-soft",
+  primary: "bg-surface text-fg shadow-card",
   accent: "bg-primary text-on-primary",
-  success: "bg-success-soft text-success",
-  warning: "bg-warning-soft text-warning",
+  success: "bg-tint-2 text-fg",
+  warning: "bg-tint-3 text-fg",
 };
+
+// Pastilles d'icône des raccourcis, une teinte par raccourci.
+const chipTones = ["bg-tint-1", "bg-tint-2", "bg-tint-3", "bg-surface-2"];
 
 async function KpiTile({ kpi }: { kpi: Kpi }) {
   const format = await getFormatter();
   const body = (
     <div
-      className={`relative flex h-full min-h-36 flex-col gap-2 overflow-hidden rounded-3xl p-4 transition hover:-translate-y-0.5 ${tileTones[kpi.tone]}`}
+      className={`flex h-full min-h-32 flex-col gap-1.5 rounded-3xl p-4 transition hover:-translate-y-0.5 ${tileTones[kpi.tone]}`}
     >
-      {/* Grande icône en filigrane. */}
-      <span aria-hidden className="pointer-events-none absolute -bottom-3 -right-3 opacity-15 [&>svg]:size-24">
-        {icons[kpi.icon]}
-      </span>
       <div className="flex items-center justify-between gap-2">
-        <span aria-hidden className="inline-flex size-10 items-center justify-center rounded-2xl bg-surface/70 text-fg">
+        <span
+          aria-hidden
+          className={`inline-flex size-10 items-center justify-center rounded-full ${kpi.tone === "accent" ? "bg-on-primary/15" : "bg-surface/70"}`}
+        >
           {icons[kpi.icon]}
         </span>
         {kpi.change !== undefined && kpi.change !== null ? (
-          <span className="rounded-full bg-surface/80 px-2 py-1 text-xs font-bold text-fg">
+          <span className="rounded-full bg-surface px-2 py-1 text-xs font-bold text-fg">
             {format.number(kpi.change, {
               style: "percent",
               maximumFractionDigits: 0,
@@ -65,9 +73,9 @@ async function KpiTile({ kpi }: { kpi: Kpi }) {
           </span>
         ) : null}
       </div>
-      <p className="text-sm font-semibold opacity-90">{kpi.label}</p>
-      <p className={`text-2xl font-extrabold tracking-tight ${kpi.tone === "accent" ? "" : "text-fg"}`}>{kpi.value}</p>
-      {kpi.note ? <p className="mt-auto text-xs font-medium opacity-80">{kpi.note}</p> : null}
+      <p className="mt-1 text-sm font-semibold opacity-80">{kpi.label}</p>
+      <p className="text-xl font-extrabold tracking-tight sm:text-2xl">{kpi.value}</p>
+      {kpi.note ? <p className="mt-auto text-xs font-medium opacity-75">{kpi.note}</p> : null}
     </div>
   );
   return kpi.href ? (
@@ -79,25 +87,20 @@ async function KpiTile({ kpi }: { kpi: Kpi }) {
   );
 }
 
-// Courbe décorative des 14 derniers jours dans la carte d'accueil.
-function Sparkline({ series }: { series: DayTotal[] }) {
+// Petites barres décoratives de la carte d'accueil : une par jour ou par mois.
+// Le graphique détaillé, plus bas, donne les valeurs.
+function MiniBars({ series }: { series: Bucket[] }) {
   const max = Math.max(1, ...series.map((entry) => entry.total));
-  const step = 100 / (series.length - 1);
-  const points = series.map((entry, index) => [index * step, 36 - (entry.total / max) * 30] as const);
-  const line = points.map(([x, y], index) => `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
   return (
-    <svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden className="h-16 w-full">
-      <path d={`${line} L100,40 L0,40 Z`} className="fill-on-brand/15" />
-      <path
-        d={line}
-        fill="none"
-        className="stroke-on-brand"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
+    <div aria-hidden className="flex h-20 items-end gap-1 lg:h-28">
+      {series.map((entry) => (
+        <span
+          key={entry.key}
+          className={`flex-1 rounded-full ${entry.total > 0 ? "bg-fg" : "bg-fg/15"}`}
+          style={{ height: `${Math.max(8, Math.round((entry.total / max) * 100))}%` }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -118,34 +121,39 @@ const saleTones = {
 } as const;
 
 // Mise en page commune à tous les tableaux de bord, pensée d'abord pour le
-// téléphone : carte d'accueil, raccourcis, indicateurs à faire glisser,
-// graphique, dernières ventes, alertes.
+// téléphone : bonjour, choix de la période, carte du total vendu, raccourcis,
+// indicateurs, graphique, dernières ventes, alertes.
 async function DashboardView({
   t,
-  greeting,
+  name,
   subtitle,
+  period,
+  homeHref,
   revenue,
   revenueChange,
   salesCount,
   actions,
   kpis,
   currency,
-  monthSales,
+  sales,
   recentSales,
   salesHref,
   alerts,
   side,
 }: {
   t: Translate;
-  greeting: string;
+  name: string;
   subtitle: string;
+  period: Period;
+  // Adresse du tableau de bord, pour les boutons de période.
+  homeHref: string;
   revenue: number;
   revenueChange: number | null;
   salesCount: number;
   actions: Action[];
   kpis: Kpi[];
   currency: string;
-  monthSales: { created_at: string; sale_price: number }[];
+  sales: { created_at: string; sale_price: number }[];
   recentSales: RecentSale[];
   salesHref: string;
   alerts: ShellAlert[];
@@ -153,22 +161,54 @@ async function DashboardView({
 }) {
   const format = await getFormatter();
   const money = (amount: number) => formatMoney(amount, currency);
-  const series = dailyTotals(monthSales, CHART_DAYS, new Date());
+  const series = periodTotals(sales, period, new Date());
   const hasSales = series.some((entry) => entry.total > 0);
+  const byMonth = period === "year";
+  const chartTitle = t(`dashboard.chartTitle.${period}`);
 
   return (
     <>
-      {/* Carte d'accueil : le chiffre du mois, sur le dégradé de la marque. */}
-      <section className="relative animate-rise overflow-hidden rounded-[2rem] bg-linear-to-br from-brand to-brand-2 p-5 text-on-brand shadow-card lg:p-8">
-        <div className="relative grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+      <header className="flex animate-rise items-center gap-3">
+        <span
+          aria-hidden
+          className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-extrabold text-on-primary"
+        >
+          {name.charAt(0).toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <h1 className="truncate text-2xl font-extrabold tracking-tight lg:text-3xl">
+            {t("dashboard.greeting", { name })}
+          </h1>
+          <p className="text-sm text-muted">{subtitle}</p>
+        </div>
+      </header>
+
+      {/* Période : semaine, mois ou année. Tous les chiffres « vendus » la suivent. */}
+      <nav
+        aria-label={t("dashboard.periodLabel")}
+        className="mt-4 flex gap-1 rounded-full bg-surface p-1 shadow-card sm:w-fit"
+      >
+        {PERIODS.map((option) => (
+          <Link
+            key={option}
+            href={`${homeHref}?period=${option}`}
+            aria-current={option === period ? "true" : undefined}
+            className={`flex min-h-11 flex-1 items-center justify-center rounded-full px-6 text-sm font-semibold transition-colors sm:flex-none ${option === period ? "bg-primary text-on-primary" : "text-muted hover:text-fg"} ${focusRing}`}
+          >
+            {t(`dashboard.periods.${option}`)}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Carte d'accueil : le total vendu sur la période, sur fond pastel. */}
+      <section className="mt-4 animate-rise rounded-[2rem] bg-tint-1 p-5 lg:p-8">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.2fr] lg:items-end">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight lg:text-3xl">{greeting}</h1>
-            <p className="mt-1 text-sm text-on-brand-muted">{subtitle}</p>
-            <p className="mt-5 text-sm font-semibold text-on-brand-muted">{t("dashboard.heroLabel")}</p>
+            <p className="text-sm font-semibold opacity-75">{t(`dashboard.heroLabel.${period}`)}</p>
             <div className="mt-1 flex flex-wrap items-end gap-3">
               <p className="text-4xl font-extrabold tracking-tight lg:text-5xl">{money(revenue)}</p>
               {revenueChange !== null ? (
-                <span className="mb-1.5 rounded-full bg-on-brand px-2.5 py-1 text-xs font-bold text-brand">
+                <span className="mb-1.5 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-on-primary">
                   {format.number(revenueChange, {
                     style: "percent",
                     maximumFractionDigits: 0,
@@ -177,28 +217,25 @@ async function DashboardView({
                 </span>
               ) : null}
             </div>
-            <p className="mt-1 text-sm text-on-brand-muted">
-              {t("dashboard.heroSales", { count: salesCount })}
+            <p className="mt-1 text-sm font-medium opacity-75">
+              {t("dashboard.salesCount", { count: salesCount })}
             </p>
           </div>
-          <div>
-            <p className="mb-1 text-right text-xs font-semibold text-on-brand-muted">
-              {t("dashboard.trend")}
-            </p>
-            <Sparkline series={series} />
-          </div>
+          <MiniBars series={series} />
         </div>
       </section>
 
-      {/* Raccourcis : gros boutons, à portée de pouce. */}
-      <nav aria-label={t("dashboard.quickActions")} className="no-scrollbar -mx-4 mt-4 flex gap-3 overflow-x-auto px-4 lg:mx-0 lg:px-0">
-        {actions.map((action) => (
+      {/* Raccourcis : quatre tuiles, à portée de pouce. */}
+      <nav aria-label={t("dashboard.quickActions")} className="mt-4 grid grid-cols-4 gap-2 sm:gap-3">
+        {actions.map((action, index) => (
           <Link
             key={action.href}
             href={action.href}
-            className={`flex min-w-24 flex-1 flex-col items-center gap-2 rounded-3xl border border-border bg-surface p-3 text-center text-xs font-semibold shadow-card transition hover:-translate-y-0.5 hover:border-primary ${focusRing}`}
+            className={`flex min-w-0 flex-col items-center gap-2 rounded-3xl bg-surface px-1 py-3 text-center text-[11px] leading-tight font-semibold shadow-card transition hover:-translate-y-0.5 sm:text-xs ${focusRing}`}
           >
-            <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-primary text-on-primary">
+            <span
+              className={`inline-flex size-12 items-center justify-center rounded-full ${chipTones[index % chipTones.length]}`}
+            >
               {icons[action.icon]}
             </span>
             {action.label}
@@ -206,29 +243,44 @@ async function DashboardView({
         ))}
       </nav>
 
-      {/* Indicateurs : bandeau à faire glisser sur téléphone, grille sur ordinateur. */}
-      <div className="no-scrollbar -mx-4 mt-4 flex snap-x gap-3 overflow-x-auto px-4 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
-        {kpis.map((kpi) => (
-          <div key={kpi.label} className="w-44 shrink-0 snap-start lg:w-auto">
+      {/* Indicateurs : deux par ligne sur téléphone, le premier sur toute la largeur. */}
+      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
+        {kpis.map((kpi, index) => (
+          <div
+            key={kpi.label}
+            className={index === 0 && kpis.length % 2 === 1 ? "col-span-2 lg:col-span-1" : ""}
+          >
             <KpiTile kpi={kpi} />
           </div>
         ))}
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="rounded-3xl lg:col-span-2">
-          <p className="font-bold">{t("dashboard.chartTitle")}</p>
-          <p className="mb-3 text-sm text-muted">{t("dashboard.chartSubtitle")}</p>
+        <Card className="lg:col-span-2">
+          <p className="font-bold">{chartTitle}</p>
+          <p className="mb-3 text-sm text-muted">
+            {t(byMonth ? "dashboard.chartSubtitleMonth" : "dashboard.chartSubtitle")}
+          </p>
           {hasSales ? (
             <BarChart
-              caption={t("dashboard.chartTitle")}
+              caption={chartTitle}
               divisor={10 ** currencyFractionDigits(currency)}
               points={series.map((entry) => {
-                const date = new Date(entry.day);
+                const date = new Date(entry.key);
                 return {
-                  label: format.dateTime(date, { day: "numeric", month: "short", timeZone: "UTC" }),
+                  label: format.dateTime(
+                    date,
+                    byMonth
+                      ? { month: "short", timeZone: "UTC" }
+                      : { day: "numeric", month: "short", timeZone: "UTC" },
+                  ),
                   detail: t("dashboard.chartDay", {
-                    date: format.dateTime(date, { dateStyle: "long", timeZone: "UTC" }),
+                    date: format.dateTime(
+                      date,
+                      byMonth
+                        ? { month: "long", year: "numeric", timeZone: "UTC" }
+                        : { dateStyle: "long", timeZone: "UTC" },
+                    ),
                     amount: money(entry.total),
                     count: entry.count,
                   }),
@@ -260,11 +312,11 @@ async function DashboardView({
               {recentSales.map((sale) => (
                 <li
                   key={sale.id}
-                  className="flex items-center gap-3 rounded-3xl border border-border bg-surface p-3 shadow-card"
+                  className="flex items-center gap-3 rounded-3xl bg-surface p-3 shadow-card"
                 >
                   <span
                     aria-hidden
-                    className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-on-primary-soft"
+                    className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-tint-1"
                   >
                     {icons.phone}
                   </span>
@@ -300,9 +352,9 @@ async function DashboardView({
                 <li key={alert.key}>
                   <Link
                     href={alert.href}
-                    className={`flex min-h-16 items-center gap-3 rounded-3xl border border-border bg-surface p-3 shadow-card transition hover:border-danger ${focusRing}`}
+                    className={`flex min-h-16 items-center gap-3 rounded-3xl bg-surface p-3 shadow-card transition hover:-translate-y-0.5 ${focusRing}`}
                   >
-                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-danger-soft text-danger">
+                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-danger-soft text-danger">
                       {icons.alert}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -414,18 +466,20 @@ export async function ShopDashboard({
   role,
   userName,
   commissionRateBps,
+  period,
 }: {
   supabase: Supabase;
   shop: { id: string; name: string; currency: string };
   role: MemberRole;
   userName: string;
   commissionRateBps: number;
+  period: Period;
 }) {
   const t = await getTranslations();
   const format = await getFormatter();
   const money = (amount: number) => formatMoney(amount, shop.currency);
   const base = `/s/${shop.id}`;
-  const { thisMonth, lastMonth } = monthBounds(new Date());
+  const { start, previousStart } = periodBounds(period, new Date());
 
   const [stock, sales, recent, consignments, installments, balances, alerts] = await Promise.all([
     role === "DEALER"
@@ -440,7 +494,7 @@ export async function ShopDashboard({
       .select("sale_price, purchase_price, shop_share, dealer_share, created_at")
       .eq("shop_id", shop.id)
       .eq("status", "COMPLETED")
-      .gte("created_at", lastMonth),
+      .gte("created_at", previousStart),
     supabase
       .from("sales")
       .select("id, status, sale_price, created_at, devices(model), customers(name)")
@@ -464,8 +518,8 @@ export async function ShopDashboard({
   ]);
 
   const all = sales.data ?? [];
-  const current = all.filter((s) => s.created_at >= thisMonth);
-  const previous = all.filter((s) => s.created_at < thisMonth);
+  const current = all.filter((s) => s.created_at >= start);
+  const previous = all.filter((s) => s.created_at < start);
   const revenue = sum(current.map((s) => s.sale_price));
   const owed = sum((balances.data ?? []).map((b) => b.balance));
   const customersDebt = sum((installments.data ?? []).map((i) => i.amount));
@@ -493,8 +547,8 @@ export async function ShopDashboard({
   const stockKpi: Kpi = {
     icon: "box",
     tone: "success",
-    label: t("dashboard.stockTitle"),
-    value: t("dashboard.stockUnits", { count: devices.length }),
+    label: t("dashboard.stock"),
+    value: String(devices.length),
     note:
       role === "OWNER"
         ? t("dashboard.stockValue", { value: money(sum(devices.map((d) => d.purchase_price))) })
@@ -610,7 +664,7 @@ export async function ShopDashboard({
   return (
     <DashboardView
       t={t}
-      greeting={t("dashboard.greeting", { name: userName.split(/\s+/)[0] })}
+      name={userName.split(/\s+/)[0]}
       subtitle={t(
         role === "OWNER"
           ? "dashboard.ownerSubtitle"
@@ -619,13 +673,15 @@ export async function ShopDashboard({
             : "dashboard.cashierSubtitle",
         { shop: shop.name },
       )}
+      period={period}
+      homeHref={base}
       revenue={revenue}
       revenueChange={relativeChange(revenue, sum(previous.map((s) => s.sale_price)))}
       salesCount={current.length}
       actions={actions}
       kpis={kpis}
       currency={shop.currency}
-      monthSales={all}
+      sales={all}
       recentSales={recent.data ?? []}
       salesHref={`${base}/sales`}
       alerts={alerts}
@@ -640,14 +696,16 @@ export async function PersonalDashboard({
   supabase,
   userId,
   userName,
+  period,
 }: {
   supabase: Supabase;
   userId: string;
   userName: string;
+  period: Period;
 }) {
   const t = await getTranslations();
   const money = (amount: number) => formatMoney(amount, PERSONAL_CURRENCY);
-  const { thisMonth, lastMonth } = monthBounds(new Date());
+  const { start, previousStart } = periodBounds(period, new Date());
 
   const [stock, sales, recent, installments, alerts] = await Promise.all([
     supabase
@@ -661,7 +719,7 @@ export async function PersonalDashboard({
       .eq("type", "PERSONAL")
       .eq("seller_user_id", userId)
       .eq("status", "COMPLETED")
-      .gte("created_at", lastMonth),
+      .gte("created_at", previousStart),
     supabase
       .from("sales")
       .select("id, status, sale_price, created_at, devices(model), customers(name)")
@@ -679,8 +737,8 @@ export async function PersonalDashboard({
   ]);
 
   const all = sales.data ?? [];
-  const current = all.filter((s) => s.created_at >= thisMonth);
-  const previous = all.filter((s) => s.created_at < thisMonth);
+  const current = all.filter((s) => s.created_at >= start);
+  const previous = all.filter((s) => s.created_at < start);
   const revenue = sum(current.map((s) => s.sale_price));
   const profit = (list: typeof all) => sum(list.map((s) => s.sale_price - s.purchase_price));
   const devices = stock.data ?? [];
@@ -697,8 +755,8 @@ export async function PersonalDashboard({
     {
       icon: "box",
       tone: "success",
-      label: t("dashboard.stockTitle"),
-      value: t("dashboard.stockUnits", { count: devices.length }),
+      label: t("dashboard.stock"),
+      value: String(devices.length),
       note: t("dashboard.stockValue", { value: money(sum(devices.map((d) => d.purchase_price))) }),
       href: "/perso/devices",
     },
@@ -714,8 +772,10 @@ export async function PersonalDashboard({
   return (
     <DashboardView
       t={t}
-      greeting={t("dashboard.greeting", { name: userName.split(/\s+/)[0] })}
+      name={userName.split(/\s+/)[0]}
       subtitle={t("dashboard.personalSubtitle")}
+      period={period}
+      homeHref="/perso"
       revenue={revenue}
       revenueChange={relativeChange(revenue, sum(previous.map((s) => s.sale_price)))}
       salesCount={current.length}
@@ -727,7 +787,7 @@ export async function PersonalDashboard({
       ]}
       kpis={kpis}
       currency={PERSONAL_CURRENCY}
-      monthSales={all}
+      sales={all}
       recentSales={recent.data ?? []}
       salesHref="/perso/sales"
       alerts={alerts}

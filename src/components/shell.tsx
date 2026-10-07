@@ -116,14 +116,14 @@ function SidebarContent({
   logoutLabel: string;
 }) {
   const pathname = usePathname();
-  const item = `flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-brand ${collapsed ? "justify-center" : ""}`;
+  const item = `flex min-h-11 items-center gap-3 rounded-full px-4 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary ${collapsed ? "justify-center px-0" : ""}`;
 
   return (
     <>
       <div className={`flex h-16 shrink-0 items-center gap-3 ${collapsed ? "justify-center px-2" : "px-5"}`}>
-        <BrandMark name={brand} inverted />
+        <BrandMark name={brand} />
         {collapsed ? null : (
-          <p className="truncate text-lg font-extrabold tracking-tight text-on-brand">{brand}</p>
+          <p className="truncate text-lg font-extrabold tracking-tight">{brand}</p>
         )}
       </div>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-3">
@@ -135,7 +135,7 @@ function SidebarContent({
               href={entry.href}
               title={collapsed ? entry.label : undefined}
               aria-current={active ? "page" : undefined}
-              className={`${item} ${active ? "bg-on-brand/15 text-on-brand shadow-[inset_3px_0_0_var(--on-brand)]" : "text-on-brand-muted hover:bg-on-brand/10 hover:text-on-brand"}`}
+              className={`${item} ${active ? "bg-primary text-on-primary" : "text-muted hover:bg-surface-2 hover:text-fg"}`}
             >
               {icons[entry.icon]}
               {collapsed ? <span className="sr-only">{entry.label}</span> : entry.label}
@@ -143,12 +143,12 @@ function SidebarContent({
           );
         })}
       </nav>
-      <div className="border-t border-on-brand/15 p-3">
+      <div className="border-t border-border p-3">
         <button
           type="button"
           title={collapsed ? logoutLabel : undefined}
           onClick={logout}
-          className={`${item} w-full text-on-brand-muted hover:bg-on-brand/10 hover:text-on-brand`}
+          className={`${item} w-full text-muted hover:bg-surface-2 hover:text-fg`}
         >
           {icons.logout}
           {collapsed ? <span className="sr-only">{logoutLabel}</span> : logoutLabel}
@@ -164,7 +164,7 @@ async function logout() {
   await signOut();
 }
 
-const sidebarSurface = "bg-linear-to-b from-brand to-[color-mix(in_oklab,var(--brand),var(--brand-2)_55%)]";
+const sidebarSurface = "border-r border-border bg-surface";
 
 export function Shell({
   brand,
@@ -203,7 +203,7 @@ export function Shell({
   const tabs = overflow ? nav.slice(0, slots - 1) : nav;
   const half = Math.ceil((tabs.length + (overflow ? 1 : 0)) / 2);
   const tabBase =
-    "flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-semibold focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary";
+    "flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-semibold focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-primary";
   const tab = (entry: NavItem) => {
     const active = isActive(pathname, entry);
     return (
@@ -211,7 +211,7 @@ export function Shell({
         key={entry.href}
         href={entry.href}
         aria-current={active ? "page" : undefined}
-        className={`${tabBase} ${active ? "bg-primary-soft text-on-primary-soft" : "text-muted"}`}
+        className={`${tabBase} ${active ? "bg-on-primary text-primary" : "text-on-primary/70"}`}
       >
         {icons[entry.icon]}
         <span className="max-w-full truncate px-1">{entry.label}</span>
@@ -271,7 +271,7 @@ export function Shell({
             {icons.menu}
           </button>
 
-          <p className="min-w-0 flex-1 truncate font-semibold">{current?.label ?? brand}</p>
+          <p className="min-w-0 flex-1 truncate font-semibold lg:flex-none lg:shrink-0">{current?.label ?? brand}</p>
 
           {search ? (
             <form action={search.href} role="search" className="relative hidden md:block">
@@ -322,7 +322,7 @@ export function Shell({
           {primaryAction ? (
             <Link
               href={primaryAction.href}
-              className={`hidden min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary shadow-card hover:bg-primary-hover md:inline-flex ${focusRing}`}
+              className={`hidden min-h-11 shrink-0 items-center gap-2 rounded-full bg-primary px-5 whitespace-nowrap text-sm font-semibold text-on-primary shadow-card hover:bg-primary-hover md:inline-flex ${focusRing}`}
             >
               {icons.plus}
               {primaryAction.label}
@@ -416,13 +416,13 @@ export function Shell({
         </main>
 
         {/* Téléphone : barre flottante, avec l'action principale au centre. */}
-        <nav className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 flex items-center justify-between gap-1 rounded-3xl border border-border bg-surface/95 p-1.5 shadow-card backdrop-blur print:hidden lg:hidden">
+        <nav className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 flex items-center justify-between gap-1 rounded-full bg-primary p-1.5 shadow-card print:hidden lg:hidden">
           {tabs.slice(0, half).map(tab)}
           {primaryAction ? (
             <Link
               href={primaryAction.href}
               aria-label={primaryAction.label}
-              className={`-mt-7 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-card ring-4 ring-bg transition active:scale-95 ${focusRing}`}
+              className={`-mt-7 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-tint-1 text-fg shadow-card ring-4 ring-bg transition active:scale-95 ${focusRing}`}
             >
               {icons.plus}
             </Link>
@@ -432,7 +432,7 @@ export function Shell({
             <button
               type="button"
               onClick={() => setDrawerOn(pathname)}
-              className={`${tabBase} text-muted`}
+              className={`${tabBase} text-on-primary/70`}
             >
               {icons.more}
               <span className="max-w-full truncate px-1">{labels.more}</span>

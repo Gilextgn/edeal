@@ -7,7 +7,7 @@ import { icons } from "./icons";
 export const focusRing =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
-const buttonBase = `inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 text-base font-semibold transition disabled:opacity-60 active:scale-[0.98] ${focusRing}`;
+const buttonBase = `inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-base font-semibold transition disabled:opacity-60 active:scale-[0.98] ${focusRing}`;
 
 const buttonVariants = {
   primary: "bg-primary text-on-primary shadow-card hover:bg-primary-hover",
@@ -89,7 +89,7 @@ export function Textarea({
 export function Card({ className = "", ...props }: ComponentProps<"div">) {
   return (
     <div
-      className={`rounded-2xl border border-border bg-surface p-4 shadow-card sm:p-5 ${className}`}
+      className={`rounded-3xl bg-surface p-4 shadow-card sm:p-5 ${className}`}
       {...props}
     />
   );

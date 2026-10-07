@@ -73,7 +73,10 @@ export async function createDevice(
 
   const imei = normalizeImei(parsed.values.imei);
   if (!isValidImei(imei)) {
-    return { error: "devices.errors.imei_invalid", values: parsed.values };
+    return {
+      error: imei ? "devices.errors.imei_invalid" : "devices.errors.imei_missing",
+      values: parsed.values,
+    };
   }
 
   const id = randomUUID();

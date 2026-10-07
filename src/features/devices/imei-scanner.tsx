@@ -15,7 +15,11 @@ type Status = "idle" | "reading" | "found" | "none" | "manual";
 // illisible. Le champ caché « imei » porte la valeur envoyée au serveur.
 export function ImeiScanner({ initial = "" }: { initial?: string }) {
   const t = useTranslations("devices.scan");
-  const [status, setStatus] = useState<Status>(initial ? "found" : "idle");
+  // AprÃ¨s un refus du serveur, l'IMEI dÃ©jÃ  saisi revient : on ne l'annonce
+  // Â« lu Â» que s'il est valide, sinon on rouvre la saisie pour le corriger.
+  const [status, setStatus] = useState<Status>(
+    !initial ? "idle" : isValidImei(initial) ? "found" : "manual",
+  );
   const [candidates, setCandidates] = useState<string[]>(initial ? [initial] : []);
   const [imei, setImei] = useState(initial);
 
@@ -116,7 +120,9 @@ export function ImeiScanner({ initial = "" }: { initial?: string }) {
             inputMode="numeric"
             autoComplete="off"
             value={imei}
-            onChange={(event) => setImei(event.target.value)}
+            maxLength={15}
+            // Chiffres uniquement, 15 au plus : un IMEI collÃ© avec des espaces est nettoyÃ©.
+            onChange={(event) => setImei(normalizeImei(event.target.value).replace(/\D/g, "").slice(0, 15))}
           />
           {digits.length >= 15 ? (
             <p

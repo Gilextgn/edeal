@@ -24,7 +24,7 @@ function niceMax(value: number) {
 }
 
 // Histogramme d'une seule série (le titre de la carte dit ce qui est tracé,
-// donc pas de légende). Une barre par jour ; survol ou focus = détail.
+// donc pas de légende). Une barre par jour ou par mois ; survol ou focus = détail.
 // Les valeurs sont aussi disponibles en tableau pour les lecteurs d'écran.
 export function BarChart({
   points,
@@ -47,8 +47,8 @@ export function BarChart({
   const bar = Math.min(MAX_BAR, band - 2);
   const ticks = [0, max / 2, max];
   const y = (value: number) => PAD.top + plotH - (value / max) * plotH;
-  // Assez de place pour un libellé sur deux quand les jours sont nombreux.
-  const labelEvery = points.length > 8 ? 2 : 1;
+  // Sept libellés au plus sous l'axe, pour rester lisible sur téléphone.
+  const labelEvery = Math.ceil(points.length / 7);
 
   return (
     <figure className="relative">
