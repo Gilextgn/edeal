@@ -195,6 +195,61 @@
   }
 }
 
+/*
+ * Écran d'ouverture : le nom de l'application sur fond rouge, plein écran,
+ * une seconde environ au lancement, puis il s'efface. Il ne bloque jamais les
+ * clics. Déjà vu dans cet onglet (data-splash posé par le script du layout)
+ * ou animations réduites : il ne s'affiche pas.
+ */
+@keyframes splash-out {
+  0%,
+  70% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes splash-name {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+}
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: var(--on-primary);
+  pointer-events: none;
+  animation: splash-out 1.5s ease-in forwards;
+}
+
+.splash-name {
+  font-size: 3.75rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  animation: splash-name 0.5s ease-out both;
+}
+
+[data-splash="seen"] .splash {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash {
+    display: none;
+  }
+}
+
 body {
   background: var(--bg);
   color: var(--fg);
