@@ -57,7 +57,8 @@
     "invalid_role": "Ce rôle ne peut pas être attribué.",
     "invalid_identifier": "Entrez un numéro de téléphone ou un e-mail valide.",
     "invalid_rate": "Le taux doit être compris entre 0 et 100 %.",
-    "already_member": "Cette personne fait déjà partie de la boutique.",
+    "already_member": "Cette personne fait déjà partie de la boutique : elle est dans la liste ci-dessous.",
+    "own_account": "C'est votre propre compte : vous êtes déjà le patron de cette boutique. Saisissez le numéro ou l'e-mail de la personne à ajouter.",
     "already_invited": "Cette personne a déjà été invitée.",
     "nameRequired": "Indiquez un nom.",
     "roleRequired": "Choisissez un rôle."
@@ -225,6 +226,8 @@
     "cancelInvitation": "Annuler l'invitation",
     "addedMember": "Membre ajouté.",
     "addedInvitation": "Invitation enregistrée. Envoyez-la à la personne avec le bouton ci-dessous : elle rejoindra la boutique dès son inscription.",
+    "alreadyTitle": "Déjà dans la boutique ({count})",
+    "invited": "Invité",
     "sendWhatsapp": "Envoyer par WhatsApp",
     "sendEmail": "Envoyer par e-mail",
     "inviteSubject": "Invitation à rejoindre {shop} sur eDeal",

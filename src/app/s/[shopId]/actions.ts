@@ -71,6 +71,17 @@ export async function addMember(
   if (rateBps === null) return { error: "errors.invalid_rate", values };
 
   const supabase = await createClient();
+  // Le patron qui saisit son propre e-mail ou numéro : on le lui dit clairement,
+  // plutôt que « cette personne fait déjà partie de la boutique ».
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const own =
+    identifier.kind === "email"
+      ? user?.email?.toLowerCase() === identifier.email.toLowerCase()
+      : user?.phone?.replace(/^\+/, "") === identifier.phone.replace(/^\+/, "");
+  if (own) return { error: "errors.own_account", values };
+
   const { data: outcome, error } = await supabase.rpc("add_member", {
     p_shop_id: shopId,
     p_role: role,
