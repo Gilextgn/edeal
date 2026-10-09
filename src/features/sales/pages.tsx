@@ -47,7 +47,7 @@ export async function ConsignPage({ supabase, scope, userId, deviceId }: DeviceC
     .eq("active", true);
 
   return (
-    <div className="lg:max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl">
       <PageHeader
         title={t("consignTitle")}
         subtitle={t("deviceLine", { model: device.model, imei: device.imei })}
@@ -86,7 +86,7 @@ export async function ReturnPage({ supabase, scope, userId, deviceId }: DeviceCo
   if (!consignment) notFound();
 
   return (
-    <div className="lg:max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl">
       <PageHeader
         title={t("returnTitle")}
         subtitle={t("deviceLine", { model: device.model, imei: device.imei })}
@@ -109,7 +109,7 @@ export async function SellDevicePage({ supabase, scope, userId, deviceId }: Devi
   const { data: customers } = await customersOf(supabase, scope.shopId, userId);
 
   return (
-    <div className="lg:max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl">
       <PageHeader
         title={t("sellTitle")}
         subtitle={t("deviceLine", { model: device.model, imei: device.imei })}
@@ -268,7 +268,7 @@ export async function DealerSellPage(
   const { data: customers } = await customersOf(supabase, shop.id, userId);
 
   return (
-    <div className="lg:max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl">
       <PageHeader
         title={t("sellTitle")}
         subtitle={t("deviceLine", { model: device.model, imei: device.imei })}

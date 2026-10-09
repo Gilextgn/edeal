@@ -21,7 +21,7 @@ export async function NewDevicePage({ scope }: { scope: DeviceScope }) {
   const t = await getTranslations("devices");
 
   return (
-    <div className="lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <PageHeader title={t("newTitle")} subtitle={t("newSubtitle")} />
       <Card>
         <DeviceForm
@@ -45,7 +45,7 @@ export async function EditDevicePage({
   const t = await getTranslations("devices");
 
   return (
-    <div className="lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <PageHeader title={t("editTitle")} subtitle={`${t("imei")} ${device.imei}`} />
       <Card>
         <DeviceForm
@@ -76,7 +76,7 @@ export async function NewReportPage({
   const t = await getTranslations("reports");
 
   return (
-    <div className="lg:max-w-3xl">
+    <div className="mx-auto w-full max-w-3xl">
       <PageHeader
         title={t("newTitle")}
         subtitle={t("newSubtitle", { model: device.model, imei: device.imei })}

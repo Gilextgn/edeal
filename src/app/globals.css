@@ -4,96 +4,93 @@
  * Design tokens. Les composants n'utilisent que ces variables, jamais de
  * couleur en dur. Changer la palette = modifier ce fichier uniquement.
  *
- * Palette unique, neutre : noir, blanc et gris purs (ni bleu, ni vert, ni
- * marron, ni doré). La couleur est réservée aux statuts :
- *   success (vert)  réglé, vendu, payé
- *   danger  (rouge) en retard, refusé, erreur
- *   warning (orange) en attente, à valider
- *
- *   primary  actions principales (boutons, liens, élément actif)
- *   accent   même teinte que primary : bouton d'action flottant, pastilles
- *   brand    fond sombre de marque (menu latéral, carte d'accueil, connexion)
+ * Palette : rouge vif sur fond crème, cartes blanches, texte presque noir.
+ *   primary  actions principales (boutons, liens, élément actif) : rouge
+ *   accent   même teinte que primary
+ *   brand    rouge sombre des grandes bannières et de l'écran de connexion
  *   chart    couleur des graphiques
+ *   tint-1..3  fonds doux des tuiles et pastilles d'icône, texte `fg` dessus
+ * Statuts : success (vert) réglé, vendu, payé ; danger (rouge sombre) en
+ * retard, refusé, erreur ; warning (orange) en attente, à valider.
  *
  * Le thème clair/sombre est porté par data-theme sur <html> ; un petit script
  * du layout le pose avant l'affichage.
  */
 :root {
-  --bg: #f5f5f6;
+  --bg: #fdf4ea;
   --surface: #ffffff;
-  --surface-2: #ececee;
-  --fg: #111113;
-  --muted: #5c5c63;
-  --border: #e1e1e4;
+  --surface-2: #f8ebdc;
+  --fg: #1d1512;
+  --muted: #6e615a;
+  --border: #f0e2d2;
 
-  --primary: #111113;
-  --primary-hover: #000000;
+  --primary: #e0201c;
+  --primary-hover: #c21511;
   --on-primary: #ffffff;
-  --primary-soft: #ececee;
-  --on-primary-soft: #111113;
+  --primary-soft: #fde5e2;
+  --on-primary-soft: #b3120f;
 
-  --accent: #111113;
+  --accent: #e0201c;
   --on-accent: #ffffff;
-  --accent-soft: #ececee;
+  --accent-soft: #fde5e2;
 
-  --brand: #0b0b0d;
-  --brand-2: #2b2b30;
+  --brand: #5c0a0c;
+  --brand-2: #b3151a;
   --on-brand: #ffffff;
-  --on-brand-muted: #b9b9c0;
+  --on-brand-muted: #f6cfc9;
   /* Coque et voile sombre posé sur les photos. */
-  --device: #0b0b0d;
+  --device: #1a0d0c;
 
-  --chart: #18181b;
+  --chart: #e0201c;
 
-  /* Teintes pastel des grandes cartes (accueil, indicateurs), texte noir dessus. */
-  --tint-1: #e6dfff;
-  --tint-2: #ffe1d2;
-  --tint-3: #ffdfe9;
+  --tint-1: #fde5e2;
+  --tint-2: #ffe8cf;
+  --tint-3: #fbe1ea;
 
   --success: #15803d;
   --success-soft: #e3f6e8;
-  --danger: #b91c1c;
-  --danger-soft: #fdecec;
+  --danger: #a1160f;
+  --danger-soft: #fbe4e1;
   --warning: #c2410c;
   --warning-soft: #ffedd5;
 
   /* Relief discret : un filet d'un pixel, puis une ombre large et douce. */
-  --shadow: 0 0 0 1px rgb(17 17 19 / 0.04), 0 1px 2px rgb(17 17 19 / 0.03),
-    0 14px 32px -18px rgb(17 17 19 / 0.16);
+  --shadow: 0 0 0 1px rgb(93 48 20 / 0.05), 0 1px 2px rgb(93 48 20 / 0.04),
+    0 14px 32px -18px rgb(93 48 20 / 0.22);
   /* Menus et listes déroulantes, qui passent par-dessus la page. */
-  --shadow-pop: 0 0 0 1px rgb(17 17 19 / 0.05), 0 24px 48px -16px rgb(17 17 19 / 0.28);
+  --shadow-pop: 0 0 0 1px rgb(93 48 20 / 0.06), 0 24px 48px -16px rgb(93 48 20 / 0.34);
 }
 
 [data-theme="dark"] {
-  --bg: #0b0b0c;
-  --surface: #161618;
-  --surface-2: #232326;
-  --fg: #f4f4f5;
-  --muted: #a1a1aa;
-  --border: #2f2f34;
+  --bg: #140d0c;
+  --surface: #1f1615;
+  --surface-2: #2c201e;
+  --fg: #f8f1ec;
+  --muted: #b5a59d;
+  --border: #3a2a27;
 
-  --primary: #fafafa;
-  --primary-hover: #ffffff;
-  --on-primary: #111113;
-  --primary-soft: #27272b;
-  --on-primary-soft: #fafafa;
+  --primary: #f0413b;
+  --primary-hover: #f65b55;
+  --on-primary: #ffffff;
+  --primary-soft: #43191a;
+  --on-primary-soft: #ffb4ae;
 
-  --accent: #fafafa;
-  --on-accent: #111113;
-  --accent-soft: #27272b;
+  --accent: #f0413b;
+  --on-accent: #ffffff;
+  --accent-soft: #43191a;
 
-  --brand: #000000;
-  --brand-2: #232326;
+  --brand: #3a0709;
+  --brand-2: #8f1216;
 
-  --chart: #e4e4e7;
+  --chart: #f0413b;
 
-  --tint-1: #2d2747;
+  --tint-1: #43191a;
   --tint-2: #40291d;
   --tint-3: #40212c;
 
   --success: #4ade80;
   --success-soft: #12301f;
-  --danger: #f87171;
+  --danger: #ff8a80;
   --danger-soft: #3a1717;
   --warning: #fb923c;
   --warning-soft: #3a1a08;

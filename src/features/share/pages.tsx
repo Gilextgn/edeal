@@ -88,7 +88,7 @@ export async function ReceiptPage({
   ].join("\n");
 
   return (
-    <div className="lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <div className="print:hidden">
         <PageHeader title={t("receipt.title")} subtitle={t("receipt.subtitle")} />
         <div className="mb-4 flex flex-col gap-3 sm:flex-row">
@@ -222,7 +222,7 @@ export async function ListingPage({
 
   if (!report) {
     return (
-      <div className="lg:max-w-2xl">
+      <div className="mx-auto w-full max-w-2xl">
         <PageHeader title={t("listing.title")} />
         <Card className="flex flex-col gap-4">
           <p className="text-muted">{t("listing.needsReport")}</p>
@@ -290,7 +290,7 @@ export async function ListingPage({
   });
 
   return (
-    <div className="lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <PageHeader title={t("listing.title")} subtitle={t("listing.subtitle")} />
       <Card className="flex flex-col gap-4">
         <p className="whitespace-pre-line rounded-2xl bg-surface-2 p-4 text-sm">{text}</p>

@@ -18,6 +18,7 @@ import { formatMoney } from "@/domain/money";
 import { pageRange } from "@/domain/pagination";
 import type { createClient } from "@/lib/supabase/server";
 import { deleteDevice } from "./actions";
+import { DeviceCard, loadDeviceCovers } from "./device-cards";
 import { StatusBadge, Variant } from "./labels";
 import type { DeviceScope } from "./scope";
 
@@ -51,6 +52,10 @@ export async function DeviceList({ supabase, scope, userId, page, search, notice
   query = scope.shopId ? query.eq("shop_id", scope.shopId) : query.eq("owner_user_id", userId);
   if (search) query = query.or(`imei.ilike.%${search}%,model.ilike.%${search}%`);
   const { data: devices, count } = await query;
+  const covers = await loadDeviceCovers(
+    supabase,
+    (devices ?? []).map((device) => device.id),
+  );
 
   const tone = notice && notice in NOTICES ? NOTICES[notice as keyof typeof NOTICES] : null;
 
@@ -82,6 +87,23 @@ export async function DeviceList({ supabase, scope, userId, page, search, notice
           {t(search ? "list.noResult" : "devices.empty")}
         </Card>
       ) : (
+        <>
+        {/* Téléphone : deux cartes par ligne, comme un catalogue. */}
+        <div className="grid grid-cols-2 gap-3 md:hidden">
+          {devices.map((device) => (
+            <DeviceCard
+              key={device.id}
+              href={`${scope.basePath}/${device.id}`}
+              model={device.model}
+              variant={<Variant capacity={device.capacity} color={device.color} />}
+              price={formatMoney(device.target_price, scope.currency)}
+              cover={covers.get(device.id)}
+              badge={device.status === "IN_STOCK" ? null : <StatusBadge status={device.status} />}
+            />
+          ))}
+        </div>
+        {/* Écran plus large : tableau, avec les actions par ligne. */}
+        <div className="hidden md:block">
         <TableCard>
           <thead>
             <tr>
@@ -138,6 +160,8 @@ export async function DeviceList({ supabase, scope, userId, page, search, notice
             })}
           </tbody>
         </TableCard>
+        </div>
+        </>
       )}
 
       <ListPagination

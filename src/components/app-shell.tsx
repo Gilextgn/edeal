@@ -74,6 +74,8 @@ export async function AppShell({
       search={search ?? null}
       labels={{
         menu: t("nav.menu"),
+        back: t("nav.back"),
+        hello: t("nav.hello", { name: profile.name.split(/\s+/)[0] }),
         more: t("nav.more"),
         theme: t("nav.theme"),
         alerts: t("dashboard.alerts"),

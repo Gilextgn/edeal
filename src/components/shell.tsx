@@ -28,6 +28,9 @@ export type ShellProps = {
   search: { href: string; placeholder: string } | null;
   labels: {
     menu: string;
+    back: string;
+    // « Bonjour, Awa » : affiché au-dessus du nom sur l'accueil, sur téléphone.
+    hello: string;
     more: string;
     theme: string;
     alerts: string;
@@ -46,6 +49,17 @@ function isActive(pathname: string, item: NavItem) {
   // Un lien peut porter des paramètres (« /?spaces=1 ») : on compare le chemin.
   const path = item.href.split("?")[0];
   return item.exact ? pathname === path : pathname === path || pathname.startsWith(`${path}/`);
+}
+
+// Écran parent d'un écran secondaire : on retire le dernier segment de
+// l'adresse, ainsi que les segments qui ne sont pas des écrans à eux seuls.
+function parentPath(pathname: string) {
+  const parts = pathname.split("/").filter(Boolean);
+  parts.pop();
+  while (["reports", "shops"].includes(parts.at(-1) ?? "")) parts.pop();
+  // « /s/<boutique> » et « /perso » sont les accueils ; « /s » n'existe pas.
+  if (parts.length === 1 && parts[0] === "s") parts.pop();
+  return `/${parts.join("/")}`;
 }
 
 // Menu déroulant : se ferme au clic ailleurs, avec Échap, ou en changeant de page.
@@ -220,13 +234,17 @@ export function Shell({
   }, []);
 
   const current = nav.filter((entry) => isActive(pathname, entry)).at(-1);
+  const isRoot = nav.some((entry) => entry.href.split("?")[0] === pathname);
+  const atHome = nav[0]?.href.split("?")[0] === pathname;
+  const backHref = isRoot ? null : parentPath(pathname);
+  const squareButton = `size-11 shrink-0 items-center justify-center rounded-2xl bg-surface text-fg shadow-card transition-colors hover:bg-surface-2 ${focusRing}`;
   // Barre du bas : l'action principale prend une place au centre.
   const slots = primaryAction ? MAX_TABS - 1 : MAX_TABS;
   const overflow = nav.length > slots;
   const tabs = overflow ? nav.slice(0, slots - 1) : nav;
   const half = Math.ceil((tabs.length + (overflow ? 1 : 0)) / 2);
   const tabBase =
-    "flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-semibold focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-on-primary";
+    "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary";
   const tab = (entry: NavItem) => {
     const active = isActive(pathname, entry);
     return (
@@ -234,7 +252,7 @@ export function Shell({
         key={entry.href}
         href={entry.href}
         aria-current={active ? "page" : undefined}
-        className={`${tabBase} ${active ? "bg-on-primary text-primary" : "text-on-primary/70"}`}
+        className={`${tabBase} ${active ? "text-primary" : "text-muted"}`}
       >
         {icons[entry.icon]}
         <span className="max-w-full truncate px-1">{entry.label}</span>
@@ -297,16 +315,22 @@ export function Shell({
             recherche (elle prend la place libre), à droite les actions. */}
         <header className="sticky top-0 z-20 bg-bg/85 px-3 backdrop-blur-md print:hidden lg:px-8">
           {/* Même largeur que le contenu : les bords s'alignent sur grand écran. */}
-          <div className="mx-auto flex h-16 w-full max-w-[90rem] items-center gap-2 lg:h-20 lg:gap-3">
+          <div className="mx-auto flex h-[4.5rem] w-full max-w-[90rem] items-center gap-2.5 lg:h-20 lg:gap-3">
           <button
             type="button"
             aria-label={labels.menu}
             aria-expanded={drawerOpen}
             onClick={() => setDrawerOn(drawerOpen ? null : pathname)}
-            className={`${iconButton} inline-flex lg:hidden`}
+            className={`${squareButton} ${backHref ? "hidden" : "inline-flex lg:hidden"}`}
           >
             {icons.menu}
           </button>
+          {/* Écran secondaire : une flèche ramène à l'écran d'où l'on vient. */}
+          {backHref ? (
+            <Link href={backHref} aria-label={labels.back} className={`${squareButton} inline-flex`}>
+              {icons.chevronLeft}
+            </Link>
+          ) : null}
           <button
             type="button"
             aria-label={labels.menu}
@@ -319,9 +343,18 @@ export function Shell({
 
           {/* Sur ordinateur, le menu latéral et le titre de la page disent déjà
               où l'on est : ce rappel ne sert que sur petit écran. */}
-          <p className="min-w-0 flex-1 truncate text-lg font-bold tracking-tight lg:hidden">
-            {current?.label ?? brand}
-          </p>
+          <div className="min-w-0 flex-1 lg:hidden">
+            {atHome ? (
+              <>
+                <p className="truncate text-xs font-medium text-muted">{labels.hello}</p>
+                <p className="truncate text-xl leading-tight font-extrabold tracking-tight text-primary">
+                  {brand}
+                </p>
+              </>
+            ) : (
+              <p className="truncate text-lg font-bold tracking-tight">{current?.label ?? brand}</p>
+            )}
+          </div>
 
           {search ? (
             <form
@@ -476,13 +509,13 @@ export function Shell({
         </main>
 
         {/* Téléphone : barre flottante, avec l'action principale au centre. */}
-        <nav className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 flex items-center justify-between gap-1 rounded-full bg-primary p-1.5 shadow-card print:hidden lg:hidden">
+        <nav className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 flex items-center justify-between gap-1 rounded-[1.75rem] bg-surface px-2 py-1 shadow-pop print:hidden lg:hidden">
           {tabs.slice(0, half).map(tab)}
           {primaryAction ? (
             <Link
               href={primaryAction.href}
               aria-label={primaryAction.label}
-              className={`-mt-7 inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-tint-1 text-fg shadow-card ring-4 ring-bg transition active:scale-95 ${focusRing}`}
+              className={`-mt-9 inline-flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-pop ring-[5px] ring-bg transition active:scale-95 [&>svg]:size-7 ${focusRing}`}
             >
               {icons.plus}
             </Link>
@@ -492,7 +525,7 @@ export function Shell({
             <button
               type="button"
               onClick={() => setDrawerOn(pathname)}
-              className={`${tabBase} text-on-primary/70`}
+              className={`${tabBase} text-muted`}
             >
               {icons.more}
               <span className="max-w-full truncate px-1">{labels.more}</span>

@@ -12,7 +12,7 @@ export default async function NewMemberPage({
   const t = await getTranslations("members");
 
   return (
-    <div className="lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <PageHeader title={t("addTitle")} subtitle={t("addSubtitle")} />
       <Card>
         <MemberForm

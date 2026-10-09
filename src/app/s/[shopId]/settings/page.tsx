@@ -12,7 +12,7 @@ export default async function ShopSettingsPage({
   const t = await getTranslations();
 
   return (
-    <div className="lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <PageHeader title={t("settings.title")} subtitle={t("settings.subtitle")} />
       <Card>
         <ShopForm

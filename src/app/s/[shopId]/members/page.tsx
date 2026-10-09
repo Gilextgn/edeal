@@ -1,6 +1,8 @@
+import { headers } from "next/headers";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { ConfirmForm } from "@/components/confirm-form";
 import { icons } from "@/components/icons";
+import { ListPagination } from "@/components/list";
 import {
   ActionButton,
   ActionLink,
@@ -13,7 +15,11 @@ import {
   TableCard,
   Td,
   Th,
+  focusRing,
 } from "@/components/ui";
+import { parsePage, pageRange } from "@/domain/pagination";
+import { whatsappUrl } from "@/domain/whatsapp";
+import { env } from "@/lib/env";
 import { requireOwner } from "@/lib/session";
 import { cancelInvitation } from "../actions";
 
@@ -22,23 +28,49 @@ export default async function MembersPage({
   searchParams,
 }: PageProps<"/s/[shopId]/members">) {
   const { shopId } = await params;
-  const { added } = await searchParams;
+  const { added, page: rawPage } = await searchParams;
   const { supabase, profile, shop } = await requireOwner(shopId);
   const t = await getTranslations();
   const format = await getFormatter();
+  const page = parsePage(rawPage);
+  const { from, to } = pageRange(page);
+  const path = `/s/${shop.id}/members`;
 
-  const [{ data: members }, { data: invitations }] = await Promise.all([
+  const [{ data: members, count }, { data: invitations }, requestHeaders] = await Promise.all([
     supabase
       .from("memberships")
-      .select("id, role, commission_rate_bps, active, user_id, users(name, phone, email)")
+      .select("id, role, commission_rate_bps, active, user_id, users(name, phone, email)", {
+        count: "exact",
+      })
       .eq("shop_id", shop.id)
-      .order("created_at"),
+      .order("created_at")
+      .range(from, to),
     supabase
       .from("invitations")
       .select("id, phone, email, role, commission_rate_bps")
       .eq("shop_id", shop.id)
       .order("created_at"),
+    headers(),
   ]);
+
+  // L'application n'envoie ni SMS ni e-mail : le patron transmet lui-même
+  // l'invitation, par WhatsApp (numéro) ou par e-mail, avec un message prêt.
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
+  const signupUrl = `${protocol}://${host}/signup`;
+  const inviteHref = (invitation: { phone: string | null; email: string | null; role: string }) => {
+    const text = t("members.inviteMessage", {
+      shop: shop.name,
+      role: t(`roles.${invitation.role}`),
+      contact: invitation.phone ? `+${invitation.phone}` : (invitation.email ?? ""),
+      url: signupUrl,
+    });
+    return invitation.phone
+      ? whatsappUrl(text, `+${invitation.phone}`, env.NEXT_PUBLIC_DEFAULT_COUNTRY_CODE)
+      : `mailto:${invitation.email}?subject=${encodeURIComponent(
+          t("members.inviteSubject", { shop: shop.name }),
+        )}&body=${encodeURIComponent(text)}`;
+  };
 
   const rate = (role: string, bps: number) =>
     role === "DEALER"
@@ -105,6 +137,14 @@ export default async function MembersPage({
               </Td>
               <Td>
                 <RowActions>
+                  {/* Voir : le compte d'un dealer (ventes, ce qu'il doit, règlements). */}
+                  {member.role === "DEALER" ? (
+                    <ActionLink
+                      kind="view"
+                      label={t("list.view")}
+                      href={`/s/${shop.id}/balances/${member.id}`}
+                    />
+                  ) : null}
                   {member.role === "OWNER" ? null : (
                     <ActionLink
                       kind="edit"
@@ -118,6 +158,7 @@ export default async function MembersPage({
           ))}
         </tbody>
       </TableCard>
+      <ListPagination page={page} total={count ?? 0} path={path} />
 
       {invitations && invitations.length > 0 ? (
         <section className="mt-8">
@@ -146,6 +187,14 @@ export default async function MembersPage({
                   </Td>
                   <Td>
                     <RowActions>
+                      <a
+                        href={inviteHref(invitation)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex min-h-11 items-center rounded-full bg-primary px-4 text-sm font-semibold whitespace-nowrap text-on-primary transition-colors hover:bg-primary-hover ${focusRing}`}
+                      >
+                        {t(invitation.phone ? "members.sendWhatsapp" : "members.sendEmail")}
+                      </a>
                       <ConfirmForm
                         action={cancelInvitation.bind(null, shop.id, invitation.id)}
                         message={t("members.confirmCancel")}

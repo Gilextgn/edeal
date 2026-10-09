@@ -21,7 +21,7 @@ export default async function EditMemberPage({
   if (!member || member.role === "OWNER") notFound();
 
   return (
-    <div className="lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <PageHeader
         title={t("members.editTitle", { name: member.users?.name ?? "" })}
       />

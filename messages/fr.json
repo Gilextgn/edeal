@@ -32,6 +32,8 @@
     "balances": "Soldes",
     "myBalance": "Mon solde",
     "menu": "Menu",
+    "back": "Retour",
+    "hello": "Bonjour, {name} 👋",
     "theme": "Thème clair ou sombre"
   },
   "roles": {
@@ -165,7 +167,11 @@
     "pendingBadge": "En attente d'inscription",
     "cancelInvitation": "Annuler l'invitation",
     "addedMember": "Membre ajouté.",
-    "addedInvitation": "Invitation enregistrée. La personne rejoindra la boutique à son inscription.",
+    "addedInvitation": "Invitation enregistrée. Envoyez-la à la personne avec le bouton ci-dessous : elle rejoindra la boutique dès son inscription.",
+    "sendWhatsapp": "Envoyer par WhatsApp",
+    "sendEmail": "Envoyer par e-mail",
+    "inviteSubject": "Invitation à rejoindre {shop} sur eDeal",
+    "inviteMessage": "Bonjour, {shop} vous invite à rejoindre sa boutique sur eDeal comme {role}. Créez votre compte avec {contact} ici : {url}",
     "editTitle": "Modifier {name}",
     "status": "Accès à la boutique",
     "statusHints": {
@@ -597,6 +603,7 @@
     "dealersTitle": "Dealers",
     "noDealers": "Aucun dealer pour l'instant.",
     "quickActions": "Raccourcis",
+    "searchPlaceholder": "Chercher un appareil…",
     "heroLabel": {
       "week": "Total vendu sur 7 jours",
       "month": "Total vendu sur 30 jours",
@@ -630,6 +637,8 @@
     "markPaid": "Marquer payée",
     "markUnpaid": "Annuler",
     "balancesTitle": "Soldes des dealers",
+    "viewAccount": "Voir le compte de {name}",
+    "editAccount": "Modifier {name}",
     "balancesSubtitle": "Ce que chaque dealer doit encore reverser à la boutique.",
     "totalOwed": "Total dû par les dealers",
     "noDealers": "La boutique n'a pas encore de dealer.",

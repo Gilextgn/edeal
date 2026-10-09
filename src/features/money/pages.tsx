@@ -1,8 +1,16 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { icons } from "@/components/icons";
-import { Badge, Button, ButtonLink, Card, FormMessage, PageHeader } from "@/components/ui";
+import {
+  ActionLink,
+  Badge,
+  Button,
+  ButtonLink,
+  Card,
+  FormMessage,
+  PageHeader,
+  RowActions,
+} from "@/components/ui";
 import { isOverdue, outstanding } from "@/domain/installments";
 import { formatMoney, PERSONAL_CURRENCY } from "@/domain/money";
 import { Variant } from "@/features/devices/labels";
@@ -264,10 +272,7 @@ export async function BalancesList({
         <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {balances.map((b) => (
             <li key={b.membership_id}>
-              <Link
-                href={`/s/${shop.id}/balances/${b.membership_id}`}
-                className="flex h-full flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              >
+              <div className="flex h-full flex-col gap-3 rounded-3xl bg-surface p-4 shadow-card">
                 <div className="flex items-start justify-between gap-3">
                   <p className="truncate font-semibold">{b.dealer_name}</p>
                   {b.balance === 0 ? (
@@ -277,10 +282,27 @@ export async function BalancesList({
                   )}
                 </div>
                 <p className="text-2xl font-bold tracking-tight">{money(b.balance)}</p>
-                <p className="text-sm text-muted">
-                  {t("settledOf", { settled: money(b.total_settled), owed: money(b.total_owed) })}
-                </p>
-              </Link>
+                <div className="mt-auto flex items-end justify-between gap-3">
+                  <p className="text-sm text-muted">
+                    {t("settledOf", { settled: money(b.total_settled), owed: money(b.total_owed) })}
+                  </p>
+                  <RowActions>
+                    <ActionLink
+                      kind="view"
+                      label={t("viewAccount", { name: b.dealer_name })}
+                      href={`/s/${shop.id}/balances/${b.membership_id}`}
+                    />
+                    {/* Seul le patron modifie un membre (taux, accès). */}
+                    {role === "OWNER" ? (
+                      <ActionLink
+                        kind="edit"
+                        label={t("editAccount", { name: b.dealer_name })}
+                        href={`/s/${shop.id}/members/${b.membership_id}`}
+                      />
+                    ) : null}
+                  </RowActions>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

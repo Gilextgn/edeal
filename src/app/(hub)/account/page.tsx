@@ -10,7 +10,7 @@ export default async function AccountPage() {
   const t = await getTranslations();
 
   return (
-    <div className="flex flex-col gap-4 lg:max-w-2xl">
+    <div className="flex flex-col gap-4 mx-auto w-full max-w-2xl">
       <PageHeader title={t("account.title")} subtitle={t("account.subtitle")} />
       <Card>
         <ProfileForm action={updateProfile} name={profile.name}>

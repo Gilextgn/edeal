@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -10,12 +11,13 @@ import {
   periodBounds,
   periodTotals,
   relativeChange,
-  type Bucket,
   type Period,
 } from "@/domain/stats";
 import type { MemberRole } from "@/lib/session";
 import type { createClient } from "@/lib/supabase/server";
 import { loadPersonalAlerts, loadShopAlerts } from "./alerts";
+import { DeviceCard, loadDeviceCovers } from "@/features/devices/device-cards";
+import { StatusBadge, Variant } from "@/features/devices/labels";
 import { BarChart } from "./bar-chart";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
@@ -38,7 +40,7 @@ type Kpi = {
 
 type Action = { href: string; icon: IconName; label: string };
 
-// Tuiles d'indicateur : une noire, deux pastel, une blanche, pour les
+// Tuiles d'indicateur : une rouge, deux douces, une blanche, pour les
 // distinguer d'un coup d'œil.
 const tileTones: Record<Tone, string> = {
   primary: "bg-surface text-fg shadow-card",
@@ -46,9 +48,6 @@ const tileTones: Record<Tone, string> = {
   success: "bg-tint-2 text-fg",
   warning: "bg-tint-3 text-fg",
 };
-
-// Pastilles d'icône des raccourcis, une teinte par raccourci.
-const chipTones = ["bg-tint-1", "bg-tint-2", "bg-tint-3", "bg-surface-2"];
 
 async function KpiTile({ kpi }: { kpi: Kpi }) {
   const format = await getFormatter();
@@ -87,22 +86,6 @@ async function KpiTile({ kpi }: { kpi: Kpi }) {
   );
 }
 
-// Petites barres décoratives de la carte d'accueil : une par jour ou par mois.
-// Le graphique détaillé, plus bas, donne les valeurs.
-function MiniBars({ series }: { series: Bucket[] }) {
-  const max = Math.max(1, ...series.map((entry) => entry.total));
-  return (
-    <div aria-hidden className="flex h-20 items-end gap-1 lg:h-28">
-      {series.map((entry) => (
-        <span
-          key={entry.key}
-          className={`flex-1 rounded-full ${entry.total > 0 ? "bg-fg" : "bg-fg/15"}`}
-          style={{ height: `${Math.max(8, Math.round((entry.total / max) * 100))}%` }}
-        />
-      ))}
-    </div>
-  );
-}
 
 type RecentSale = {
   id: string;
@@ -120,9 +103,20 @@ const saleTones = {
   CANCELLED: "neutral",
 } as const;
 
+type DeviceRow = {
+  id: string;
+  model: string;
+  capacity: string;
+  color: string;
+  target_price: number;
+  status: string;
+};
+
 // Mise en page commune à tous les tableaux de bord, pensée d'abord pour le
-// téléphone : bonjour, choix de la période, carte du total vendu, raccourcis,
-// indicateurs, graphique, dernières ventes, alertes.
+// téléphone, comme l'accueil d'une application de commande : recherche,
+// grande bannière (total vendu et action principale), raccourcis ronds à
+// faire glisser, appareils en cartes, puis indicateurs, graphique, dernières
+// ventes et alertes.
 async function DashboardView({
   t,
   name,
@@ -132,7 +126,13 @@ async function DashboardView({
   revenue,
   revenueChange,
   salesCount,
+  primary,
+  searchHref,
   actions,
+  devices,
+  covers,
+  deviceHref,
+  devicesHref,
   kpis,
   currency,
   sales,
@@ -150,7 +150,15 @@ async function DashboardView({
   revenue: number;
   revenueChange: number | null;
   salesCount: number;
+  // Bouton de la bannière : ce que ce profil fait le plus souvent.
+  primary: Action;
+  // Liste qui reçoit la recherche (« ?q= »), s'il y en a une pour ce profil.
+  searchHref: string | null;
   actions: Action[];
+  devices: DeviceRow[];
+  covers: Map<string, string>;
+  deviceHref: (id: string) => string;
+  devicesHref: string;
   kpis: Kpi[];
   currency: string;
   sales: { created_at: string; sale_price: number }[];
@@ -168,7 +176,8 @@ async function DashboardView({
 
   return (
     <>
-      <header className="flex animate-rise items-center gap-3">
+      {/* Ordinateur : le bonjour. Sur téléphone, la barre du haut le dit déjà. */}
+      <header className="mb-5 hidden animate-rise items-center gap-3 lg:flex">
         <span
           aria-hidden
           className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-extrabold text-on-primary"
@@ -176,39 +185,81 @@ async function DashboardView({
           {name.charAt(0).toUpperCase()}
         </span>
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-extrabold tracking-tight lg:text-3xl">
+          <h1 className="truncate text-3xl font-extrabold tracking-tight">
             {t("dashboard.greeting", { name })}
           </h1>
           <p className="text-sm text-muted">{subtitle}</p>
         </div>
       </header>
 
-      {/* Période : semaine, mois ou année. Tous les chiffres « vendus » la suivent. */}
-      <nav
-        aria-label={t("dashboard.periodLabel")}
-        className="mt-4 flex gap-1 rounded-full bg-surface p-1 shadow-card sm:w-fit"
-      >
-        {PERIODS.map((option) => (
+      {/* Téléphone : la recherche, sous la barre du haut. */}
+      {searchHref ? (
+        <form action={searchHref} role="search" className="mb-4 flex gap-2.5 lg:hidden">
+          <div className="relative min-w-0 flex-1">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-fg">
+              {icons.search}
+            </span>
+            <input
+              type="search"
+              name="q"
+              placeholder={t("dashboard.searchPlaceholder")}
+              aria-label={t("devices.search")}
+              className={`h-13 w-full rounded-2xl bg-surface pl-12 pr-4 text-sm shadow-card placeholder:text-muted ${focusRing}`}
+            />
+          </div>
           <Link
-            key={option}
-            href={`${homeHref}?period=${option}`}
-            aria-current={option === period ? "true" : undefined}
-            className={`flex min-h-11 flex-1 items-center justify-center rounded-full px-6 text-sm font-semibold transition-colors sm:flex-none ${option === period ? "bg-primary text-on-primary" : "text-muted hover:text-fg"} ${focusRing}`}
+            href={searchHref}
+            aria-label={t("dashboard.seeAll")}
+            className={`inline-flex size-13 shrink-0 items-center justify-center rounded-2xl bg-surface shadow-card ${focusRing}`}
           >
-            {t(`dashboard.periods.${option}`)}
+            {icons.settings}
           </Link>
-        ))}
-      </nav>
+        </form>
+      ) : null}
 
-      {/* Carte d'accueil : le total vendu sur la période, sur fond pastel. */}
-      <section className="mt-4 animate-rise rounded-[2rem] bg-tint-1 p-5 lg:p-8">
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.2fr] lg:items-end">
+      {/* Bannière : le total vendu sur la période et l'action principale. */}
+      <section className="relative animate-rise overflow-hidden rounded-[2rem] bg-linear-to-br from-brand to-brand-2 text-on-brand shadow-card">
+        {/* Photo sur la moitié droite, fondue dans le rouge vers la gauche. */}
+        <div className="absolute inset-y-0 right-0 w-3/5 lg:w-1/2">
+          <Image
+            src="/login/iphone-13-fan.jpg"
+            alt=""
+            fill
+            unoptimized
+            priority
+            sizes="(min-width: 1024px) 40vw, 75vw"
+            className="object-cover object-[60%_45%] opacity-90 [mask-image:linear-gradient(to_right,transparent_15%,black_90%)]"
+          />
+        </div>
+        <div className="relative flex min-h-60 flex-col justify-between gap-5 p-5 lg:min-h-72 lg:p-8">
+          {/* Période : tous les chiffres « vendus » la suivent. */}
+          <nav
+            aria-label={t("dashboard.periodLabel")}
+            className="flex w-fit gap-0.5 rounded-full bg-on-brand/15 p-1 backdrop-blur-sm"
+          >
+            {PERIODS.map((option) => (
+              <Link
+                key={option}
+                href={`${homeHref}?period=${option}`}
+                aria-current={option === period ? "true" : undefined}
+                className={`flex min-h-11 items-center rounded-full px-4 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-brand ${option === period ? "bg-on-brand text-brand" : "text-on-brand hover:bg-on-brand/15"}`}
+              >
+                {t(`dashboard.periods.${option}`)}
+              </Link>
+            ))}
+          </nav>
+
           <div>
-            <p className="text-sm font-semibold opacity-75">{t(`dashboard.heroLabel.${period}`)}</p>
-            <div className="mt-1 flex flex-wrap items-end gap-3">
-              <p className="text-4xl font-extrabold tracking-tight lg:text-5xl">{money(revenue)}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-on-brand-muted">
+              {t(`dashboard.heroLabel.${period}`)}
+            </p>
+            <p className="mt-1 text-4xl leading-none font-extrabold tracking-tight lg:text-6xl">
+              {money(revenue)}
+            </p>
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm font-medium text-on-brand-muted">
+              {t("dashboard.salesCount", { count: salesCount })}
               {revenueChange !== null ? (
-                <span className="mb-1.5 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-on-primary">
+                <span className="rounded-full bg-on-brand px-2 py-0.5 text-xs font-bold text-brand">
                   {format.number(revenueChange, {
                     style: "percent",
                     maximumFractionDigits: 0,
@@ -216,35 +267,81 @@ async function DashboardView({
                   })}
                 </span>
               ) : null}
-            </div>
-            <p className="mt-1 text-sm font-medium opacity-75">
-              {t("dashboard.salesCount", { count: salesCount })}
             </p>
           </div>
-          <MiniBars series={series} />
+
+          <Link
+            href={primary.href}
+            className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-primary py-1.5 pl-5 pr-2 text-sm font-bold text-on-primary shadow-card transition hover:bg-primary-hover active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-brand"
+          >
+            {primary.label}
+            <span
+              aria-hidden
+              className="inline-flex size-8 items-center justify-center rounded-full bg-on-primary text-primary"
+            >
+              {icons.chevron}
+            </span>
+          </Link>
         </div>
       </section>
 
-      {/* Raccourcis : quatre tuiles, à portée de pouce. */}
-      <nav aria-label={t("dashboard.quickActions")} className="mt-4 grid grid-cols-4 gap-2 sm:gap-3">
+      {/* Raccourcis ronds, à faire glisser. */}
+      <nav
+        aria-label={t("dashboard.quickActions")}
+        className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 py-1 lg:mx-0 lg:gap-5 lg:px-0"
+      >
         {actions.map((action, index) => (
           <Link
             key={action.href}
             href={action.href}
-            className={`flex min-w-0 flex-col items-center gap-2 rounded-3xl bg-surface px-1 py-3 text-center text-[11px] leading-tight font-semibold shadow-card transition hover:-translate-y-0.5 sm:text-xs ${focusRing}`}
+            className={`flex w-[4.75rem] shrink-0 flex-col items-center gap-2 rounded-2xl text-center text-xs font-semibold ${focusRing}`}
           >
             <span
-              className={`inline-flex size-12 items-center justify-center rounded-full ${chipTones[index % chipTones.length]}`}
+              className={`inline-flex size-16 items-center justify-center rounded-full bg-surface shadow-card transition-colors ${index === 0 ? "text-primary ring-2 ring-primary" : "text-fg hover:text-primary"}`}
             >
               {icons[action.icon]}
             </span>
-            {action.label}
+            <span className={`leading-tight ${index === 0 ? "text-primary" : ""}`}>
+              {action.label}
+            </span>
           </Link>
         ))}
       </nav>
 
+      {/* Appareils : cartes à faire glisser sur téléphone, grille sur ordinateur. */}
+      <section className="mt-6">
+        <div className="mb-3 flex items-baseline justify-between gap-3">
+          <h2 className="text-lg font-extrabold tracking-tight">{t("dashboard.stock")}</h2>
+          <Link
+            href={devicesHref}
+            className={`flex min-h-11 items-center gap-1 text-sm font-semibold text-primary ${focusRing}`}
+          >
+            {t("dashboard.seeAll")}
+            {icons.chevron}
+          </Link>
+        </div>
+        {devices.length === 0 ? (
+          <Card className="text-muted">{t("dashboard.stockRingEmpty")}</Card>
+        ) : (
+          <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 xl:grid-cols-6">
+            {devices.map((device) => (
+              <div key={device.id} className="w-40 shrink-0 snap-start lg:w-auto">
+                <DeviceCard
+                  href={deviceHref(device.id)}
+                  model={device.model}
+                  variant={<Variant capacity={device.capacity} color={device.color} />}
+                  price={money(device.target_price)}
+                  cover={covers.get(device.id)}
+                  badge={device.status === "CONSIGNED" ? <StatusBadge status="CONSIGNED" /> : null}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Indicateurs : deux par ligne sur téléphone, le premier sur toute la largeur. */}
-      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-3">
         {kpis.map((kpi, index) => (
           <div
             key={kpi.label}
@@ -481,7 +578,16 @@ export async function ShopDashboard({
   const base = `/s/${shop.id}`;
   const { start, previousStart } = periodBounds(period, new Date());
 
-  const [stock, sales, recent, consignments, installments, balances, alerts] = await Promise.all([
+  const [devices6, stock, sales, recent, consignments, installments, balances, alerts] = await Promise.all([
+    // Derniers appareils disponibles ; pour un dealer, la base ne renvoie que
+    // ceux qui lui sont confiés.
+    supabase
+      .from("devices")
+      .select("id, model, capacity, color, target_price, status")
+      .eq("shop_id", shop.id)
+      .in("status", ["IN_STOCK", "CONSIGNED"])
+      .order("created_at", { ascending: false })
+      .limit(6),
     role === "DEALER"
       ? null
       : supabase
@@ -600,14 +706,16 @@ export async function ShopDashboard({
   const actions: Action[] =
     role === "OWNER"
       ? [
-          { href: `${base}/devices/new`, icon: "plus", label: t("devices.add") },
           { href: `${base}/devices`, icon: "phone", label: t("nav.stock") },
           { href: `${base}/consignments`, icon: "consign", label: t("nav.consignments") },
+          { href: `${base}/sales`, icon: "sales", label: t("nav.sales") },
           { href: `${base}/balances`, icon: "wallet", label: t("nav.balances") },
+          { href: `${base}/customers`, icon: "customers", label: t("nav.customers") },
+          { href: `${base}/members`, icon: "members", label: t("nav.members") },
         ]
       : role === "CASHIER"
         ? [
-            { href: `${base}/devices`, icon: "phone", label: t("sales.sell") },
+            { href: `${base}/devices`, icon: "phone", label: t("nav.stock") },
             { href: `${base}/sales`, icon: "sales", label: t("nav.sales") },
             { href: `${base}/balances`, icon: "wallet", label: t("nav.balances") },
             { href: `${base}/customers`, icon: "customers", label: t("nav.customers") },
@@ -618,6 +726,21 @@ export async function ShopDashboard({
             { href: `${base}/balances`, icon: "wallet", label: t("nav.myBalance") },
             { href: "/perso", icon: "account", label: t("spaces.personal") },
           ];
+
+  // Bouton de la bannière.
+  const primary: Action =
+    role === "OWNER"
+      ? { href: `${base}/devices/new`, icon: "plus", label: t("devices.add") }
+      : role === "CASHIER"
+        ? { href: `${base}/devices`, icon: "phone", label: t("sales.sell") }
+        : { href: `${base}/consignments`, icon: "consign", label: t("consignments.mineTitle") };
+  // Un dealer n'a pas d'écran de stock : ses appareils sont ses dépôts.
+  const devicesHref = role === "DEALER" ? `${base}/consignments` : `${base}/devices`;
+  const showcase = devices6.data ?? [];
+  const covers = await loadDeviceCovers(
+    supabase,
+    showcase.map((device) => device.id),
+  );
 
   const side =
     role === "DEALER" ? (
@@ -678,7 +801,13 @@ export async function ShopDashboard({
       revenue={revenue}
       revenueChange={relativeChange(revenue, sum(previous.map((s) => s.sale_price)))}
       salesCount={current.length}
+      primary={primary}
+      searchHref={role === "DEALER" ? null : `${base}/devices`}
       actions={actions}
+      devices={showcase}
+      covers={covers}
+      deviceHref={(id) => (role === "DEALER" ? devicesHref : `${base}/devices/${id}`)}
+      devicesHref={devicesHref}
       kpis={kpis}
       currency={shop.currency}
       sales={all}
@@ -710,9 +839,10 @@ export async function PersonalDashboard({
   const [stock, sales, recent, installments, alerts] = await Promise.all([
     supabase
       .from("devices")
-      .select("purchase_price")
+      .select("id, model, capacity, color, target_price, status, purchase_price")
       .eq("owner_user_id", userId)
-      .eq("status", "IN_STOCK"),
+      .eq("status", "IN_STOCK")
+      .order("created_at", { ascending: false }),
     supabase
       .from("sales")
       .select("sale_price, purchase_price, created_at")
@@ -742,6 +872,11 @@ export async function PersonalDashboard({
   const revenue = sum(current.map((s) => s.sale_price));
   const profit = (list: typeof all) => sum(list.map((s) => s.sale_price - s.purchase_price));
   const devices = stock.data ?? [];
+  const showcase = devices.slice(0, 6);
+  const covers = await loadDeviceCovers(
+    supabase,
+    showcase.map((device) => device.id),
+  );
 
   const kpis: Kpi[] = [
     {
@@ -779,8 +914,13 @@ export async function PersonalDashboard({
       revenue={revenue}
       revenueChange={relativeChange(revenue, sum(previous.map((s) => s.sale_price)))}
       salesCount={current.length}
+      primary={{ href: "/perso/devices/new", icon: "plus", label: t("devices.add") }}
+      searchHref="/perso/devices"
+      devices={showcase}
+      covers={covers}
+      deviceHref={(id) => `/perso/devices/${id}`}
+      devicesHref="/perso/devices"
       actions={[
-        { href: "/perso/devices/new", icon: "plus", label: t("devices.add") },
         { href: "/perso/devices", icon: "phone", label: t("nav.devices") },
         { href: "/perso/sales", icon: "sales", label: t("nav.sales") },
         { href: "/perso/customers", icon: "customers", label: t("nav.customers") },
