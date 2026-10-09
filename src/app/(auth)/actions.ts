@@ -165,6 +165,7 @@ export type RecoveryError =
   | "resetNeedsEmail"
   | "resetTooMany"
   | "resetSamePassword"
+  | "codeInvalid"
   | "passwordMismatch"
   | "password_too_short"
   | "password_needs_letter"
@@ -200,6 +201,45 @@ export async function requestPasswordReset(
     };
   }
   return { sent: true, identifier };
+}
+
+// Même écran, étape suivante : le code à 6 chiffres reçu par e-mail et le
+// nouveau mot de passe. On n'a pas à quitter l'application pour ouvrir un
+// lien. Le mot de passe est contrôlé avant le code, pour ne pas consommer le
+// code sur un mot de passe refusé.
+export async function resetWithCode(
+  _previous: RecoveryState | null,
+  formData: FormData,
+): Promise<RecoveryState> {
+  const identifier = String(formData.get("identifier") ?? "").trim();
+  const code = String(formData.get("code") ?? "").replace(/\D/g, "");
+  const password = String(formData.get("password") ?? "");
+  const confirmation = String(formData.get("confirmation") ?? "");
+  const fail = (error: RecoveryError): RecoveryState => ({ error, sent: true, identifier });
+
+  const parsed = parseIdentifier(identifier, env.NEXT_PUBLIC_DEFAULT_COUNTRY_CODE);
+  if (parsed?.kind !== "email") return { error: "identifierInvalid", identifier };
+  if (code.length !== 6) return fail("codeInvalid");
+  const [issue] = passwordIssues(password, parsed.email);
+  if (issue) return fail(`password_${issue}`);
+  if (password !== confirmation) return fail("passwordMismatch");
+
+  const supabase = await createClient();
+  const verified = await supabase.auth.verifyOtp({
+    email: parsed.email,
+    token: code,
+    type: "recovery",
+  });
+  if (verified.error) return fail("codeInvalid");
+
+  // Le code a servi : la personne est connectée. Si l'enregistrement échoue
+  // (même mot de passe que l'ancien…), elle termine sur l'écran dédié.
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    console.error("resetWithCode :", error.code, error.message);
+    redirect("/reset");
+  }
+  redirect("/");
 }
 
 // Enregistre le nouveau mot de passe. La personne est connectée : elle arrive

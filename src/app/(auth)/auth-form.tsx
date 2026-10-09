@@ -6,7 +6,13 @@ import { useTranslations } from "next-intl";
 import { icons } from "@/components/icons";
 import { FormMessage, focusRing } from "@/components/ui";
 import { passwordIssues, passwordStrength } from "@/domain/password";
-import { requestPasswordReset, signIn, signUp, updatePassword } from "./actions";
+import {
+  requestPasswordReset,
+  resetWithCode,
+  signIn,
+  signUp,
+  updatePassword,
+} from "./actions";
 
 // Champs « pleins », sans bordure : le libellé sert de texte d'attente dans le
 // champ, et reste lu par les lecteurs d'écran.
@@ -97,16 +103,13 @@ function PasswordHelp({ password, identifier }: { password: string; identifier: 
   );
 }
 
-// Mot de passe oublié, étape 1 : demander le lien par e-mail.
+// Mot de passe oublié, tout sur le même écran : d'abord l'e-mail, puis le
+// code reçu et le nouveau mot de passe. On ne quitte pas l'application.
 export function ForgotForm() {
   const t = useTranslations("auth");
   const [state, action, pending] = useActionState(requestPasswordReset, null);
 
-  if (state?.sent) {
-    return (
-      <FormMessage tone="success">{t("resetSent", { email: state.identifier ?? "" })}</FormMessage>
-    );
-  }
+  if (state?.sent) return <CodeForm email={state.identifier ?? ""} />;
   return (
     <form action={action} className="flex flex-col gap-4">
       <AuthField
@@ -127,7 +130,59 @@ export function ForgotForm() {
   );
 }
 
-// Mot de passe oublié, étape 2 : choisir le nouveau mot de passe.
+// Étape 2, sur le même écran : le code à 6 chiffres et le nouveau mot de passe.
+function CodeForm({ email }: { email: string }) {
+  const t = useTranslations("auth");
+  const [state, action, pending] = useActionState(resetWithCode, null);
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
+
+  return (
+    <form action={action} className="flex flex-col gap-4">
+      <FormMessage tone="success">{t("resetSent", { email })}</FormMessage>
+      <input type="hidden" name="identifier" value={email} />
+      <div>
+        <label htmlFor="code" className="sr-only">
+          {t("code")}
+        </label>
+        <input
+          id="code"
+          name="code"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          required
+          placeholder={t("code")}
+          value={code}
+          onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+          className={`${control} text-center text-lg font-bold tracking-[0.4em] placeholder:text-base placeholder:font-normal placeholder:tracking-normal`}
+        />
+      </div>
+      <PasswordField
+        name="password"
+        label={t("newPassword")}
+        autoComplete="new-password"
+        value={password}
+        onChange={setPassword}
+      />
+      <PasswordHelp password={password} identifier={email} />
+      <PasswordField name="confirmation" label={t("confirmation")} autoComplete="new-password" />
+      {state?.error ? <FormMessage tone="danger">{t(`errors.${state.error}`)}</FormMessage> : null}
+      <button type="submit" disabled={pending} className={submit}>
+        {pending ? t("pending") : t("resetSave")}
+      </button>
+      {/* Recharger l'écran : pour changer d'adresse ou recevoir un nouveau code. */}
+      <a
+        href="/forgot"
+        className={`inline-flex min-h-11 items-center justify-center rounded-lg text-sm font-semibold ${focusRing}`}
+      >
+        {t("resetAgain")}
+      </a>
+    </form>
+  );
+}
+
+// Arrivée par le lien de l'e-mail : choisir le nouveau mot de passe.
 export function ResetForm({ identifier }: { identifier: string }) {
   const t = useTranslations("auth");
   const [state, action, pending] = useActionState(updatePassword, null);
