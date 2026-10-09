@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { CSSProperties } from "react";
-import { AuthTabs } from "./auth-tabs";
 
 // Photos du diaporama (public/login). Le nom sert aussi de clé pour le texte
 // de remplacement, dans messages/fr.json.
@@ -14,20 +13,19 @@ const SLIDES = [
   "ipad-fan",
 ] as const;
 
-// Téléphone (usage principal) : le diaporama occupe le haut de l'écran et le
-// formulaire glisse par-dessus comme une feuille arrondie.
-// Ordinateur : diaporama à gauche, formulaire à droite.
+// Téléphone (usage principal) : écran blanc et sobre, le formulaire seul
+// (maquette choisie par le propriétaire).
+// Ordinateur : diaporama de photos à gauche, le même formulaire à droite.
 //
 // Les photos sont servies telles quelles (`unoptimized`) et jamais agrandies
 // au-delà de leur taille : sur grand écran, la photo nette est posée, entière,
 // sur une copie floue d'elle-même qui remplit le cadre.
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   const t = useTranslations("app");
-  const auth = useTranslations("auth");
 
   return (
     <div className="min-h-dvh bg-device lg:grid lg:grid-cols-[1.1fr_1fr]">
-      <section className="relative h-[42dvh] min-h-64 overflow-hidden text-on-brand lg:h-auto lg:min-h-dvh">
+      <section className="relative hidden overflow-hidden text-on-brand lg:block lg:min-h-dvh">
         <div className="absolute inset-0">
           {SLIDES.map((file, index) => (
             <div
@@ -88,13 +86,9 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </div>
       </section>
 
-      {/* Téléphone : feuille blanche qui recouvre le bas de la photo. */}
-      <main className="relative -mt-8 flex min-h-[calc(58dvh+2rem)] items-start justify-center rounded-t-[2rem] bg-surface px-5 pb-10 pt-3 lg:mt-0 lg:min-h-dvh lg:items-center lg:rounded-none lg:px-8 lg:pt-10">
-        <div className="w-full max-w-sm animate-rise">
-          <span aria-hidden className="mx-auto mb-5 block h-1.5 w-12 rounded-full bg-border lg:hidden" />
-          <AuthTabs login={auth("tabLogin")} signup={auth("tabSignup")} />
-          {children}
-        </div>
+      {/* Téléphone : écran blanc, sans photo ; le lien du bas reste en bas. */}
+      <main className="flex min-h-dvh justify-center bg-surface px-6 pt-[14dvh] pb-8 lg:items-center lg:px-8 lg:py-10">
+        <div className="flex w-full max-w-sm animate-rise flex-col lg:min-h-[36rem]">{children}</div>
       </main>
     </div>
   );

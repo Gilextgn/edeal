@@ -51,7 +51,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <div aria-hidden className="splash">
           <p className="splash-name font-wordmark">{t("name")}</p>
           <p className="splash-tagline">{t("splashTagline")}</p>
-          <SplashArt />
+          <SplashArt className="splash-art" />
         </div>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
         <ServiceWorker />

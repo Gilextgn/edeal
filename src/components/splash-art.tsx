@@ -1,9 +1,10 @@
 // Illustration à plat de l'écran d'ouverture : un vendeur qui tient un
 // téléphone, à côté de boîtes empilées, sur une grande forme arrondie.
 // Les couleurs viennent des tokens (classes `fill-*`) ; purement décoratif.
-export function SplashArt() {
+// Conçue pour un fond `primary` ; `className` règle sa taille et sa place.
+export function SplashArt({ className }: { className: string }) {
   return (
-    <svg viewBox="0 0 360 300" className="splash-art" aria-hidden>
+    <svg viewBox="0 0 360 300" className={className} aria-hidden>
       {/* Sol : grand disque clair qui dépasse du bas de l'écran. */}
       <ellipse cx="180" cy="330" rx="250" ry="170" className="fill-on-primary/20" />
 

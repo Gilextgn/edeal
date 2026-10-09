@@ -63,12 +63,12 @@
     "roleRequired": "Choisissez un rôle."
   },
   "auth": {
-    "tabLogin": "Connexion",
-    "tabSignup": "Inscription",
-    "loginTitle": "Content de vous revoir",
-    "loginSubtitle": "Connectez-vous pour retrouver vos téléphones et vos comptes.",
-    "signupTitle": "Créer un compte",
-    "signupSubtitle": "Gratuit, en moins d'une minute.",
+    "loginTitle": "Bon <accent>retour</accent>",
+    "loginSubtitle": "Vos téléphones et vos comptes, en quelques secondes",
+    "signupTitle": "Créer un <accent>compte</accent>",
+    "signupSubtitle": "Gratuit, en moins d'une minute",
+    "orWith": "Ou connectez-vous avec",
+    "googleShort": "Google",
     "name": "Nom complet",
     "identifier": "Téléphone ou e-mail",
     "identifierHint": "Exemple : 97 00 00 00 ou nom@exemple.com",
@@ -79,7 +79,7 @@
     "logout": "Se déconnecter",
     "noAccount": "Pas encore de compte ?",
     "hasAccount": "Déjà un compte ?",
-    "goToSignup": "Créer un compte",
+    "goToSignup": "S'inscrire",
     "goToLogin": "Se connecter",
     "pending": "Un instant…",
     "errors": {
@@ -117,7 +117,45 @@
     "personal": "Mon espace perso",
     "personalHint": "Vos propres téléphones et vos propres clients. Aucune boutique n'y a accès.",
     "shops": "Mes boutiques",
-    "noShops": "Vous ne faites partie d'aucune boutique pour l'instant. Créez la vôtre, ou demandez à votre patron de vous ajouter avec votre numéro.",
+    "noShops": "Vous travaillez pour une boutique déjà inscrite ? Demandez à votre patron de vous ajouter avec votre numéro ou votre e-mail : elle apparaîtra ici.",
+    "heroKicker": "Bonjour {name}",
+    "heroTitle": "Chaque téléphone, chaque dealer, chaque franc : tout est suivi.",
+    "heroTitleReturning": "Dans quel espace travaillez-vous aujourd'hui ?",
+    "heroText": "Fini le cahier et les messages perdus. Vous savez où est chaque téléphone, dans quel état, et qui doit quoi à qui.",
+    "openPersonal": "Ouvrir mon espace perso",
+    "stepsTitle": "Comment ça marche",
+    "steps": {
+      "add": {
+        "title": "Enregistrez vos téléphones",
+        "text": "Une photo de l'IMEI suffit : il est lu tout seul. iPhone et Samsung, neufs ou d'occasion."
+      },
+      "consign": {
+        "title": "Confiez-les à vos dealers",
+        "text": "Un constat avec photos à la remise et au retour : plus de dispute sur l'état d'un téléphone."
+      },
+      "follow": {
+        "title": "Suivez ventes et comptes",
+        "text": "À chaque vente, la part de chacun est calculée. Vous voyez d'un coup d'œil qui vous doit combien."
+      }
+    },
+    "choices": {
+      "shop": {
+        "title": "J'ai une boutique",
+        "text": "Vous êtes le patron : vous gérez le stock, les dealers et les caissiers.",
+        "one": "Stock et état de chaque téléphone, avec photos",
+        "two": "Dépôts chez les dealers et commissions calculées",
+        "three": "Soldes et règlements de chaque dealer",
+        "action": "Créer ma boutique"
+      },
+      "personal": {
+        "title": "Je vends pour mon compte",
+        "text": "Vos propres téléphones et vos propres clients, rien que pour vous.",
+        "one": "Votre stock personnel",
+        "two": "Vos ventes, reçus et échéances de clients",
+        "three": "Aucune boutique n'y a accès",
+        "action": "Ouvrir mon espace perso"
+      }
+    },
     "createShop": "Créer une boutique",
     "rate": "Commission : {rate}",
     "welcome": "Bienvenue. Commencez par votre espace perso, ou créez votre boutique.",

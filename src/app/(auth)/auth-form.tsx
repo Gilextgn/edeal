@@ -1,13 +1,26 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ComponentProps } from "react";
 import { useTranslations } from "next-intl";
 import { icons } from "@/components/icons";
-import { Button, Field, FormMessage, focusRing } from "@/components/ui";
+import { FormMessage, focusRing } from "@/components/ui";
 import { passwordIssues, passwordStrength } from "@/domain/password";
 import { signIn, signUp } from "./actions";
 
-const control = `min-h-12 w-full rounded-2xl border border-border bg-surface px-4 pr-14 text-base text-fg ${focusRing}`;
+// Champs « pleins », sans bordure : le libellé sert de texte d'attente dans le
+// champ, et reste lu par les lecteurs d'écran.
+const control = `min-h-13 w-full rounded-xl bg-surface-2 px-4 text-base text-fg placeholder:text-muted ${focusRing}`;
+
+function AuthField({ label, name, ...props }: ComponentProps<"input"> & { label: string; name: string }) {
+  return (
+    <div>
+      <label htmlFor={name} className="sr-only">
+        {label}
+      </label>
+      <input id={name} name={name} placeholder={label} className={control} {...props} />
+    </div>
+  );
+}
 
 // Champ mot de passe avec bouton « afficher / masquer ».
 function PasswordField({
@@ -26,30 +39,29 @@ function PasswordField({
   const t = useTranslations("auth");
   const [visible, setVisible] = useState(false);
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className="text-sm font-semibold text-fg">
+    <div className="relative">
+      <label htmlFor={name} className="sr-only">
         {label}
       </label>
-      <div className="relative">
-        <input
-          id={name}
-          name={name}
-          type={visible ? "text" : "password"}
-          autoComplete={autoComplete}
-          required
-          className={control}
-          {...(onChange ? { value, onChange: (event) => onChange(event.target.value) } : {})}
-        />
-        <button
-          type="button"
-          aria-label={t(visible ? "hidePassword" : "showPassword")}
-          aria-pressed={visible}
-          onClick={() => setVisible(!visible)}
-          className={`absolute right-1 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-muted hover:text-fg ${focusRing}`}
-        >
-          {visible ? icons.eyeOff : icons.eye}
-        </button>
-      </div>
+      <input
+        id={name}
+        name={name}
+        type={visible ? "text" : "password"}
+        autoComplete={autoComplete}
+        placeholder={label}
+        required
+        className={`${control} pr-14`}
+        {...(onChange ? { value, onChange: (event) => onChange(event.target.value) } : {})}
+      />
+      <button
+        type="button"
+        aria-label={t(visible ? "hidePassword" : "showPassword")}
+        aria-pressed={visible}
+        onClick={() => setVisible(!visible)}
+        className={`absolute right-1 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-muted hover:text-fg ${focusRing}`}
+      >
+        {visible ? icons.eyeOff : icons.eye}
+      </button>
     </div>
   );
 }
@@ -71,7 +83,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   return (
     <form action={action} className="flex flex-col gap-4">
       {signup ? (
-        <Field
+        <AuthField
           name="name"
           label={t("name")}
           autoComplete="name"
@@ -80,10 +92,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           defaultValue={state?.name}
         />
       ) : null}
-      <Field
+      <AuthField
         name="identifier"
         label={t("identifier")}
-        hint={t("identifierHint")}
         autoComplete="username"
         autoCapitalize="none"
         required
@@ -110,7 +121,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 />
               ))}
             </div>
-            <p className="text-sm text-muted">
+            <p className="text-xs text-muted">
               {password.length === 0
                 ? t("passwordHint")
                 : issues.length > 0
@@ -133,15 +144,13 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {t(`errors.${state.error}`, { minutes: state.minutes ?? 15 })}
         </FormMessage>
       ) : null}
-      <Button type="submit" disabled={pending} className="w-full">
+      <button
+        type="submit"
+        disabled={pending}
+        className={`mt-2 min-h-13 w-full rounded-xl bg-primary text-base font-semibold text-on-primary transition hover:bg-primary-hover active:scale-[0.98] disabled:opacity-60 ${focusRing}`}
+      >
         {pending ? t("pending") : t(signup ? "signup" : "login")}
-      </Button>
-      {signup ? null : (
-        <p className="flex items-center gap-2 text-xs text-muted">
-          <span className="text-success">{icons.shield}</span>
-          {t("protected")}
-        </p>
-      )}
+      </button>
     </form>
   );
 }
