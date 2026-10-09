@@ -28,6 +28,7 @@ export type ShellProps = {
   search: { href: string; placeholder: string } | null;
   labels: {
     menu: string;
+    close: string;
     back: string;
     // « Bonjour, Awa » : affiché au-dessus du nom sur l'accueil, sur téléphone.
     hello: string;
@@ -203,6 +204,9 @@ async function logout() {
 
 const sidebarSurface = "bg-surface shadow-card";
 
+// Ligne de la feuille de menu du téléphone (compte, espaces, déconnexion).
+const sheetRow = `flex min-h-14 items-center gap-3 px-4 text-sm font-semibold ${focusRing}`;
+
 export function Shell({
   brand,
   nav,
@@ -232,6 +236,16 @@ export function Shell({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Échap ferme la feuille de menu.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDrawerOn(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawerOpen]);
 
   const current = nav.filter((entry) => isActive(pathname, entry)).at(-1);
   const isRoot = nav.some((entry) => entry.href.split("?")[0] === pathname);
@@ -291,27 +305,89 @@ export function Shell({
         </div>
       </aside>
 
-      {/* Menu latéral, téléphone : tiroir par-dessus la page. */}
+      {/* Menu, téléphone : une feuille qui monte du bas, comme dans une
+          application — qui est connecté, les écrans en tuiles, puis le compte. */}
       {drawerOpen ? (
-        <div className="fixed inset-0 z-40 lg:hidden print:hidden">
+        <div className="fixed inset-0 z-40 flex items-end lg:hidden print:hidden">
           <button
             type="button"
-            aria-label={labels.menu}
+            aria-label={labels.close}
             onClick={() => setDrawerOn(null)}
-            className="absolute inset-0 bg-fg/50"
+            className="absolute inset-0 bg-device/60 backdrop-blur-[2px]"
           />
-          <aside
-            className={`relative flex h-full w-72 max-w-[85vw] animate-rise flex-col overflow-hidden rounded-r-[1.75rem] ${sidebarSurface}`}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={labels.menu}
+            className="relative max-h-[88dvh] w-full animate-sheet overflow-y-auto rounded-t-[2rem] bg-bg px-4 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-pop"
           >
-            <SidebarContent
-              brand={brand}
-              nav={nav}
-              collapsed={false}
-              logoutLabel={labels.logout}
-              user={user}
-              initials={initials}
-            />
-          </aside>
+            <span aria-hidden className="mx-auto mb-4 block h-1.5 w-12 rounded-full bg-border" />
+
+            <div className="flex items-center gap-3 rounded-3xl bg-surface p-3 shadow-card">
+              <span
+                aria-hidden
+                className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-on-primary"
+              >
+                {initials}
+              </span>
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block truncate font-bold">{user.name}</span>
+                <span className="block truncate text-sm text-muted">
+                  {user.role} · {brand}
+                </span>
+              </span>
+              <button
+                type="button"
+                aria-label={labels.close}
+                onClick={() => setDrawerOn(null)}
+                className={`inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-surface-2 ${focusRing}`}
+              >
+                {icons.close}
+              </button>
+            </div>
+
+            <nav aria-label={labels.menu} className="mt-3 grid grid-cols-3 gap-2.5">
+              {nav.map((entry) => {
+                const active = isActive(pathname, entry);
+                return (
+                  <Link
+                    key={entry.href}
+                    href={entry.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-3xl p-2 text-center text-xs font-semibold shadow-card transition active:scale-[0.97] ${active ? "bg-primary text-on-primary" : "bg-surface text-fg"} ${focusRing}`}
+                  >
+                    <span
+                      className={`inline-flex size-11 items-center justify-center rounded-full ${active ? "bg-on-primary/20" : "bg-tint-1 text-primary"}`}
+                    >
+                      {icons[entry.icon]}
+                    </span>
+                    <span className="max-w-full truncate">{entry.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mt-3 overflow-hidden rounded-3xl bg-surface shadow-card">
+              <Link href="/account" className={sheetRow}>
+                {icons.account}
+                <span className="flex-1">{labels.account}</span>
+                <span className="text-muted">{icons.chevron}</span>
+              </Link>
+              <Link href="/?spaces=1" className={`${sheetRow} border-t border-border`}>
+                {icons.spaces}
+                <span className="flex-1">{labels.spaces}</span>
+                <span className="text-muted">{icons.chevron}</span>
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className={`${sheetRow} w-full border-t border-border text-danger`}
+              >
+                {icons.logout}
+                <span className="flex-1 text-left">{labels.logout}</span>
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
 

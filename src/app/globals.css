@@ -137,6 +137,14 @@
 
   --animate-rise: rise 0.45s ease-out both;
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-sheet: sheet 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Feuille qui monte du bas de l'écran (menu du téléphone). */
+@keyframes sheet {
+  from {
+    translate: 0 100%;
+  }
 }
 
 @keyframes rise {

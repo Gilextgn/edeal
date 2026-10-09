@@ -33,6 +33,7 @@
     "myBalance": "Mon solde",
     "menu": "Menu",
     "back": "Retour",
+    "close": "Fermer le menu",
     "hello": "Bonjour, {name} 👋",
     "theme": "Thème clair ou sombre"
   },
