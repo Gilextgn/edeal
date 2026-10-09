@@ -7,6 +7,7 @@ import { parseIdentifier } from "@/domain/identifier";
 import { passwordIssues } from "@/domain/password";
 import { env } from "@/lib/env";
 import { loginLockSeconds, recordLoginAttempt } from "@/lib/login-throttle";
+import { adminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 // Clés de messages/fr.json sous "auth.errors".
@@ -22,7 +23,6 @@ export type AuthError =
   | "invalidCredentials"
   | "locked"
   | "alreadyRegistered"
-  | "phoneUnavailable"
   | "generic";
 
 export type AuthState = {
@@ -63,26 +63,45 @@ export async function signUp(
   if (password !== confirmation) return fail("passwordMismatch");
 
   const supabase = await createClient();
-  const options = { data: { name } };
-  const { data, error } =
-    parsed.kind === "email"
-      ? await supabase.auth.signUp({ email: parsed.email, password, options })
-      : await supabase.auth.signUp({ phone: parsed.phone, password, options });
+
+  // Inscription par numéro : l'application n'envoie pas de SMS, donc pas de
+  // confirmation possible côté Supabase. Le compte est créé par le serveur,
+  // numéro tenu pour confirmé, puis la personne est connectée aussitôt.
+  if (parsed.kind === "phone") {
+    const created = await adminClient().auth.admin.createUser({
+      phone: parsed.phone,
+      password,
+      phone_confirm: true,
+      user_metadata: { name },
+    });
+    if (created.error) {
+      if (created.error.code === "phone_exists") return fail("alreadyRegistered");
+      console.error("signUp (numéro) :", created.error.code, created.error.message);
+      return fail("generic");
+    }
+    const signedIn = await supabase.auth.signInWithPassword({ phone: parsed.phone, password });
+    if (signedIn.error) {
+      console.error("signUp (connexion) :", signedIn.error.code, signedIn.error.message);
+      return fail("generic");
+    }
+    redirect("/");
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email: parsed.email,
+    password,
+    options: { data: { name } },
+  });
 
   if (error) {
     if (error.code === "user_already_exists") return fail("alreadyRegistered");
-    // Le projet Supabase veut confirmer le numéro par SMS, que l'application
-    // n'envoie pas : « confirmations par téléphone » doit y être désactivé.
-    if (error.code === "sms_send_failed" || error.code === "phone_provider_disabled") {
-      return fail("phoneUnavailable");
-    }
     console.error("signUp :", error.code, error.message);
     return fail("generic");
   }
   // Compte créé mais pas de session : le projet exige une confirmation.
   if (!data.session) {
     console.error("signUp : compte créé sans session (confirmation exigée par Supabase)");
-    return fail(parsed.kind === "phone" ? "phoneUnavailable" : "generic");
+    return fail("generic");
   }
 
   redirect("/");

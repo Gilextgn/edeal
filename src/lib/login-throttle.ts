@@ -1,21 +1,8 @@
 import { createHash } from "node:crypto";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/database.types";
-import { env } from "@/lib/env";
+import { adminClient } from "@/lib/supabase/admin";
 
 // Frein contre les essais de mots de passe en série (voir la migration
-// login_throttle). Réservé au serveur : utilise la clé secrète, qui ne doit
-// jamais être envoyée au navigateur ni commitée.
-
-function adminClient() {
-  const secret = process.env.SUPABASE_SECRET_KEY;
-  if (!secret) {
-    throw new Error("SUPABASE_SECRET_KEY manquante : voir .env.example.");
-  }
-  return createClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, secret, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
+// login_throttle). Réservé au serveur : passe par la clé secrète.
 
 // L'identifiant (téléphone ou e-mail normalisé) n'est jamais stocké en clair.
 const fingerprint = (identifier: string) =>
