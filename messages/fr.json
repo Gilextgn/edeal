@@ -3,6 +3,7 @@
     "name": "eDeal",
     "description": "Dépôt-vente de téléphones entre boutiques et dealers",
     "tagline": "Vos téléphones, vos dealers, vos comptes. Au clair.",
+    "splashTagline": "Vos téléphones, vos comptes. Au clair.",
     "points": {
       "trace": "Chaque téléphone suivi avec photos, de la remise à la vente.",
       "split": "Les parts de la boutique et du dealer calculées automatiquement.",
@@ -34,7 +35,7 @@
     "menu": "Menu",
     "back": "Retour",
     "close": "Fermer le menu",
-    "hello": "Bonjour, {name} 👋",
+    "hello": "Bonjour, {name} !",
     "theme": "Thème clair ou sombre"
   },
   "roles": {
@@ -62,8 +63,10 @@
     "roleRequired": "Choisissez un rôle."
   },
   "auth": {
-    "loginTitle": "Connexion",
-    "loginSubtitle": "Content de vous revoir.",
+    "tabLogin": "Connexion",
+    "tabSignup": "Inscription",
+    "loginTitle": "Content de vous revoir",
+    "loginSubtitle": "Connectez-vous pour retrouver vos téléphones et vos comptes.",
     "signupTitle": "Créer un compte",
     "signupSubtitle": "Gratuit, en moins d'une minute.",
     "name": "Nom complet",

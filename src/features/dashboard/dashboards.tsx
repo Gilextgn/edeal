@@ -193,8 +193,9 @@ async function DashboardView({
       </header>
 
       {/* Téléphone : la recherche, sous la barre du haut. */}
+      <div className="-mx-4 -mt-3 mb-5 rounded-b-[2rem] bg-primary px-4 pt-1 pb-5 lg:hidden">
       {searchHref ? (
-        <form action={searchHref} role="search" className="mb-4 flex gap-2.5 lg:hidden">
+        <form action={searchHref} role="search" className="flex gap-2.5">
           <div className="relative min-w-0 flex-1">
             <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-fg">
               {icons.search}
@@ -204,21 +205,22 @@ async function DashboardView({
               name="q"
               placeholder={t("dashboard.searchPlaceholder")}
               aria-label={t("devices.search")}
-              className={`h-13 w-full rounded-2xl bg-surface pl-12 pr-4 text-sm shadow-card placeholder:text-muted ${focusRing}`}
+              className="h-13 w-full rounded-2xl bg-surface pl-12 pr-4 text-sm text-fg placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-primary"
             />
           </div>
           <Link
             href={searchHref}
             aria-label={t("dashboard.seeAll")}
-            className={`inline-flex size-13 shrink-0 items-center justify-center rounded-2xl bg-surface shadow-card ${focusRing}`}
+            className="inline-flex size-13 shrink-0 items-center justify-center rounded-2xl bg-surface text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-primary"
           >
             {icons.settings}
           </Link>
         </form>
       ) : null}
+      </div>
 
       {/* Bannière : le total vendu sur la période et l'action principale. */}
-      <section className="relative animate-rise overflow-hidden rounded-[2rem] bg-linear-to-br from-brand to-brand-2 text-on-brand shadow-card">
+      <section className="relative animate-rise overflow-hidden rounded-[2rem] bg-surface shadow-card">
         {/* Photo sur la moitié droite, fondue dans le rouge vers la gauche. */}
         <div className="absolute inset-y-0 right-0 w-3/5 lg:w-1/2">
           <Image
@@ -228,21 +230,21 @@ async function DashboardView({
             unoptimized
             priority
             sizes="(min-width: 1024px) 40vw, 75vw"
-            className="object-cover object-[60%_45%] opacity-90 [mask-image:linear-gradient(to_right,transparent_15%,black_90%)]"
+            className="object-cover object-[60%_45%] [mask-image:linear-gradient(to_right,transparent_10%,black_85%)]"
           />
         </div>
         <div className="relative flex min-h-60 flex-col justify-between gap-5 p-5 lg:min-h-72 lg:p-8">
           {/* Période : tous les chiffres « vendus » la suivent. */}
           <nav
             aria-label={t("dashboard.periodLabel")}
-            className="flex w-fit gap-0.5 rounded-full bg-on-brand/15 p-1 backdrop-blur-sm"
+            className="flex w-fit gap-0.5 rounded-full bg-surface-2 p-1"
           >
             {PERIODS.map((option) => (
               <Link
                 key={option}
                 href={`${homeHref}?period=${option}`}
                 aria-current={option === period ? "true" : undefined}
-                className={`flex min-h-11 items-center rounded-full px-4 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-brand ${option === period ? "bg-on-brand text-brand" : "text-on-brand hover:bg-on-brand/15"}`}
+                className={`flex min-h-11 items-center rounded-full px-4 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${option === period ? "bg-primary text-on-primary" : "text-muted hover:text-fg"}`}
               >
                 {t(`dashboard.periods.${option}`)}
               </Link>
@@ -250,16 +252,16 @@ async function DashboardView({
           </nav>
 
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-on-brand-muted">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted">
               {t(`dashboard.heroLabel.${period}`)}
             </p>
             <p className="mt-1 text-4xl leading-none font-extrabold tracking-tight lg:text-6xl">
               {money(revenue)}
             </p>
-            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm font-medium text-on-brand-muted">
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
               {t("dashboard.salesCount", { count: salesCount })}
               {revenueChange !== null ? (
-                <span className="rounded-full bg-on-brand px-2 py-0.5 text-xs font-bold text-brand">
+                <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-on-primary-soft">
                   {format.number(revenueChange, {
                     style: "percent",
                     maximumFractionDigits: 0,
@@ -272,7 +274,7 @@ async function DashboardView({
 
           <Link
             href={primary.href}
-            className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-primary py-1.5 pl-5 pr-2 text-sm font-bold text-on-primary shadow-card transition hover:bg-primary-hover active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-brand"
+            className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-primary py-1.5 pl-5 pr-2 text-sm font-bold text-on-primary shadow-card transition hover:bg-primary-hover active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             {primary.label}
             <span

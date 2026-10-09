@@ -10,10 +10,10 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     orientation: "portrait",
-    // Fond rouge au lancement de l'application installée : il enchaîne avec
+    // Fond orange au lancement de l'application installée : il enchaîne avec
     // l'écran d'ouverture.
-    background_color: "#e0201c",
-    theme_color: "#fdf4ea",
+    background_color: "#f4632b",
+    theme_color: "#f4632b",
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },

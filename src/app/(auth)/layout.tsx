@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { CSSProperties } from "react";
+import { AuthTabs } from "./auth-tabs";
 
 // Photos du diaporama (public/login). Le nom sert aussi de clé pour le texte
 // de remplacement, dans messages/fr.json.
@@ -22,10 +23,11 @@ const SLIDES = [
 // sur une copie floue d'elle-même qui remplit le cadre.
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   const t = useTranslations("app");
+  const auth = useTranslations("auth");
 
   return (
     <div className="min-h-dvh bg-device lg:grid lg:grid-cols-[1.1fr_1fr]">
-      <section className="relative h-[46dvh] min-h-72 overflow-hidden text-on-brand lg:h-auto lg:min-h-dvh">
+      <section className="relative h-[42dvh] min-h-64 overflow-hidden text-on-brand lg:h-auto lg:min-h-dvh">
         <div className="absolute inset-0">
           {SLIDES.map((file, index) => (
             <div
@@ -65,8 +67,8 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
           className="absolute inset-0 bg-linear-to-b from-device/70 via-transparent to-device/90"
         />
 
-        <div className="relative flex h-full flex-col justify-between p-5 pb-10 lg:p-10">
-          <p className="text-3xl font-extrabold tracking-tight lg:text-4xl">{t("name")}</p>
+        <div className="relative flex h-full flex-col justify-between p-5 pb-12 lg:p-10">
+          <p className="font-wordmark text-4xl lg:text-5xl">{t("name")}</p>
 
           <div>
             <h2 className="max-w-xl text-xl font-bold leading-snug lg:text-3xl">{t("tagline")}</h2>
@@ -86,8 +88,13 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </div>
       </section>
 
-      <main className="relative -mt-6 flex min-h-[calc(54dvh+1.5rem)] items-start justify-center rounded-t-[2rem] bg-bg px-5 pb-10 pt-8 lg:mt-0 lg:min-h-dvh lg:items-center lg:rounded-none lg:px-8">
-        <div className="w-full max-w-sm animate-rise">{children}</div>
+      {/* Téléphone : feuille blanche qui recouvre le bas de la photo. */}
+      <main className="relative -mt-8 flex min-h-[calc(58dvh+2rem)] items-start justify-center rounded-t-[2rem] bg-surface px-5 pb-10 pt-3 lg:mt-0 lg:min-h-dvh lg:items-center lg:rounded-none lg:px-8 lg:pt-10">
+        <div className="w-full max-w-sm animate-rise">
+          <span aria-hidden className="mx-auto mb-5 block h-1.5 w-12 rounded-full bg-border lg:hidden" />
+          <AuthTabs login={auth("tabLogin")} signup={auth("tabSignup")} />
+          {children}
+        </div>
       </main>
     </div>
   );

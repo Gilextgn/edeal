@@ -394,7 +394,11 @@ export function Shell({
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Barre du haut, sans fond propre : à gauche le titre, au centre la
             recherche (elle prend la place libre), à droite les actions. */}
-        <header className="sticky top-0 z-20 bg-bg/85 px-3 backdrop-blur-md print:hidden lg:px-8">
+        {/* Sur l'accueil du téléphone, la barre est orange et se prolonge par
+            le bloc de recherche de la page. */}
+        <header
+          className={`sticky top-0 z-20 px-3 print:hidden lg:bg-bg/85 lg:px-8 lg:text-fg lg:backdrop-blur-md ${atHome ? "bg-primary text-on-primary" : "bg-bg/85 backdrop-blur-md"}`}
+        >
           {/* Même largeur que le contenu : les bords s'alignent sur grand écran. */}
           <div className="mx-auto flex h-[4.5rem] w-full max-w-[90rem] items-center gap-2.5 lg:h-20 lg:gap-3">
           <button
@@ -427,10 +431,8 @@ export function Shell({
           <div className="min-w-0 flex-1 lg:hidden">
             {atHome ? (
               <>
-                <p className="truncate text-xs font-medium text-muted">{labels.hello}</p>
-                <p className="truncate text-xl leading-tight font-extrabold tracking-tight text-primary">
-                  {brand}
-                </p>
+                <p className="truncate text-base leading-tight font-bold">{labels.hello}</p>
+                <p className="truncate text-sm text-on-primary/85">{brand}</p>
               </>
             ) : (
               <p className="truncate text-lg font-bold tracking-tight">{current?.label ?? brand}</p>

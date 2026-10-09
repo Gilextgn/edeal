@@ -1,12 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Pacifico, Plus_Jakarta_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { ServiceWorker } from "@/components/service-worker";
+import { SplashArt } from "@/components/splash-art";
 import "./globals.css";
 
-// Une seule police, droite et très lisible, pour toute l'application.
+// Police de toute l'application : droite et très lisible.
 const body = Plus_Jakarta_Sans({ variable: "--font-body", subsets: ["latin"] });
+// Écriture manuscrite, réservée au nom « eDeal » (écran d'ouverture, connexion).
+const brand = Pacifico({ variable: "--font-brandmark", subsets: ["latin"], weight: "400" });
 
 // Pose le thème avant le premier affichage, pour éviter un flash : le choix
 // enregistré par l'utilisateur, sinon le réglage de son appareil.
@@ -24,8 +27,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  // Couleur de la barre d'état : le fond crème de l'application.
-  themeColor: "#fdf4ea",
+  // Couleur de la barre d'état : l'orange de l'en-tête.
+  themeColor: "#f4632b",
   // L'application occupe tout l'écran, encoche comprise (utile une fois
   // installée ou emballée en application mobile).
   viewportFit: "cover",
@@ -34,15 +37,21 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const t = await getTranslations("app");
   return (
-    <html lang="fr" className={`${body.variable} h-full antialiased`} suppressHydrationWarning>
+    <html
+      lang="fr"
+      className={`${body.variable} ${brand.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="flex min-h-full flex-col font-sans">
-        {/* Écran d'ouverture : le nom, plein écran, qui s'efface tout seul
-            (styles `.splash` dans globals.css). */}
+        {/* Écran d'ouverture : le nom et une illustration, plein écran, qui
+            s'efface tout seul (styles `.splash` dans globals.css). */}
         <div aria-hidden className="splash">
-          <p className="splash-name">{t("name")}</p>
+          <p className="splash-name font-wordmark">{t("name")}</p>
+          <p className="splash-tagline">{t("splashTagline")}</p>
+          <SplashArt />
         </div>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
         <ServiceWorker />
