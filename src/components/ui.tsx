@@ -133,7 +133,7 @@ export function PageHeader({
   return (
     <div className="mb-5 flex animate-rise flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:mb-7">
       <div className="min-w-0">
-        <h1 className="text-[1.75rem] leading-tight font-extrabold tracking-tight text-fg lg:text-4xl">{title}</h1>
+        <h1 className="text-2xl leading-tight font-extrabold tracking-tight text-fg lg:text-3xl">{title}</h1>
         {subtitle ? <p className="mt-1 text-muted">{subtitle}</p> : null}
       </div>
       {action}

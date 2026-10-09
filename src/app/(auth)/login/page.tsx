@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { FormMessage } from "@/components/ui";
 import { AuthForm } from "../auth-form";
 import { GoogleButton } from "../google-button";
 
@@ -19,6 +20,9 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <p className="mt-2 text-sm font-semibold">{t("loginSubtitle")}</p>
       </div>
       <div className="mt-10 flex flex-col gap-6">
+        {error === "link" ? (
+          <FormMessage tone="danger">{t("errors.link")}</FormMessage>
+        ) : null}
         <AuthForm mode="login" />
         <GoogleButton failed={error === "google"} />
       </div>

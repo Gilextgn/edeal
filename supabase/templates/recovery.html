@@ -1,0 +1,20 @@
+<!-- E-mail « mot de passe oublié ». Le lien renvoie vers /auth/confirm de
+     l'application, avec un jeton à usage unique. -->
+<div style="font-family: Arial, Helvetica, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; color: #1f1a17;">
+  <p style="font-size: 28px; font-weight: bold; color: #f4632b; margin: 0 0 24px;">eDeal</p>
+  <h1 style="font-size: 20px; margin: 0 0 12px;">Choisir un nouveau mot de passe</h1>
+  <p style="font-size: 15px; line-height: 1.5; margin: 0 0 24px;">
+    Vous avez demandé à changer le mot de passe de votre compte eDeal.
+    Touchez le bouton ci-dessous pour en choisir un nouveau.
+  </p>
+  <p style="margin: 0 0 24px;">
+    <a
+      href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery"
+      style="display: inline-block; background: #f4632b; color: #ffffff; font-size: 16px; font-weight: bold; text-decoration: none; padding: 14px 28px; border-radius: 12px;"
+    >Choisir mon mot de passe</a>
+  </p>
+  <p style="font-size: 13px; line-height: 1.5; color: #6b635e; margin: 0;">
+    Ce lien ne fonctionne qu'une fois et expire au bout d'une heure.
+    Si vous n'avez rien demandé, ignorez cet e-mail : votre mot de passe ne change pas.
+  </p>
+</div>

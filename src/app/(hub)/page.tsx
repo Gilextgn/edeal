@@ -47,11 +47,11 @@ export default async function SpacesPage({ searchParams }: PageProps<"/">) {
     <div className="flex flex-col gap-8">
       {/* Bannière : le bonjour, ce que fait l'application, et les deux portes d'entrée. */}
       <section className="relative animate-rise overflow-hidden rounded-[2rem] bg-primary text-on-primary shadow-card">
-        <div className="relative z-10 flex flex-col gap-5 p-6 sm:p-8 lg:max-w-[60%] lg:p-12">
+        <div className="relative z-10 flex flex-col gap-5 p-6 sm:p-8 lg:max-w-[60%] lg:p-10">
           <p className="text-sm font-bold uppercase tracking-widest text-on-primary/80">
             {t("spaces.heroKicker", { name: firstName })}
           </p>
-          <h1 className="text-3xl leading-tight font-extrabold tracking-tight lg:text-5xl">
+          <h1 className="text-3xl leading-tight font-extrabold tracking-tight lg:text-4xl">
             {t(newcomer ? "spaces.heroTitle" : "spaces.heroTitleReturning")}
           </h1>
           <p className="max-w-xl text-base text-on-primary/90 lg:text-lg">
@@ -76,7 +76,7 @@ export default async function SpacesPage({ searchParams }: PageProps<"/">) {
             </Link>
           </div>
         </div>
-        <SplashArt className="pointer-events-none absolute right-0 bottom-0 hidden h-full max-h-96 w-auto lg:block xl:right-10" />
+        <SplashArt className="pointer-events-none absolute right-0 bottom-0 hidden h-full max-h-80 w-auto lg:block xl:right-10" />
       </section>
 
       {shops.length > 0 ? (

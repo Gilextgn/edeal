@@ -3,7 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/lib/env";
 import { USER_HEADER } from "@/lib/session-header";
 
-const AUTH_PAGES = ["/login", "/signup"];
+// Écrans réservés aux personnes non connectées.
+const AUTH_PAGES = ["/login", "/signup", "/forgot"];
+// Routes qui créent elles-mêmes la session : retour de Google, lien reçu par
+// e-mail pour un mot de passe oublié.
+const SESSION_ROUTES = ["/auth/callback", "/auth/confirm"];
 
 // Vérifie la session auprès du service d'authentification, la rafraîchit, et
 // redirige selon l'état de connexion.
@@ -38,8 +42,7 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAuthPage = AUTH_PAGES.includes(pathname);
-  // Retour de Google : la session n'existe pas encore, la route la crée.
-  const isCallback = pathname === "/auth/callback";
+  const isCallback = SESSION_ROUTES.includes(pathname);
 
   let response: NextResponse;
   if (!user && !isAuthPage && !isCallback) {

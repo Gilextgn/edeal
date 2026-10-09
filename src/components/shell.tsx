@@ -250,7 +250,10 @@ export function Shell({
   const current = nav.filter((entry) => isActive(pathname, entry)).at(-1);
   const isRoot = nav.some((entry) => entry.href.split("?")[0] === pathname);
   const atHome = nav[0]?.href.split("?")[0] === pathname;
-  const backHref = isRoot ? null : parentPath(pathname);
+  // Flèche retour. Écran secondaire : vers l'écran d'où l'on vient. Sur
+  // téléphone, tout écran autre que l'accueil en a une (un écran du menu
+  // ramène à l'accueil) ; le menu reste ouvert par « Plus », en bas.
+  const backHref = atHome ? null : isRoot ? (nav[0]?.href ?? "/") : parentPath(pathname);
   const squareButton = `size-11 shrink-0 items-center justify-center rounded-2xl bg-surface text-fg shadow-card transition-colors hover:bg-surface-2 ${focusRing}`;
   // Barre du bas : la pastille de marque (accueil) à gauche, puis les
   // onglets, avec l'action principale au milieu. L'accueil étant la pastille,
@@ -400,7 +403,7 @@ export function Shell({
           className={`sticky top-0 z-20 px-3 print:hidden lg:bg-bg/85 lg:px-8 lg:text-fg lg:backdrop-blur-md ${atHome ? "bg-primary text-on-primary" : "bg-bg/85 backdrop-blur-md"}`}
         >
           {/* Même largeur que le contenu : les bords s'alignent sur grand écran. */}
-          <div className="mx-auto flex h-[4.5rem] w-full max-w-[90rem] items-center gap-2.5 lg:h-20 lg:gap-3">
+          <div className="mx-auto flex h-[4.5rem] w-full max-w-7xl items-center gap-2.5 lg:gap-3">
           <button
             type="button"
             aria-label={labels.menu}
@@ -412,7 +415,11 @@ export function Shell({
           </button>
           {/* Écran secondaire : une flèche ramène à l'écran d'où l'on vient. */}
           {backHref ? (
-            <Link href={backHref} aria-label={labels.back} className={`${squareButton} inline-flex`}>
+            <Link
+              href={backHref}
+              aria-label={labels.back}
+              className={`${squareButton} inline-flex ${isRoot ? "lg:hidden" : ""}`}
+            >
               {icons.chevronLeft}
             </Link>
           ) : null}
@@ -584,7 +591,7 @@ export function Shell({
         </header>
 
         <main className="flex-1 px-4 pb-32 pt-3 lg:px-8 lg:pb-10 lg:pt-2">
-          <div className="mx-auto w-full max-w-[90rem]">
+          <div className="mx-auto w-full max-w-7xl">
             <OfflineBanner userId={user.id} />
             <SyncBanner userId={user.id} />
             {children}

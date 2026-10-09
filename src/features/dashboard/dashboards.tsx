@@ -185,7 +185,7 @@ async function DashboardView({
           {name.charAt(0).toUpperCase()}
         </span>
         <div className="min-w-0">
-          <h1 className="truncate text-3xl font-extrabold tracking-tight">
+          <h1 className="truncate text-2xl font-extrabold tracking-tight">
             {t("dashboard.greeting", { name })}
           </h1>
           <p className="text-sm text-muted">{subtitle}</p>
@@ -233,7 +233,7 @@ async function DashboardView({
             className="object-cover object-[60%_45%] [mask-image:linear-gradient(to_right,transparent_10%,black_85%)]"
           />
         </div>
-        <div className="relative flex min-h-60 flex-col justify-between gap-5 p-5 lg:min-h-72 lg:p-8">
+        <div className="relative flex min-h-60 flex-col justify-between gap-5 p-5 lg:min-h-0 lg:gap-4 lg:p-6">
           {/* Période : tous les chiffres « vendus » la suivent. */}
           <nav
             aria-label={t("dashboard.periodLabel")}
@@ -255,7 +255,7 @@ async function DashboardView({
             <p className="text-[11px] font-bold uppercase tracking-widest text-muted">
               {t(`dashboard.heroLabel.${period}`)}
             </p>
-            <p className="mt-1 text-4xl leading-none font-extrabold tracking-tight lg:text-6xl">
+            <p className="mt-1 text-4xl leading-none font-extrabold tracking-tight">
               {money(revenue)}
             </p>
             <p className="mt-2 flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
@@ -299,7 +299,7 @@ async function DashboardView({
             className={`flex w-[4.75rem] shrink-0 flex-col items-center gap-2 rounded-2xl text-center text-xs font-semibold ${focusRing}`}
           >
             <span
-              className={`inline-flex size-16 items-center justify-center rounded-full bg-surface shadow-card transition-colors ${index === 0 ? "text-primary ring-2 ring-primary" : "text-fg hover:text-primary"}`}
+              className={`inline-flex size-14 items-center justify-center rounded-full bg-surface shadow-card transition-colors ${index === 0 ? "text-primary ring-2 ring-primary" : "text-fg hover:text-primary"}`}
             >
               {icons[action.icon]}
             </span>
