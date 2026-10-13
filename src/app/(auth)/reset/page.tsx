@@ -20,7 +20,10 @@ export default async function ResetPage() {
             accent: (chunks) => <span className="text-primary">{chunks}</span>,
           })}
         </h1>
-        <p className="mt-2 text-sm font-semibold">{t("resetSubtitle")}</p>
+        <p className="mt-2 text-sm font-semibold">
+          {/* Compte créé par le superadmin : le mot de passe reçu est provisoire. */}
+          {t(user.user_metadata?.must_change_password ? "resetForced" : "resetSubtitle")}
+        </p>
       </div>
       <div className="mt-10">
         <ResetForm identifier={user.email ?? ""} />

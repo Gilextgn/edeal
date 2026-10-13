@@ -64,7 +64,7 @@
     "ownedBy": "Patron : {name}",
     "memberCount": "{count, plural, one {# membre} other {# membres}}",
     "deviceCount": "{count, plural, =0 {aucun appareil} one {# appareil} other {# appareils}}",
-    "created": "Créée le {date}",
+    "created": "Le compte de {name} est créé.",
     "shopStats": {
       "inStock": "En stock",
       "consigned": "Chez les dealers",
@@ -94,13 +94,46 @@
         "restored": "Boutique réactivée.",
         "failed": "L'opération n'a pas abouti. Réessayez."
       }
+    },
+    "createAccount": "Créer un compte",
+    "createSubtitle": "Le compte est prêt tout de suite. Vous transmettez ensuite ses accès à la personne ; elle choisira son propre mot de passe à la première connexion.",
+    "accessLegend": "Accès",
+    "access": {
+      "none": "Compte seul",
+      "owner": "Patron d'une nouvelle boutique",
+      "member": "Membre d'une boutique"
+    },
+    "accessHints": {
+      "none": "La personne arrive sur l'accueil et peut utiliser son espace perso.",
+      "owner": "Une boutique est créée à ce nom, la personne en est le patron.",
+      "member": "La personne rejoint une boutique existante comme dealer ou caissier."
+    },
+    "shopLabel": "Boutique",
+    "confirmCreate": "Créer ce compte ? Un mot de passe provisoire va être généré.",
+    "credentialsTitle": "Accès à transmettre",
+    "credentialsLogin": "Identifiant",
+    "credentialsPassword": "Mot de passe provisoire",
+    "credentialsHint": "Notez-le ou envoyez-le maintenant : il ne sera plus affiché. À sa première connexion, la personne devra choisir son propre mot de passe.",
+    "copyMessage": "Copier le message",
+    "copied": "Message copié",
+    "openAccount": "Voir la fiche du compte",
+    "createAnother": "Créer un autre compte",
+    "accessSubject": "Vos accès eDeal",
+    "accessMessage": "Bonjour {name}, votre compte eDeal est prêt. Connectez-vous sur {url} avec l'identifiant {identifier} et le mot de passe provisoire {password}. Vous choisirez votre propre mot de passe à la première connexion.",
+    "errors": {
+      "shopNameRequired": "Indiquez le nom de la boutique.",
+      "shopRequired": "Choisissez la boutique et le rôle.",
+      "accessFailed": "Le compte est créé, mais l'accès à la boutique n'a pas pu être donné. Ouvrez sa fiche pour réessayer."
     }
   },
   "session": {
     "title": "Vous êtes toujours là ?",
     "message": "Sans activité depuis près de {minutes} minutes, vous allez être déconnecté par sécurité dans {seconds} s.",
     "stay": "Rester connecté",
-    "logout": "Me déconnecter"
+    "logout": "Me déconnecter",
+    "endedTitle": "Vous avez été déconnecté",
+    "endedMessage": "Par sécurité, votre session s'est fermée après {minutes} minutes sans activité. Reconnectez-vous pour continuer.",
+    "signInAgain": "Me reconnecter"
   },
   "confirm": {
     "title": "Confirmer ?",
@@ -260,7 +293,8 @@
       "4": "Très bon mot de passe."
     },
     "google": "Continuer avec Google",
-    "or": "ou"
+    "or": "ou",
+    "resetForced": "Le mot de passe que vous avez reçu est provisoire : choisissez le vôtre pour continuer"
   },
   "spaces": {
     "title": "Bonjour {name}",

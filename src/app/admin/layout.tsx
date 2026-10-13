@@ -12,6 +12,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
       brand={t("admin.brand")}
       space="admin"
       role={t("admin.role")}
+      primaryAction={{ href: "/admin/users/new", label: t("admin.createAccount") }}
       search={{ href: "/admin/users", placeholder: t("admin.searchUsers") }}
       nav={[
         { href: "/admin", label: t("admin.nav.overview"), icon: "trend", exact: true },

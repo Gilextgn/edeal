@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { icons } from "@/components/icons";
 import { ListPagination, ListSearch } from "@/components/list";
-import { Badge, Card, PageHeader, focusRing } from "@/components/ui";
+import { Badge, ButtonLink, Card, PageHeader, focusRing } from "@/components/ui";
 import { pageRange, parsePage, parseSearch } from "@/domain/pagination";
 import { requireSuperadmin } from "@/lib/superadmin";
 
@@ -44,7 +44,16 @@ export default async function AdminUsersPage({ searchParams }: PageProps<"/admin
 
   return (
     <>
-      <PageHeader title={t("usersTitle")} subtitle={t("usersSubtitle", { count: count ?? 0 })} />
+      <PageHeader
+        title={t("usersTitle")}
+        subtitle={t("usersSubtitle", { count: count ?? 0 })}
+        action={
+          <ButtonLink href="/admin/users/new" className="w-full sm:w-auto">
+            {icons.plus}
+            {t("createAccount")}
+          </ButtonLink>
+        }
+      />
       <ListSearch path="/admin/users" value={search} placeholder={t("searchUsers")} />
 
       {!users || users.length === 0 ? (

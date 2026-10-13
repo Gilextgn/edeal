@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { CSSProperties } from "react";
+import { ResetActivity } from "./reset-activity";
 
 // Photos du diaporama (public/login). Le nom sert aussi de clé pour le texte
 // de remplacement, dans messages/fr.json.
@@ -89,6 +90,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
       {/* Téléphone : écran blanc, sans photo ; le lien du bas reste en bas. */}
       <main className="flex min-h-dvh justify-center bg-surface px-6 pt-[14dvh] pb-8 lg:items-center lg:px-8 lg:py-10">
         <div className="flex w-full max-w-sm animate-rise flex-col lg:min-h-[36rem]">{children}</div>
+        <ResetActivity />
       </main>
     </div>
   );

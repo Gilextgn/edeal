@@ -159,6 +159,10 @@ async function signInUnguarded(
     supabase.from("memberships").select("shop_id").eq("user_id", data.user.id),
     isSuperadmin(data.user.id),
   ]);
+  // Mot de passe provisoire donné par le superadmin : on le remplace d'abord.
+  // (La page suivante est rendue dans cette même réponse, sans repasser par
+  // le proxy : la règle doit donc aussi être appliquée ici.)
+  if (data.user.user_metadata?.must_change_password) redirect("/reset");
   if (superadmin) redirect("/admin");
   redirect(memberships?.length === 1 ? `/s/${memberships[0].shop_id}` : "/");
 }
@@ -272,12 +276,16 @@ async function updatePasswordUnguarded(
   if (issue) return { error: `password_${issue}` };
   if (password !== confirmation) return { error: "passwordMismatch" };
 
-  const { error } = await supabase.auth.updateUser({ password });
+  const { error } = await supabase.auth.updateUser({
+    password,
+    data: { must_change_password: false },
+  });
   if (error) {
     if (error.code === "same_password") return { error: "resetSamePassword" };
     console.error("updatePassword :", error.code, error.message);
     return { error: isNetworkError(error) ? "network" : "generic" };
   }
+  await supabase.auth.refreshSession();
   redirect("/");
 }
 

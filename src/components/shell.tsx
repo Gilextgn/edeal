@@ -4,11 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { signOut } from "@/app/(auth)/actions";
+import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { usePersistentFlag, useTheme } from "@/lib/browser-store";
 import { clearOfflinePages } from "@/lib/offline/pages";
 import { icons, type IconName } from "./icons";
 import { OfflineBanner } from "./offline";
-import { SessionTimeout } from "./session-timeout";
+import { resetActivity, SessionTimeout } from "./session-timeout";
 import { SyncBanner } from "./sync-banner";
 import { BrandMark, focusRing } from "./ui";
 
@@ -199,14 +200,18 @@ function SidebarContent({
 
 // Efface les pages gardées sur le téléphone avant de fermer la session.
 async function logout() {
+  resetActivity();
   await clearOfflinePages();
   await signOut();
 }
 
-// Fin de session pour inactivité (voir SessionTimeout).
-async function logoutForInactivity() {
+// Fin de session pour inactivité (voir SessionTimeout) : la session se ferme,
+// l'écran reste en place sous la fenêtre « vous avez été déconnecté ». Elle
+// se ferme depuis le navigateur : une action serveur qui efface les cookies
+// rechargerait la page et renverrait aussitôt à la connexion, sans la fenêtre.
+async function endForInactivity() {
   await clearOfflinePages();
-  await signOut("timeout");
+  await createBrowserClient().auth.signOut();
 }
 
 const sidebarSurface = "bg-surface shadow-card";
@@ -597,7 +602,7 @@ export function Shell({
           </div>
         </header>
 
-        <SessionTimeout onExpire={logoutForInactivity} />
+        <SessionTimeout onExpire={endForInactivity} onLogout={logout} />
         <main className="flex-1 px-4 pb-32 pt-3 lg:px-8 lg:pb-10 lg:pt-2">
           <div className="mx-auto w-full max-w-7xl">
             <OfflineBanner userId={user.id} />

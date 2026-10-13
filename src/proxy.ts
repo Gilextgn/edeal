@@ -42,6 +42,12 @@ export async function proxy(request: NextRequest) {
   // expiré est d'abord renouvelé (là, un appel réseau).
   const { data } = await supabase.auth.getClaims();
   const userId = data?.claims?.sub ?? null;
+  // Compte créé par le superadmin avec un mot de passe provisoire : tant qu'il
+  // n'est pas remplacé, seul l'écran du nouveau mot de passe est accessible.
+  const mustChangePassword = Boolean(
+    (data?.claims?.user_metadata as { must_change_password?: boolean } | undefined)
+      ?.must_change_password,
+  );
 
   const { pathname } = request.nextUrl;
   const isAuthPage = AUTH_PAGES.includes(pathname);
@@ -50,6 +56,8 @@ export async function proxy(request: NextRequest) {
   let response: NextResponse;
   if (!userId && !isAuthPage && !isCallback) {
     response = redirectTo(request, "/login");
+  } else if (userId && mustChangePassword && pathname !== "/reset" && !isCallback) {
+    response = redirectTo(request, "/reset");
   } else if (userId && isAuthPage) {
     response = redirectTo(request, "/");
   } else {

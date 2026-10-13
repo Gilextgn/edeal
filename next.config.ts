@@ -17,7 +17,9 @@ const csp = [
   "font-src 'self' data:",
   `connect-src 'self' data: ${supabase} ${supabase.replace(/^http/, "ws")} ${ocr}`,
   `worker-src 'self' blob: ${ocr}`,
-  "frame-ancestors 'none'",
+  // En développement, les aperçus « téléphone » de l'éditeur affichent le site
+  // dans un cadre : autorisé là seulement. En ligne, aucun cadre.
+  `frame-ancestors ${isDev ? "*" : "'none'"}`,
   `form-action 'self' https://accounts.google.com ${supabase}`,
   "base-uri 'self'",
   "object-src 'none'",
@@ -26,7 +28,7 @@ const csp = [
 const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
   // Interdit d'afficher l'application dans le cadre d'un autre site.
-  { key: "X-Frame-Options", value: "DENY" },
+  ...(isDev ? [] : [{ key: "X-Frame-Options", value: "DENY" }]),
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Seul l'appareil photo est utile à l'application.
