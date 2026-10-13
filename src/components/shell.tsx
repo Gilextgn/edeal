@@ -8,6 +8,7 @@ import { usePersistentFlag, useTheme } from "@/lib/browser-store";
 import { clearOfflinePages } from "@/lib/offline/pages";
 import { icons, type IconName } from "./icons";
 import { OfflineBanner } from "./offline";
+import { SessionTimeout } from "./session-timeout";
 import { SyncBanner } from "./sync-banner";
 import { BrandMark, focusRing } from "./ui";
 
@@ -200,6 +201,12 @@ function SidebarContent({
 async function logout() {
   await clearOfflinePages();
   await signOut();
+}
+
+// Fin de session pour inactivité (voir SessionTimeout).
+async function logoutForInactivity() {
+  await clearOfflinePages();
+  await signOut("timeout");
 }
 
 const sidebarSurface = "bg-surface shadow-card";
@@ -590,6 +597,7 @@ export function Shell({
           </div>
         </header>
 
+        <SessionTimeout onExpire={logoutForInactivity} />
         <main className="flex-1 px-4 pb-32 pt-3 lg:px-8 lg:pb-10 lg:pt-2">
           <div className="mx-auto w-full max-w-7xl">
             <OfflineBanner userId={user.id} />

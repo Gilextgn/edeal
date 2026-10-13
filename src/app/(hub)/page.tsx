@@ -5,6 +5,7 @@ import { icons, type IconName } from "@/components/icons";
 import { SplashArt } from "@/components/splash-art";
 import { Badge, BrandMark, SectionTitle, focusRing } from "@/components/ui";
 import { requireUser } from "@/lib/session";
+import { isSuperadmin } from "@/lib/superadmin";
 
 const cardLink = `flex min-h-20 items-center gap-4 rounded-3xl bg-surface p-4 shadow-card transition hover:-translate-y-0.5 ${focusRing}`;
 
@@ -33,6 +34,9 @@ export default async function SpacesPage({ searchParams }: PageProps<"/">) {
     .order("created_at");
   const shops = (memberships ?? []).filter((m) => m.shops);
 
+  // Le superadmin arrive dans son espace (connexion Google comprise, qui
+  // passe par ici). « Espaces » (?spaces=1) reste accessible.
+  if (!showList && (await isSuperadmin(profile.id))) redirect("/admin");
   if (!showList && shops.length === 1) redirect(`/s/${shops[0].shops!.id}`);
 
   const t = await getTranslations();

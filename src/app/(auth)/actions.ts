@@ -8,6 +8,7 @@ import { passwordIssues } from "@/domain/password";
 import { env } from "@/lib/env";
 import { loginLockSeconds, recordLoginAttempt } from "@/lib/login-throttle";
 import { isNetworkError } from "@/lib/network";
+import { isSuperadmin } from "@/lib/superadmin";
 import { adminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -151,12 +152,14 @@ async function signInUnguarded(
   // réponse, pour ne pas faire attendre l'utilisateur.
   after(() => recordLoginAttempt(account, true));
 
-  // Va droit à la bonne page : le tableau de bord de la boutique quand il n'y
-  // en a qu'une, sinon l'accueil (qui applique la même règle).
-  const { data: memberships } = await supabase
-    .from("memberships")
-    .select("shop_id")
-    .eq("user_id", data.user.id);
+  // Va droit à la bonne page : l'espace superadmin pour le superadmin, le
+  // tableau de bord de la boutique quand il n'y en a qu'une, sinon l'accueil
+  // (qui applique les mêmes règles).
+  const [{ data: memberships }, superadmin] = await Promise.all([
+    supabase.from("memberships").select("shop_id").eq("user_id", data.user.id),
+    isSuperadmin(data.user.id),
+  ]);
+  if (superadmin) redirect("/admin");
   redirect(memberships?.length === 1 ? `/s/${memberships[0].shop_id}` : "/");
 }
 
@@ -294,10 +297,12 @@ export async function signInWithGoogle() {
   redirect(data?.url ?? "/login?error=google");
 }
 
-export async function signOut() {
+// `reason` : « timeout » quand la session s'est fermée faute d'activité ;
+// l'écran de connexion l'explique.
+export async function signOut(reason?: "timeout") {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/login");
+  redirect(reason === "timeout" ? "/login?error=timeout" : "/login");
 }
 
 // ---------- Versions exportées ----------

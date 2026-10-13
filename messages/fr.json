@@ -96,6 +96,12 @@
       }
     }
   },
+  "session": {
+    "title": "Vous êtes toujours là ?",
+    "message": "Sans activité depuis près de {minutes} minutes, vous allez être déconnecté par sécurité dans {seconds} s.",
+    "stay": "Rester connecté",
+    "logout": "Me déconnecter"
+  },
   "confirm": {
     "title": "Confirmer ?",
     "ok": "Confirmer",
@@ -207,6 +213,7 @@
     "resetSubtitle": "Choisissez un mot de passe que vous retiendrez",
     "newPassword": "Nouveau mot de passe",
     "resetSave": "Enregistrer et continuer",
+    "timedOut": "Par sécurité, vous avez été déconnecté après un moment sans activité. Reconnectez-vous pour continuer.",
     "orWith": "Ou connectez-vous avec",
     "googleShort": "Google",
     "name": "Nom complet",

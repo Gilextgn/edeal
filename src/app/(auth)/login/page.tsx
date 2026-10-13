@@ -23,6 +23,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         {error === "link" ? (
           <FormMessage tone="danger">{t("errors.link")}</FormMessage>
         ) : null}
+        {error === "timeout" ? <FormMessage tone="warning">{t("timedOut")}</FormMessage> : null}
         <AuthForm mode="login" />
         <GoogleButton failed={error === "google"} />
       </div>
