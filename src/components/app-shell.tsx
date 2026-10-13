@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { requireUser } from "@/lib/session";
+import { isSuperadmin } from "@/lib/superadmin";
 import { Shell, type NavItem, type ShellAlert } from "./shell";
 
 export type { NavItem };
@@ -36,11 +37,14 @@ export async function AppShell({
   const t = await getTranslations();
 
   // Espaces de l'utilisateur, pour passer de l'un à l'autre depuis la barre du haut.
-  const { data: memberships } = await supabase
-    .from("memberships")
-    .select("role, shops(id, name)")
-    .eq("user_id", profile.id)
-    .order("created_at");
+  const [{ data: memberships }, superadmin] = await Promise.all([
+    supabase
+      .from("memberships")
+      .select("role, shops(id, name)")
+      .eq("user_id", profile.id)
+      .order("created_at"),
+    isSuperadmin(profile.id),
+  ]);
 
   const spaces = [
     ...(memberships ?? []).flatMap((m) =>
@@ -61,6 +65,10 @@ export async function AppShell({
       hint: t("personal.subtitle"),
       current: space === "perso",
     },
+    // Visible seulement du superadmin : l'espace qui gère toute la plateforme.
+    ...(superadmin
+      ? [{ href: "/admin", label: t("admin.space"), hint: t("admin.spaceHint"), current: space === "admin" }]
+      : []),
   ];
 
   return (
