@@ -14,9 +14,17 @@ const buttonVariants = {
   accent: "bg-accent text-on-accent shadow-card hover:brightness-95",
   secondary: "border border-border bg-surface text-fg hover:bg-surface-2",
   danger: "border border-border bg-surface text-danger hover:bg-danger-soft",
+  // Bouton rouge plein : confirmer une suppression.
+  "danger-solid": "bg-danger text-on-primary shadow-card hover:brightness-95",
 };
 
-type Variant = keyof typeof buttonVariants;
+export type ButtonVariant = keyof typeof buttonVariants;
+type Variant = ButtonVariant;
+
+/** Classes d'un bouton, pour les composants qui fabriquent leur propre `<button>`. */
+export function buttonClass(variant: ButtonVariant = "primary", className = "") {
+  return `${buttonBase} ${buttonVariants[variant]} ${className}`;
+}
 
 export function Button({
   variant = "primary",

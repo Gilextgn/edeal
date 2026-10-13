@@ -3,7 +3,8 @@
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { SearchSelect } from "@/components/search-select";
-import { Button, ButtonLink, Field, FormMessage } from "@/components/ui";
+import { ConfirmButton } from "@/components/confirm";
+import { ButtonLink, Field, FormMessage } from "@/components/ui";
 import { BRANDS, CAPACITIES, COLORS } from "@/domain/catalog";
 import { currencyLabel } from "@/domain/money";
 import type { FormState } from "@/lib/form";
@@ -84,9 +85,13 @@ export function DeviceForm({ action, currency, cancelHref, initial }: Props) {
       {state?.error ? <FormMessage tone="danger">{t(state.error)}</FormMessage> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row-reverse sm:justify-start">
-        <Button type="submit" disabled={pending} className="w-full sm:w-auto">
+        <ConfirmButton
+          confirm={{ message: t(editing ? "confirm.deviceUpdate" : "confirm.deviceCreate") }}
+          disabled={pending}
+          className="w-full sm:w-auto"
+        >
           {pending ? t("common.pending") : t(editing ? "common.save" : "devices.create")}
-        </Button>
+        </ConfirmButton>
         <ButtonLink href={cancelHref} variant="secondary" className="w-full sm:w-auto">
           {t("common.cancel")}
         </ButtonLink>

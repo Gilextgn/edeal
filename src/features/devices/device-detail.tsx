@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { ConfirmButton } from "@/components/confirm";
 import { icons } from "@/components/icons";
 import { Precache } from "@/components/offline";
-import { Badge, Button, ButtonLink, Card, FormMessage, PageHeader } from "@/components/ui";
+import { Badge, ButtonLink, Card, FormMessage, PageHeader } from "@/components/ui";
 import { formatMoney } from "@/domain/money";
 import type { createClient } from "@/lib/supabase/server";
 import { setDeviceWithdrawn } from "./actions";
@@ -141,13 +142,16 @@ export async function DeviceDetail({ supabase, scope, userId, deviceId, justCrea
                 </ButtonLink>
                 {canChangeStock ? (
                   <form action={setDeviceWithdrawn.bind(null, scope.shopId, device.id, inStock)}>
-                    <Button
-                      type="submit"
+                    <ConfirmButton
+                      confirm={{
+                        message: t(inStock ? "confirm.withdraw" : "confirm.restore"),
+                        tone: inStock ? "danger" : "primary",
+                      }}
                       variant={inStock ? "danger" : "secondary"}
                       className="w-full"
                     >
                       {t(inStock ? "devices.withdraw" : "devices.restore")}
-                    </Button>
+                    </ConfirmButton>
                   </form>
                 ) : null}
               </div>

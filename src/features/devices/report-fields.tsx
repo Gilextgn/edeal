@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "rea
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ChoiceCards, ToggleChips } from "@/components/choices";
+import { useConfirm } from "@/components/confirm";
 import { Button, ButtonLink, Card, Field, FormMessage, Textarea } from "@/components/ui";
 import {
   ACCESSORIES,
@@ -75,6 +76,7 @@ export function ReportOperationForm({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDialog, askConfirm] = useConfirm();
   const [sending, setSending] = useState(false);
   const [savedOffline, setSavedOffline] = useState(false);
 
@@ -142,6 +144,8 @@ export function ReportOperationForm({
       setError(problem);
       return;
     }
+    // Le constat et ses photos ne se modifient plus : dernière vérification.
+    if (!(await askConfirm({ message: t("confirm.operation", { action: submitLabel }) }))) return;
 
     setSending(true);
     setError(null);
@@ -210,6 +214,7 @@ export function ReportOperationForm({
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+      {confirmDialog}
       {children}
 
       <Card className="flex flex-col gap-6">

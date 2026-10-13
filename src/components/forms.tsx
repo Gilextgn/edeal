@@ -4,7 +4,8 @@ import { useActionState, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { FormState } from "@/lib/form";
 import { ChoiceCards } from "./choices";
-import { Button, ButtonLink, Field, FormMessage } from "./ui";
+import { ConfirmButton, type ConfirmOptions } from "./confirm";
+import { ButtonLink, Field, FormMessage } from "./ui";
 
 type Action = (state: FormState, formData: FormData) => Promise<FormState>;
 
@@ -19,17 +20,20 @@ function Actions({
   pending,
   submitLabel,
   cancelHref,
+  confirm,
 }: {
   pending: boolean;
   submitLabel: string;
   cancelHref?: string;
+  // Question posée avant d'enregistrer.
+  confirm: ConfirmOptions;
 }) {
   const t = useTranslations("common");
   return (
     <div className="flex flex-col gap-3 sm:flex-row-reverse sm:justify-start">
-      <Button type="submit" disabled={pending} className="w-full sm:w-auto">
+      <ConfirmButton confirm={confirm} disabled={pending} className="w-full sm:w-auto">
         {pending ? t("pending") : submitLabel}
-      </Button>
+      </ConfirmButton>
       {cancelHref ? (
         <ButtonLink href={cancelHref} variant="secondary" className="w-full sm:w-auto">
           {t("cancel")}
@@ -51,6 +55,7 @@ export function ShopForm({
   cancelHref?: string;
 }) {
   const t = useTranslations("shopForm");
+  const confirmT = useTranslations("confirm");
   const [state, formAction, pending] = useActionState(action, null);
   const values = state?.values ?? initial;
 
@@ -82,7 +87,12 @@ export function ShopForm({
         />
       </div>
       <Feedback state={state} />
-      <Actions pending={pending} submitLabel={submitLabel} cancelHref={cancelHref} />
+      <Actions
+        pending={pending}
+        submitLabel={submitLabel}
+        cancelHref={cancelHref}
+        confirm={{ message: confirmT(initial ? "shopUpdate" : "shopCreate") }}
+      />
     </form>
   );
 }
@@ -101,6 +111,7 @@ export function MemberForm({
   submitLabel: string;
 }) {
   const t = useTranslations();
+  const confirmT = useTranslations("confirm");
   const [state, formAction, pending] = useActionState(action, null);
   const [role, setRole] = useState(initial?.role ?? "DEALER");
   const [active, setActive] = useState(String(initial?.active ?? true));
@@ -171,7 +182,12 @@ export function MemberForm({
       ) : null}
 
       <Feedback state={state} />
-      <Actions pending={pending} submitLabel={submitLabel} cancelHref={cancelHref} />
+      <Actions
+        pending={pending}
+        submitLabel={submitLabel}
+        cancelHref={cancelHref}
+        confirm={{ message: confirmT(mode === "add" ? "memberAdd" : "memberUpdate") }}
+      />
     </form>
   );
 }
@@ -200,7 +216,11 @@ export function ProfileForm({
       />
       {children}
       <Feedback state={state} />
-      <Actions pending={pending} submitLabel={t("common.save")} />
+      <Actions
+        pending={pending}
+        submitLabel={t("common.save")}
+        confirm={{ message: t("confirm.profileUpdate") }}
+      />
     </form>
   );
 }

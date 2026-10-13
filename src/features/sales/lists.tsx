@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { ConfirmButton } from "@/components/confirm";
 import { ListPagination } from "@/components/list";
 import {
   ActionLink,
   Badge,
-  Button,
   Card,
   PageHeader,
   RowActions,
@@ -158,14 +158,21 @@ export async function SalesList({
                       {pending && role === "OWNER" && shopId ? (
                         <>
                           <form action={decideSale.bind(null, shopId, sale.id, false)}>
-                            <Button type="submit" variant="danger" className="min-h-11 px-3 text-sm">
+                            <ConfirmButton
+                              confirm={{ message: t("confirm.reject"), tone: "danger" }}
+                              variant="danger"
+                              className="min-h-11 px-3 text-sm"
+                            >
                               {t("sales.reject")}
-                            </Button>
+                            </ConfirmButton>
                           </form>
                           <form action={decideSale.bind(null, shopId, sale.id, true)}>
-                            <Button type="submit" className="min-h-11 px-3 text-sm">
+                            <ConfirmButton
+                              confirm={{ message: t("confirm.approve") }}
+                              className="min-h-11 px-3 text-sm"
+                            >
                               {t("sales.approve")}
-                            </Button>
+                            </ConfirmButton>
                           </form>
                         </>
                       ) : null}

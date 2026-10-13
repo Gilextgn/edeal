@@ -248,6 +248,7 @@ export default async function MembersPage({
                   <ConfirmForm
                     action={cancelInvitation.bind(null, shop.id, invitation.id)}
                     message={t("members.confirmCancel")}
+                    confirmLabel={t("members.cancelInvitation")}
                   >
                     <ActionButton kind="delete" label={t("members.cancelInvitation")} />
                   </ConfirmForm>

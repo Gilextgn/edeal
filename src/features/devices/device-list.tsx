@@ -149,6 +149,7 @@ export async function DeviceList({ supabase, scope, userId, page, search, notice
                         <ConfirmForm
                           action={deleteDevice.bind(null, scope.shopId, device.id)}
                           message={t("devices.confirmDelete", { model: device.model })}
+                          confirmLabel={t("list.delete")}
                         >
                           <ActionButton kind="delete" label={t("list.delete")} />
                         </ConfirmForm>

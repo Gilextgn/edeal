@@ -3,7 +3,8 @@
 import { useActionState, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { ChoiceCards } from "@/components/choices";
-import { Button, Field, FormMessage } from "@/components/ui";
+import { ConfirmButton } from "@/components/confirm";
+import { Field, FormMessage } from "@/components/ui";
 import { buildSchedule } from "@/domain/installments";
 import { currencyLabel, formatMoney, parseAmountInput } from "@/domain/money";
 import { allocateSettlement, type SaleDue } from "@/domain/settlement";
@@ -27,6 +28,7 @@ export function InstallmentForm({
   today: string;
 }) {
   const t = useTranslations("money");
+  const confirmT = useTranslations("confirm");
   const format = useFormatter();
   const [state, formAction, pending] = useActionState(action, null);
   const [deposit, setDeposit] = useState(state?.values?.deposit ?? "");
@@ -94,9 +96,13 @@ export function InstallmentForm({
       )}
 
       {state?.error ? <FormMessage tone="danger">{t(stripPrefix(state.error))}</FormMessage> : null}
-      <Button type="submit" disabled={pending || !schedule} className="w-full sm:w-auto sm:self-start">
+      <ConfirmButton
+        confirm={{ message: confirmT("schedule") }}
+        disabled={pending || !schedule}
+        className="w-full sm:w-auto sm:self-start"
+      >
         {pending ? t("saving") : t("saveSchedule")}
-      </Button>
+      </ConfirmButton>
     </form>
   );
 }
@@ -123,6 +129,7 @@ export function SettlementForm({
   currency: string;
 }) {
   const t = useTranslations("money");
+  const confirmT = useTranslations("confirm");
   const [state, formAction, pending] = useActionState(action, null);
   const balance = dues.reduce((sum, d) => sum + d.due, 0);
   const [amount, setAmount] = useState(String(balance));
@@ -206,13 +213,13 @@ export function SettlementForm({
       )}
 
       {state?.error ? <FormMessage tone="danger">{t(stripPrefix(state.error))}</FormMessage> : null}
-      <Button
-        type="submit"
+      <ConfirmButton
+        confirm={{ message: confirmT("settlement") }}
         disabled={pending || !allocations}
         className="w-full sm:w-auto sm:self-start"
       >
         {pending ? t("saving") : t("recordSettlement")}
-      </Button>
+      </ConfirmButton>
     </form>
   );
 }

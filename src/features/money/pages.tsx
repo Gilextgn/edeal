@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { ConfirmButton } from "@/components/confirm";
 import { icons } from "@/components/icons";
 import {
   ActionLink,
   Badge,
-  Button,
   ButtonLink,
   Card,
   FormMessage,
@@ -194,9 +194,13 @@ export async function SaleDetail({
                           <Badge>{t("money.upcoming")}</Badge>
                         )}
                         <form action={setInstallmentPaid.bind(null, shopId, installment.id, !paid)}>
-                          <Button type="submit" variant="secondary" className="min-h-11 px-3 text-sm">
+                          <ConfirmButton
+                            confirm={{ message: t(paid ? "confirm.markUnpaid" : "confirm.markPaid") }}
+                            variant="secondary"
+                            className="min-h-11 px-3 text-sm"
+                          >
                             {t(paid ? "money.markUnpaid" : "money.markPaid")}
-                          </Button>
+                          </ConfirmButton>
                         </form>
                       </div>
                     </li>

@@ -1,4 +1,26 @@
 {
+  "confirm": {
+    "title": "Confirmer ?",
+    "ok": "Confirmer",
+    "cancel": "Retour",
+    "shopCreate": "Créer cette boutique ? Vous en serez le patron.",
+    "shopUpdate": "Enregistrer les modifications de la boutique ?",
+    "memberAdd": "Ajouter cette personne à la boutique ? Si elle n'a pas encore de compte, elle sera invitée.",
+    "memberUpdate": "Enregistrer les modifications de ce membre ?",
+    "profileUpdate": "Enregistrer les modifications de votre profil ?",
+    "deviceCreate": "Enregistrer cet appareil dans le stock ? Vérifiez l'IMEI : il ne pourra plus être changé.",
+    "deviceUpdate": "Enregistrer les modifications de cet appareil ?",
+    "operation": "{action} ? Le constat et ses photos ne pourront plus être modifiés.",
+    "schedule": "Enregistrer cet échéancier ? Il ne pourra plus être modifié.",
+    "settlement": "Enregistrer ce règlement ? Vérifiez le montant : il ne pourra plus être modifié.",
+    "withdraw": "Retirer cet appareil du stock ? Il ne sera plus proposé à la vente.",
+    "restore": "Remettre cet appareil en stock ?",
+    "markPaid": "Marquer cette échéance comme payée ?",
+    "markUnpaid": "Marquer cette échéance comme non payée ?",
+    "reject": "Refuser cette vente ? L'appareil reste confié au dealer.",
+    "approve": "Valider cette vente sous le prix plancher ?",
+    "delete": "Supprimer"
+  },
   "errorPage": {
     "title": "Oups, quelque chose a coincé",
     "network": "Le serveur ne répond pas. Vérifiez votre connexion internet (données mobiles ou Wi-Fi), puis réessayez.",
