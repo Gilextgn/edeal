@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import type { Database } from "@/lib/database.types";
+import { isNetworkError, NETWORK_ERROR } from "@/lib/network";
 import { USER_HEADER } from "@/lib/session-header";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,11 +22,14 @@ export const requireUser = cache(async () => {
   if (!userId) redirect("/login");
 
   const supabase = await createClient();
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from("users")
     .select("id, name, phone, email")
     .eq("id", userId)
     .maybeSingle();
+  // Serveur injoignable : ce n'est pas une déconnexion. L'erreur remonte à la
+  // page d'erreur (src/app/error.tsx), qui l'explique et propose de réessayer.
+  if (error && isNetworkError(error)) throw new Error(NETWORK_ERROR);
   if (!profile) redirect("/login");
 
   return { supabase, profile };
@@ -41,7 +45,7 @@ export const requireShop = cache(async (shopId: string) => {
   // Profil, boutique et rôle sont demandés en même temps : un aller-retour
   // avec la base au lieu de deux.
   const supabase = await createClient();
-  const [{ profile }, { data: shop }, { data: membership }] = await Promise.all([
+  const [{ profile }, { data: shop, error: shopError }, { data: membership }] = await Promise.all([
     requireUser(),
     supabase
       .from("shops")
@@ -55,6 +59,7 @@ export const requireShop = cache(async (shopId: string) => {
       .eq("user_id", userId)
       .maybeSingle(),
   ]);
+  if (shopError && isNetworkError(shopError)) throw new Error(NETWORK_ERROR);
   if (!shop || !membership) notFound();
 
   return { supabase, profile, shop, membership };

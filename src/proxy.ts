@@ -9,7 +9,7 @@ const AUTH_PAGES = ["/login", "/signup", "/forgot"];
 // e-mail pour un mot de passe oublié.
 const SESSION_ROUTES = ["/auth/callback", "/auth/confirm"];
 
-// Vérifie la session auprès du service d'authentification, la rafraîchit, et
+// Vérifie la session (sur place, voir plus bas), la rafraîchit au besoin, et
 // redirige selon l'état de connexion.
 //
 // L'identité vérifiée est transmise aux pages dans un en-tête interne, pour
@@ -36,23 +36,26 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Le jeton de session est signé par Supabase (clé ES256) : on vérifie sa
+  // signature sur place, sans aller-retour réseau à chaque clic. La clé
+  // publique n'est téléchargée qu'une fois, puis gardée en mémoire. Un jeton
+  // expiré est d'abord renouvelé (là, un appel réseau).
+  const { data } = await supabase.auth.getClaims();
+  const userId = data?.claims?.sub ?? null;
 
   const { pathname } = request.nextUrl;
   const isAuthPage = AUTH_PAGES.includes(pathname);
   const isCallback = SESSION_ROUTES.includes(pathname);
 
   let response: NextResponse;
-  if (!user && !isAuthPage && !isCallback) {
+  if (!userId && !isAuthPage && !isCallback) {
     response = redirectTo(request, "/login");
-  } else if (user && isAuthPage) {
+  } else if (userId && isAuthPage) {
     response = redirectTo(request, "/");
   } else {
     const headers = new Headers(request.headers);
     headers.delete(USER_HEADER);
-    if (user) headers.set(USER_HEADER, user.id);
+    if (userId) headers.set(USER_HEADER, userId);
     response = NextResponse.next({ request: { headers } });
   }
 

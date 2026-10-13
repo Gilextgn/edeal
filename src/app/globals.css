@@ -207,7 +207,7 @@
 
 /*
  * Écran d'ouverture : le nom de l'application sur fond orange, plein écran,
- * une seconde environ au lancement, puis il s'efface. Il ne bloque jamais les
+ * un peu plus d'une seconde au lancement, puis il s'efface. Il ne bloque jamais les
  * clics. Déjà vu dans cet onglet (data-splash posé par le script du layout)
  * ou animations réduites : il ne s'affiche pas.
  */
@@ -243,7 +243,7 @@
   background: var(--primary);
   color: var(--on-primary);
   pointer-events: none;
-  animation: splash-out 1.8s ease-in forwards;
+  animation: splash-out 1.2s ease-in forwards;
 }
 
 .splash-name {

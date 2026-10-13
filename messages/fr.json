@@ -1,4 +1,11 @@
 {
+  "errorPage": {
+    "title": "Oups, quelque chose a coincé",
+    "network": "Le serveur ne répond pas. Vérifiez votre connexion internet (données mobiles ou Wi-Fi), puis réessayez.",
+    "generic": "Cet écran n'a pas pu s'afficher. Vérifiez votre connexion internet, puis réessayez. Si cela recommence, revenez à l'accueil.",
+    "retry": "Réessayer",
+    "home": "Retour à l'accueil"
+  },
   "app": {
     "name": "eDeal",
     "description": "Dépôt-vente de téléphones entre boutiques et dealers",
@@ -102,6 +109,7 @@
       "invalidCredentials": "Identifiant ou mot de passe incorrect.",
       "alreadyRegistered": "Un compte existe déjà avec cet identifiant.",
       "generic": "Une erreur est survenue. Réessayez.",
+      "network": "Impossible de joindre le serveur. Vérifiez votre connexion internet, puis réessayez.",
       "password_too_short": "Le mot de passe doit contenir au moins 8 caractères.",
       "password_needs_letter": "Ajoutez au moins une lettre au mot de passe.",
       "password_needs_digit": "Ajoutez au moins un chiffre au mot de passe.",

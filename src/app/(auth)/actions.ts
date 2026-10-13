@@ -7,6 +7,7 @@ import { parseIdentifier } from "@/domain/identifier";
 import { passwordIssues } from "@/domain/password";
 import { env } from "@/lib/env";
 import { loginLockSeconds, recordLoginAttempt } from "@/lib/login-throttle";
+import { isNetworkError } from "@/lib/network";
 import { adminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,6 +24,7 @@ export type AuthError =
   | "invalidCredentials"
   | "locked"
   | "alreadyRegistered"
+  | "network"
   | "generic";
 
 export type AuthState = {
@@ -44,7 +46,7 @@ function readForm(formData: FormData) {
   };
 }
 
-export async function signUp(
+async function signUpUnguarded(
   _previous: AuthState | null,
   formData: FormData,
 ): Promise<AuthState> {
@@ -77,12 +79,12 @@ export async function signUp(
     if (created.error) {
       if (created.error.code === "phone_exists") return fail("alreadyRegistered");
       console.error("signUp (numéro) :", created.error.code, created.error.message);
-      return fail("generic");
+      return fail(isNetworkError(created.error) ? "network" : "generic");
     }
     const signedIn = await supabase.auth.signInWithPassword({ phone: parsed.phone, password });
     if (signedIn.error) {
       console.error("signUp (connexion) :", signedIn.error.code, signedIn.error.message);
-      return fail("generic");
+      return fail(isNetworkError(signedIn.error) ? "network" : "generic");
     }
     redirect("/");
   }
@@ -96,7 +98,7 @@ export async function signUp(
   if (error) {
     if (error.code === "user_already_exists") return fail("alreadyRegistered");
     console.error("signUp :", error.code, error.message);
-    return fail("generic");
+    return fail(isNetworkError(error) ? "network" : "generic");
   }
   // Compte créé mais pas de session : le projet exige une confirmation.
   if (!data.session) {
@@ -107,7 +109,7 @@ export async function signUp(
   redirect("/");
 }
 
-export async function signIn(
+async function signInUnguarded(
   _previous: AuthState | null,
   formData: FormData,
 ): Promise<AuthState> {
@@ -138,7 +140,7 @@ export async function signIn(
 
   if (error && error.code !== "invalid_credentials") {
     console.error("signIn :", error.code, error.message);
-    return fail("generic");
+    return fail(isNetworkError(error) ? "network" : "generic");
   }
   if (error) {
     await recordLoginAttempt(account, false);
@@ -166,6 +168,7 @@ export type RecoveryError =
   | "resetTooMany"
   | "resetSamePassword"
   | "codeInvalid"
+  | "network"
   | "passwordMismatch"
   | "password_too_short"
   | "password_needs_letter"
@@ -179,7 +182,7 @@ export type RecoveryState = { error?: RecoveryError; sent?: boolean; identifier?
 // Envoie par e-mail un lien pour choisir un nouveau mot de passe. La réponse
 // est la même que le compte existe ou non : on ne révèle pas qui est inscrit.
 // Un compte créé avec un numéro seul n'a pas d'adresse où écrire.
-export async function requestPasswordReset(
+async function requestPasswordResetUnguarded(
   _previous: RecoveryState | null,
   formData: FormData,
 ): Promise<RecoveryState> {
@@ -196,7 +199,12 @@ export async function requestPasswordReset(
   if (error) {
     console.error("requestPasswordReset :", error.code, error.message);
     return {
-      error: error.code === "over_email_send_rate_limit" ? "resetTooMany" : "generic",
+      error:
+        error.code === "over_email_send_rate_limit"
+          ? "resetTooMany"
+          : isNetworkError(error)
+            ? "network"
+            : "generic",
       identifier,
     };
   }
@@ -207,7 +215,7 @@ export async function requestPasswordReset(
 // nouveau mot de passe. On n'a pas à quitter l'application pour ouvrir un
 // lien. Le mot de passe est contrôlé avant le code, pour ne pas consommer le
 // code sur un mot de passe refusé.
-export async function resetWithCode(
+async function resetWithCodeUnguarded(
   _previous: RecoveryState | null,
   formData: FormData,
 ): Promise<RecoveryState> {
@@ -230,7 +238,7 @@ export async function resetWithCode(
     token: code,
     type: "recovery",
   });
-  if (verified.error) return fail("codeInvalid");
+  if (verified.error) return fail(isNetworkError(verified.error) ? "network" : "codeInvalid");
 
   // Le code a servi : la personne est connectée. Si l'enregistrement échoue
   // (même mot de passe que l'ancien…), elle termine sur l'écran dédié.
@@ -244,7 +252,7 @@ export async function resetWithCode(
 
 // Enregistre le nouveau mot de passe. La personne est connectée : elle arrive
 // ici par le lien reçu par e-mail (`/auth/confirm`).
-export async function updatePassword(
+async function updatePasswordUnguarded(
   _previous: RecoveryState | null,
   formData: FormData,
 ): Promise<RecoveryState> {
@@ -265,7 +273,7 @@ export async function updatePassword(
   if (error) {
     if (error.code === "same_password") return { error: "resetSamePassword" };
     console.error("updatePassword :", error.code, error.message);
-    return { error: "generic" };
+    return { error: isNetworkError(error) ? "network" : "generic" };
   }
   redirect("/");
 }
@@ -290,4 +298,65 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
+}
+
+// ---------- Versions exportées ----------
+// Si le serveur est injoignable (connexion coupée ou trop lente), on renvoie
+// un message clair à la place d'une erreur technique. Les redirections et
+// les autres erreurs passent telles quelles.
+
+async function withNetworkMessage<T>(run: () => Promise<T>, offline: () => T): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    if (!isNetworkError(error)) throw error;
+    console.error("Serveur injoignable :", error);
+    return offline();
+  }
+}
+
+const field = (formData: FormData, name: string) => String(formData.get(name) ?? "").trim();
+
+export async function signUp(previous: AuthState | null, formData: FormData): Promise<AuthState> {
+  return withNetworkMessage(
+    () => signUpUnguarded(previous, formData),
+    () => ({ error: "network", identifier: field(formData, "identifier"), name: field(formData, "name") }),
+  );
+}
+
+export async function signIn(previous: AuthState | null, formData: FormData): Promise<AuthState> {
+  return withNetworkMessage(
+    () => signInUnguarded(previous, formData),
+    () => ({ error: "network", identifier: field(formData, "identifier"), name: "" }),
+  );
+}
+
+export async function requestPasswordReset(
+  previous: RecoveryState | null,
+  formData: FormData,
+): Promise<RecoveryState> {
+  return withNetworkMessage(
+    () => requestPasswordResetUnguarded(previous, formData),
+    () => ({ error: "network", identifier: field(formData, "identifier") }),
+  );
+}
+
+export async function resetWithCode(
+  previous: RecoveryState | null,
+  formData: FormData,
+): Promise<RecoveryState> {
+  return withNetworkMessage(
+    () => resetWithCodeUnguarded(previous, formData),
+    () => ({ error: "network", sent: true, identifier: field(formData, "identifier") }),
+  );
+}
+
+export async function updatePassword(
+  previous: RecoveryState | null,
+  formData: FormData,
+): Promise<RecoveryState> {
+  return withNetworkMessage(
+    () => updatePasswordUnguarded(previous, formData),
+    () => ({ error: "network" }),
+  );
 }
