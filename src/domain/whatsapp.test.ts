@@ -4,7 +4,7 @@ import { receiptNumber, warrantyEnd, whatsappUrl } from "./whatsapp";
 describe("whatsappUrl", () => {
   it("ouvre la conversation du client quand son numéro est connu", () => {
     expect(whatsappUrl("Bonjour", "97 11 22 33", "229")).toBe(
-      "https://wa.me/22997112233?text=Bonjour",
+      "https://wa.me/2290197112233?text=Bonjour",
     );
     expect(whatsappUrl("Bonjour", "+221 77 123 45 67", "229")).toBe(
       "https://wa.me/221771234567?text=Bonjour",

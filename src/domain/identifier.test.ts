@@ -15,9 +15,29 @@ describe("parseIdentifier", () => {
   });
 
   it("ajoute l'indicatif par défaut à un numéro local", () => {
-    expect(parseIdentifier("97 00 00 00", "229")).toEqual({
+    expect(parseIdentifier("01 97 00 00 00", "229")).toEqual({
       kind: "phone",
-      phone: "+22997000000",
+      phone: "+2290197000000",
+    });
+  });
+
+  it("Bénin : l'ancien numéro à 8 chiffres et le nouveau à 10 donnent le même résultat", () => {
+    const expected = { kind: "phone", phone: "+2290197882223" };
+    for (const raw of [
+      "97 88 22 23",
+      "01 97 88 22 23",
+      "+229 97 88 22 23",
+      "+229 01 97 88 22 23",
+      "0022997882223",
+    ]) {
+      expect(parseIdentifier(raw, "229"), raw).toEqual(expected);
+    }
+  });
+
+  it("ne touche pas aux numéros des autres pays", () => {
+    expect(parseIdentifier("+225 07 08 09 10", "229")).toEqual({
+      kind: "phone",
+      phone: "+22507080910",
     });
   });
 
