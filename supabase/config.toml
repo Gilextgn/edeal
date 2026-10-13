@@ -167,6 +167,8 @@ site_url = "http://localhost:3000"
 additional_redirect_urls = [
   "http://localhost:3000/auth/**",
   "http://127.0.0.1:3000/auth/**",
+  # Vercel : toutes les adresses du projet (production et essais).
+  "https://*-gilextgn.vercel.app/auth/**",
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
